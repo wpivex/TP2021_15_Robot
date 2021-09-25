@@ -10,22 +10,17 @@ class Robot {
     motor leftMotorA;
     motor leftMotorB;
     motor leftMotorC;
-    // motor leftMotorD;
-    // motor leftMotorE;
+    motor leftMotorD;
     motor rightMotorA;
     motor rightMotorB;
     motor rightMotorC;
-    // motor rightMotorD;
-    // motor rightMotorE;
+    motor rightMotorD;
+    digital_out drivePiston1;
+    digital_out drivePiston2;
+    triport triportPorts = triport(PORT22);
 
     motor_group leftDrive;
     motor_group rightDrive;
-
-    motor fourBarLeft;
-    motor fourBarRight;
-    motor chainBarLeft;
-    motor chainBarRight;
-    motor claw;
 
     controller* robotController;
 
@@ -33,10 +28,6 @@ class Robot {
     void driveStraight(float percent, float dist, float accPercent);
     void driveTimed(float percent, float driveTime);
     void turnToAngle(float percent, float turnAngle);
-    void openClaw();
-    void closeClaw();
-    void liftFourBar(float percentHeight);
-    void lowerFourBar(float percentHeight);
 
     void userControl( void );
     void teleop( void );

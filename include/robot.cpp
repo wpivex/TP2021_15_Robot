@@ -3,13 +3,19 @@
 
 // Motor ports Left: 12T, 14F,  20T Right: 2F, 6T, 10F
 // gear ratio is 60/36
-Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), rightMotorA(0), rightMotorB(0), rightMotorC(0) {
-  leftMotorA = motor(PORT12, ratio18_1, true);
-  leftMotorB = motor(PORT14, ratio18_1, false);
-  leftMotorC = motor(PORT20, ratio18_1, true);
-  rightMotorA = motor(PORT2, ratio18_1, false);
-  rightMotorB = motor(PORT6, ratio18_1, true);
-  rightMotorC = motor(PORT10, ratio18_1, false);
+Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), rightMotorC(0), 
+  rightMotorD(0), drivePiston1(triportPorts.A), drivePiston2(triportPorts.A) {
+  leftMotorA = motor(PORT1, ratio18_1, true);
+  leftMotorB = motor(PORT2, ratio18_1, true);
+  leftMotorC = motor(PORT3, ratio18_1, true);
+  leftMotorD = motor(PORT4, ratio18_1, true);
+  rightMotorA = motor(PORT5, ratio18_1, false);
+  rightMotorB = motor(PORT6, ratio18_1, false);
+  rightMotorC = motor(PORT7, ratio18_1, false);
+  rightMotorD = motor(PORT8, ratio18_1, false);
+  drivePiston1 = digital_out(triportPorts.A);
+  drivePiston2 = digital_out(triportPorts.B);
+
   driveType = ARCADE;
   robotController = c; 
 }
@@ -22,24 +28,16 @@ void Robot::teleop() {
 
   if (fabs(leftJoystick) > 5) {
     float percent = (driveType == ARCADE) ? (pow((robotController->Axis3.position()/100.00f), 3.00f) + pow((robotController->Axis1.position()/100.00f), 5.00f))*100.00f : leftJoystick;
-    leftMotorA.spin(forward, percent, percentUnits::pct);
-    leftMotorB.spin(forward, percent, percentUnits::pct);
-    leftMotorC.spin(forward, percent, percentUnits::pct);
+    setLeftVelocity(forward, percent);
   } else {
-    leftMotorA.stop();
-    leftMotorB.stop();
-    leftMotorC.stop();
+    stopLeft();
   }
 
   if (fabs(rightJoystick) > 5) {
     float percent = (driveType == ARCADE) ? (pow((robotController->Axis3.position()/100.00f), 3.00f) - pow((robotController->Axis1.position()/100.00f), 5.00f))*100.00f : rightJoystick;
-    rightMotorA.spin(forward, percent, percentUnits::pct);
-    rightMotorB.spin(forward, percent, percentUnits::pct);
-    rightMotorC.spin(forward, percent, percentUnits::pct);
+    setRightVelocity(forward, percent);
   } else {
-    rightMotorA.stop();
-    rightMotorB.stop();
-    rightMotorC.stop();
+    stopRight();
   }
 }
 
@@ -69,22 +67,26 @@ void Robot::setLeftVelocity(directionType d, double percent) {
   leftMotorA.spin(d, percent, percentUnits::pct);
   leftMotorB.spin(d, percent, percentUnits::pct);
   leftMotorC.spin(d, percent, percentUnits::pct);
+  leftMotorD.spin(d, percent, percentUnits::pct);
 }
 
 void Robot::setRightVelocity(directionType d, double percent) {
   rightMotorA.spin(d, percent, percentUnits::pct);
   rightMotorB.spin(d, percent, percentUnits::pct);
   rightMotorC.spin(d, percent, percentUnits::pct);
+  rightMotorD.spin(d, percent, percentUnits::pct);
 }
 
 void Robot::stopLeft() {
   leftMotorA.stop();
   leftMotorB.stop();
   leftMotorC.stop();
+  leftMotorD.stop();
 }
 
 void Robot::stopRight() {
   rightMotorA.stop();
   rightMotorB.stop();
   rightMotorC.stop();
+  rightMotorD.stop();
 }
