@@ -4,7 +4,7 @@
 // Motor ports Left: 12T, 14F,  20T Right: 2F, 6T, 10F
 // gear ratio is 60/36
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), rightMotorC(0), 
-  rightMotorD(0), drivePiston1(triportPorts.A), drivePiston2(triportPorts.A) {
+  rightMotorD(0) {
   leftMotorA = motor(PORT1, ratio18_1, true);
   leftMotorB = motor(PORT2, ratio18_1, true);
   leftMotorC = motor(PORT3, ratio18_1, true);
@@ -13,15 +13,15 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   rightMotorB = motor(PORT6, ratio18_1, false);
   rightMotorC = motor(PORT7, ratio18_1, false);
   rightMotorD = motor(PORT8, ratio18_1, false);
-  drivePiston1 = digital_out(triportPorts.A);
-  drivePiston2 = digital_out(triportPorts.B);
-
   driveType = ARCADE;
   robotController = c; 
 }
 
 void Robot::teleop() {
   robotController->Screen.clearScreen();
+
+  digital_out drivePiston1 = digital_out(triportPorts.A);
+  digital_out drivePiston2 = digital_out(triportPorts.B);
 
   float leftJoystick = (driveType == ARCADE) ? robotController->Axis3.position()^3 + robotController->Axis1.position()^3: robotController->Axis3.position()^3;
   float rightJoystick = (driveType == ARCADE) ? robotController->Axis3.position()^3 + robotController->Axis1.position()^3: robotController->Axis2.position()^3;
@@ -38,6 +38,11 @@ void Robot::teleop() {
     setRightVelocity(forward, percent);
   } else {
     stopRight();
+  }
+
+  if(robotController->ButtonA.pressing()) {
+    drivePiston1.set(drivePiston1.value());
+    drivePiston2.set(drivePiston2.value());
   }
 }
 

@@ -15,9 +15,8 @@ class Robot {
     motor rightMotorB;
     motor rightMotorC;
     motor rightMotorD;
-    digital_out drivePiston1;
-    digital_out drivePiston2;
-    triport triportPorts = triport(PORT22);
+    vex::brain Brain;
+    triport triportPorts = triport( PORT22 );
 
     motor_group leftDrive;
     motor_group rightDrive;
