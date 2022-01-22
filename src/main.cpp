@@ -11,11 +11,11 @@
 competition Competition;
 controller Controller1(controllerType::primary);
 
-Robot mainBot = Robot(&Controller1);
+Robot fifteen = Robot(&Controller1);
 
 int mainTeleop() {
   while (true) {
-    mainBot.teleop();
+    fifteen.teleop();
     wait(100, msec);
   }
   return 0;
@@ -24,7 +24,14 @@ int mainTeleop() {
 void userControl(void) { task controlLoop1(mainTeleop); }
 
 void mainAuto(void) {
-  
+  //Potentially fifteen.raiseLeftLift(); to get ring on team goal
+
+  fifteen.driveCurved(forward, 54/*approx two squares, plus a little to the right*/, 15);
+  //fifteen.grabGoal(); //?
+
+  //If not using raiseLeftList, do this instead:
+  fifteen.driveCurved(reverse, 54, 15);
+  //Something something get ring on goal
 }
 
 int tetherAuto(void) { return 0; }
