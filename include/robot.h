@@ -33,16 +33,11 @@ class Robot {
     motor_group leftDrive;
     motor_group rightDrive;
 
-    vision backCamera;
-    vision frontCamera;
-
     //Front/Back Left/Right motors for controlling the sixbar lift
     motor sixBarFL;
     motor sixBarFR;
     motor sixBarBL;
     motor sixBarBR;
-    motor claw;
-
 
     //Pneumatics
     // slight forward, slight back
@@ -50,12 +45,12 @@ class Robot {
 
     //Two per lift (left/right)
     
-    digital_out leftLift = digital_out(Brain.ThreeWirePort.A);
-    digital_out rightLift = digital_out(Brain.ThreeWirePort.B);
+    digital_out backClaw = digital_out(Brain.ThreeWirePort.D);
+    digital_out frontClaw = digital_out(Brain.ThreeWirePort.C);
 
     //two forks for transmission
-    digital_out drivePiston1 = digital_out(Brain.ThreeWirePort.C);
-    digital_out drivePiston2 = digital_out(Brain.ThreeWirePort.D);
+    digital_out drivePistonRight = digital_out(Brain.ThreeWirePort.B);
+    digital_out drivePistonLeft = digital_out(Brain.ThreeWirePort.A);
 
     controller* robotController;
 
@@ -69,14 +64,11 @@ class Robot {
     bool turnToAngleNonblocking(float percent, float targetDist, bool PID, directionType direction);
     void driveCurved(directionType d, float dist, int delta);
     float distanceToDegrees(float dist);
-    void openClaw();
-    void closeClaw();
-    void goalClamp();
-    void setFrontClamp(bool intaking);
-    void setBackClamp(bool intaking);
 
     void userControl( void );
     void teleop( void );
+    void sixBarTeleop();
+    void clawTeleop();
     void setLeftVelocity(directionType d, double percent);
     void setRightVelocity(directionType d, double percent);
     void stopLeft();
@@ -86,21 +78,12 @@ class Robot {
     DriveType driveType;
 
   private:
-
-    // fourbar, chainbar
-    //double angles[6][2] = {{422, 821}, //intaking (0)
-    //                      {1311, 1247}, //intermediate (1)
-    //                      {1060, 428}, //ring front (2)
-    //                      {1271, 327}, //ring middle (3)
-    //                      {1446, -26}, //right back (4)
-    //                      {500, 220}}; //place goal (5)
-
     void driveTeleop();
+
+    // void handleSixBarMechanism(motor* l, motor* r, button* up, button* down, float maxDegrees, float minDegrees);
     void pneumaticsTeleop();
     
-
-
-    // State variables for goal clamp
-    time_t lastLeftPress = std::time(nullptr);
-    time_t lastRightPress = std::time(nullptr);
+    // State variables for claw
+    time_t lastBackClaw = std::time(nullptr);
+    time_t lastFrontClaw = std::time(nullptr);
 };

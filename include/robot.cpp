@@ -1,47 +1,37 @@
-#include "robot.h"
-#include <math.h>
+#include "../include/robot.h"
 
 // Motor ports Left: 1R, 2F, 3F,  20T Right: 12R, 11F, 13F
 // gear ratio is 60/36
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0), claw(0), frontCamera(0), 
-  backCamera(0) {
-  leftMotorA = motor(PORT1, ratio18_1, true); 
-  leftMotorB = motor(PORT2, ratio18_1, true);
-  leftMotorC = motor(PORT3, ratio18_1, true);
-  leftMotorD = motor(PORT4, ratio18_1, true);
+  rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0) {
+  leftMotorA = motor(PORT1, ratio18_1, false); 
+  leftMotorB = motor(PORT2, ratio18_1, false);
+  leftMotorC = motor(PORT3, ratio18_1, false);
+  leftMotorD = motor(PORT4, ratio18_1, false);
   leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
 
-  rightMotorA = motor(PORT11, ratio18_1, false);
-  rightMotorB = motor(PORT12, ratio18_1, false);
-  rightMotorC = motor(PORT13, ratio18_1, false);
-  rightMotorD = motor(PORT14, ratio18_1, false);
+  rightMotorA = motor(PORT7, ratio18_1, true);
+  rightMotorB = motor(PORT8, ratio18_1, true);
+  rightMotorC = motor(PORT9, ratio18_1, true);
+  rightMotorD = motor(PORT10, ratio18_1, true);
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
-  sixBarFL = motor(PORT10, ratio18_1, true);
-  sixBarFR = motor(PORT8, ratio18_1, false);
-  sixBarBL = motor(PORT19, ratio18_1, true);
-  sixBarBR = motor(PORT7, ratio18_1, false);
-  claw = motor(16, ratio18_1, true);
-
-
+  sixBarFL = motor(PORT17, ratio18_1, true);
+  sixBarFR = motor(PORT19, ratio18_1, false);
+  sixBarBL = motor(PORT18, ratio18_1, true);
+  sixBarBR = motor(PORT20, ratio18_1, false);
 
   driveType = ARCADE;
   robotController = c; 
-  frontCamera = vision(PORT20, 50, *SIG_1);
-  backCamera = vision(PORT6, 50, *SIG_1);
-
 
   sixBarFL.setBrake(hold);
   sixBarFR.setBrake(hold);
   sixBarBL.setBrake(hold);
   sixBarBR.setBrake(hold);
-  claw.setBrake(hold);
 }
 
 void Robot::driveTeleop() {
   float leftVert = (float) robotController->Axis3.position();
-  float rightVert = (float) robotController->Axis2.position();
   float rightHoriz = (pow((float) robotController->Axis1.position()/100.0, 3)*100.0);
 
   if(driveType == ARCADE) {
@@ -56,45 +46,35 @@ void Robot::driveTeleop() {
     }
 
     setLeftVelocity(forward, left/fabs(left)*fmin(fabs(left), 100));
-    setRightVelocity(forward, right/fabs(right)*fmin(fabs(right), 100));    
+    setRightVelocity(forward, right/fabs(right)*fmin(fabs(right), 100));
   }
 }
-
-
-void Robot::goalClamp() {
-  /*if (Robot::robotController->ButtonL1.pressing()) {
+  
+void Robot::clawTeleop() {
+  //back
+  if (robotController->ButtonL2.pressing()) {
     time_t now = std::time(nullptr);
-    if(now - lastLeftPress > 0.5) {
-      frontGoal.set(!frontGoal.value());
-      lastLeftPress = now;
+      if(now - lastBackClaw > 0.5) {
+      backClaw.set(!backClaw.value());
+      lastBackClaw = now;
     }
   }
-  if (Robot::robotController->ButtonR1.pressing()) {
+  //front
+  if (Robot::robotController->ButtonR2.pressing()) {
     time_t now = std::time(nullptr);
-    if(now - lastRightPress > 0.5) {
-      backGoal.set(!backGoal.value());
-      lastRightPress = now;
-    }
-  }*/
-}
-
-void Robot::setFrontClamp(bool intaking) {
-  //frontGoal.set(intaking);
-}
-
-void Robot::setBackClamp(bool intaking) {
-  //backGoal.set(intaking);
+    if(now - lastFrontClaw > 0.5) {
+      frontClaw.set(!frontClaw.value());
+      lastFrontClaw = now;
+  }  }
 }
 
 // Run every tick
 void Robot::teleop() {
   driveTeleop();
-  goalClamp();
+  sixBarTeleop();
+  clawTeleop();
   wait(50, msec);
 }
-
-
-
 
 // dist in inches
 float Robot::distanceToDegrees(float dist) {
@@ -200,12 +180,6 @@ void Robot::driveCurved(directionType d, float dist, int delta) {
   //stopLeft();
   //stopRight();
 }
-
-float CENTER_X = 157.0;
-
-
-//void Robot::openClaw() {}
-//void Robot::closeClaw() {}
 
 void Robot::setLeftVelocity(directionType d, double percent) {
   leftMotorA.spin(d, percent, pct);
