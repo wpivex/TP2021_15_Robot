@@ -221,8 +221,21 @@ void Robot::driveCurved(directionType d, float dist, int delta) {
 
     wait(100, msec);
   }
-  //stopLeft();
-  //stopRight();
+  stopLeft();
+  stopRight();
+}
+
+void Robot::setFrontClamp(bool clamp) {
+  frontClaw.set(!clamp);
+}
+
+void Robot::setBackClamp(bool clamp) {
+  backClaw.set(!clamp);
+}
+
+void Robot::setTransmission(bool slow) {
+  drivePistonLeft.set(slow);
+  drivePistonRight.set(slow);
 }
 
 void Robot::setLeftVelocity(directionType d, double percent) {

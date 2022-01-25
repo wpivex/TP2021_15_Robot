@@ -67,6 +67,10 @@ class Robot {
     void stopLeft();
     void stopRight();
 
+    void setFrontClamp(bool clamp);
+    void setBackClamp(bool clamp);
+    void setTransmission(bool fast);
+
     enum DriveType { ARCADE, TANK };
     DriveType driveType;
 

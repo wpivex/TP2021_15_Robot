@@ -25,15 +25,13 @@ void userControl(void) { task controlLoop1(mainTeleop); }
 
 void mainAuto(void) {
   //Potentially fifteen.raiseLeftLift(); to get ring on team goal
-  fifteen.driveCurved(forward, 54, -15);
-  //fifteen.setFrontClamp(true);
-  // fifteen.setDriveTransmission(true);//to slow mode
-  // fifteen.
-
-
-  //If not using raiseLeftList, do this instead:
-  fifteen.driveCurved(reverse, 54, 15);
-  //Something something get ring on goal
+  fifteen.setFrontClamp(false);
+  fifteen.setTransmission(false);
+  fifteen.driveStraight(100, 20);
+  // fifteen.driveCurved(forward, 54, 30);
+  fifteen.setFrontClamp(true);
+  // fifteen.setTransmission(true);
+  // fifteen.driveCurved(reverse, 60, 15);
 }
 
 int tetherAuto(void) { return 0; }
