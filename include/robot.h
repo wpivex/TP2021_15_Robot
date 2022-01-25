@@ -39,16 +39,9 @@ class Robot {
     motor sixBarBL;
     motor sixBarBR;
 
-    //Pneumatics
-    // slight forward, slight back
-    // vertical goal clamp
-
-    //Two per lift (left/right)
-    
     digital_out backClaw = digital_out(Brain.ThreeWirePort.D);
     digital_out frontClaw = digital_out(Brain.ThreeWirePort.C);
 
-    //two forks for transmission
     digital_out drivePistonRight = digital_out(Brain.ThreeWirePort.B);
     digital_out drivePistonLeft = digital_out(Brain.ThreeWirePort.A);
 
@@ -80,7 +73,8 @@ class Robot {
   private:
     void driveTeleop();
 
-    // void handleSixBarMechanism(motor* l, motor* r, button* up, button* down, float maxDegrees, float minDegrees);
+    void handleSixBarMechanism(motor* l, motor* r, controller::button* up, controller::button* down);
+
     void pneumaticsTeleop();
     
     // State variables for claw

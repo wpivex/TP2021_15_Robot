@@ -16,10 +16,10 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   rightMotorD = motor(PORT10, ratio18_1, true);
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
-  sixBarFL = motor(PORT17, ratio18_1, true);
-  sixBarFR = motor(PORT19, ratio18_1, false);
-  sixBarBL = motor(PORT18, ratio18_1, true);
-  sixBarBR = motor(PORT20, ratio18_1, false);
+  sixBarFL = motor(PORT17, ratio36_1, true);
+  sixBarFR = motor(PORT19, ratio36_1, false);
+  sixBarBL = motor(PORT18, ratio36_1, true);
+  sixBarBR = motor(PORT20, ratio36_1, false);
 
   driveType = ARCADE;
   robotController = c; 
@@ -49,20 +49,63 @@ void Robot::driveTeleop() {
     setRightVelocity(forward, right/fabs(right)*fmin(fabs(right), 100));
   }
 }
+
+void Robot::handleSixBarMechanism(motor* l, motor* r, controller::button* up, controller::button* down) {
+
+  float MOTOR_SPEED = 100;
+
+  if (up->pressing()) {
+    // arm go up
+    l->spin(reverse, MOTOR_SPEED, pct);
+    r->spin(reverse, MOTOR_SPEED, pct);
+  } else if (down->pressing()) {
+    // arm go down
+    l->spin(forward, MOTOR_SPEED, pct);
+    r->spin(forward, MOTOR_SPEED, pct);
+  } else {
+    l->stop();
+    r->stop();
+  }
+}
+
+void Robot::sixBarTeleop() {
+  // front
+  handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonB, &robotController->ButtonX);
+  // back
+  handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonUp, &robotController->ButtonDown);
+}
+
+void Robot::pneumaticsTeleop() {
+
+    if (robotController->ButtonL1.pressing())    {
+
+        drivePistonRight.set(true);
+        drivePistonLeft.set(true);
+
+    } else if (robotController->ButtonR1.pressing()) {
+
+        drivePistonRight.set(false);
+        drivePistonLeft.set(false);
+    }
+        
+}
   
 void Robot::clawTeleop() {
+
+  float DEBOUNCE = 0.25;
+
   //back
   if (robotController->ButtonL2.pressing()) {
     time_t now = std::time(nullptr);
-      if(now - lastBackClaw > 0.5) {
+      if(now - lastBackClaw > DEBOUNCE) {
       backClaw.set(!backClaw.value());
       lastBackClaw = now;
     }
   }
   //front
-  if (Robot::robotController->ButtonR2.pressing()) {
+  if (robotController->ButtonR2.pressing()) {
     time_t now = std::time(nullptr);
-    if(now - lastFrontClaw > 0.5) {
+    if(now - lastFrontClaw > DEBOUNCE) {
       frontClaw.set(!frontClaw.value());
       lastFrontClaw = now;
   }  }
@@ -73,6 +116,7 @@ void Robot::teleop() {
   driveTeleop();
   sixBarTeleop();
   clawTeleop();
+  pneumaticsTeleop();
   wait(50, msec);
 }
 
