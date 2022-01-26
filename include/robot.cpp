@@ -3,7 +3,7 @@
 // Motor ports Left: 1R, 2F, 3F,  20T Right: 12R, 11F, 13F
 // gear ratio is 60/36
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0) {
+  rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0), gyroSensor(PORT6) {
   leftMotorA = motor(PORT1, ratio6_1, false); 
   leftMotorB = motor(PORT2, ratio6_1, false);
   leftMotorC = motor(PORT3, ratio6_1, false);
@@ -66,6 +66,42 @@ void Robot::handleSixBarMechanism(motor* l, motor* r, controller::button* up, co
     l->stop();
     r->stop();
   }
+}
+
+// Use inertial sensor for proportional control in both yaw and pitch
+void Robot::balancePlatform() {
+
+  double PITCH_SCALE = 3.5;
+  double YAW_SCALE = 2;
+  double speed, turn, left, right;
+
+  while (true) {
+
+    double pitch = gyroSensor.pitch();
+    double yaw = gyroSensor.yaw();
+
+    
+
+    speed = 0 - pitch * PITCH_SCALE;
+    turn = yaw * YAW_SCALE;
+    turn = 0;
+
+    left = fmax(-100, fmin(speed - turn, 100));
+    right = fmax(-100, fmin(speed + turn, 100));
+
+    setLeftVelocity(forward, left);
+    setRightVelocity(forward, right);
+
+    Brain.Screen.clearScreen();
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print("%f,%f,%f,%f", roll, yaw, left, right);
+
+    wait(100, msec);
+  }
+
+  stopLeft();
+  stopRight();
+
 }
 
 void Robot::sixBarTeleop() {

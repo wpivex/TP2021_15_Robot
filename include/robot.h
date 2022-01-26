@@ -48,6 +48,7 @@ class Robot {
     controller* robotController;
 
     vision::signature* SIG_1;
+    inertial gyroSensor;
 
     void driveStraight(float percent, float dist);
     void driveStraight(float percent, float dist, float accPercent);
@@ -72,6 +73,8 @@ class Robot {
     void setFrontClamp(bool clamp);
     void setBackClamp(bool clamp);
     void setTransmission(bool fast);
+
+    void balancePlatform();
 
     enum DriveType { ARCADE, TANK };
     DriveType driveType;
