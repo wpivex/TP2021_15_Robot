@@ -4,16 +4,16 @@
 // gear ratio is 60/36
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
   rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0) {
-  leftMotorA = motor(PORT1, ratio18_1, false); 
-  leftMotorB = motor(PORT2, ratio18_1, false);
-  leftMotorC = motor(PORT3, ratio18_1, false);
-  leftMotorD = motor(PORT4, ratio18_1, false);
+  leftMotorA = motor(PORT1, ratio6_1, false); 
+  leftMotorB = motor(PORT2, ratio6_1, false);
+  leftMotorC = motor(PORT3, ratio6_1, false);
+  leftMotorD = motor(PORT4, ratio6_1, false);
   leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
 
-  rightMotorA = motor(PORT7, ratio18_1, true);
-  rightMotorB = motor(PORT8, ratio18_1, true);
-  rightMotorC = motor(PORT9, ratio18_1, true);
-  rightMotorD = motor(PORT10, ratio18_1, true);
+  rightMotorA = motor(PORT7, ratio6_1, true);
+  rightMotorB = motor(PORT8, ratio6_1, true);
+  rightMotorC = motor(PORT9, ratio6_1, true);
+  rightMotorD = motor(PORT10, ratio6_1, true);
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
   sixBarFL = motor(PORT17, ratio36_1, true);
@@ -122,7 +122,7 @@ void Robot::teleop() {
 
 // dist in inches
 float Robot::distanceToDegrees(float dist) {
-  return dist * 360 / 2 / M_PI / (4 / 2) * 15 / 14; // 4 in diameter wheels
+  return dist * 360 / 2 / M_PI / (3.25 / 2); // 4 in diameter wheels
 }
 
 void Robot::driveStraight(float percent, float dist) {
@@ -130,21 +130,20 @@ void Robot::driveStraight(float percent, float dist) {
   rightMotorA.resetPosition();
   // currPos is the current average encoder position, travelDist is the total encoder distance to be traversed, 
   // targetDist is the target encoder position, and currLeft/Right are the current left and right encoder positions
-  float currLeft = leftMotorA.position(degrees);
-  float currRight = rightMotorA.position(degrees);
+  float currLeft = 0;
+  float currRight = 0;
   float currPos = (currLeft + currRight) / 2;
-  float travelDist = distanceToDegrees(dist);
-  float targetDist = currPos + travelDist;
+  float travelDist = fabs(distanceToDegrees(dist));
   
-  while (currPos < targetDist) {
-    setLeftVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * ((targetDist - currPos) / travelDist));
-    setRightVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * ((targetDist - currPos) / travelDist) - ((currRight - currLeft) / travelDist * 10));
+  while (currPos < travelDist) {
+    setLeftVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * ((travelDist - currPos) / travelDist));
+    setRightVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * ((travelDist - currPos) / travelDist) - ((currRight - currLeft) / travelDist * 10));
     currLeft = leftMotorA.position(degrees);
     currRight = rightMotorA.position(degrees);
-    currPos = (currLeft + currRight) / 2;
+    currPos = fabs((currLeft + currRight) / 2);
   }
-  leftDrive.stop();
-  rightDrive.stop();
+  stopLeft();
+  stopRight();
 }
 
 void Robot::driveTimed(float percent, float driveTime) {
@@ -153,8 +152,8 @@ void Robot::driveTimed(float percent, float driveTime) {
     setLeftVelocity(forward, percent);
     setRightVelocity(forward, percent);
   }
-  leftDrive.stop();
-  rightDrive.stop();
+  stopLeft();
+  stopRight();
 }
 
 //12.375 in wheelbase
@@ -226,11 +225,11 @@ void Robot::driveCurved(directionType d, float dist, int delta) {
 }
 
 void Robot::setFrontClamp(bool clamp) {
-  frontClaw.set(!clamp);
+  frontClaw.set(clamp);
 }
 
 void Robot::setBackClamp(bool clamp) {
-  backClaw.set(!clamp);
+  backClaw.set(clamp);
 }
 
 void Robot::setTransmission(bool slow) {

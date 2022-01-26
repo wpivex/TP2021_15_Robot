@@ -23,15 +23,20 @@ int mainTeleop() {
 
 void userControl(void) { task controlLoop1(mainTeleop); }
 
-void mainAuto(void) {
-  //Potentially fifteen.raiseLeftLift(); to get ring on team goal
+void mainAuto(void) { // 1:1.08
+  fifteen.setTransmission(false);
+  fifteen.sixBarFL.spin(reverse, 20, percent);
+  fifteen.sixBarFR.spin(reverse, 20, percent);
   fifteen.setFrontClamp(false);
   fifteen.setTransmission(false);
-  fifteen.driveStraight(100, 20);
-  // fifteen.driveCurved(forward, 54, 30);
+  fifteen.driveStraight(100, 60);
   fifteen.setFrontClamp(true);
-  // fifteen.setTransmission(true);
-  // fifteen.driveCurved(reverse, 60, 15);
+  fifteen.setTransmission(true);
+  fifteen.sixBarFL.stop();
+  fifteen.sixBarFR.stop();
+  fifteen.driveCurved(reverse, 140, 15);
+  fifteen.driveStraight(20, 5);
+  fifteen.turnToAngle(100, 90, true, forward);
 }
 
 int tetherAuto(void) { return 0; }
