@@ -24,19 +24,45 @@ int mainTeleop() {
 void userControl(void) { task controlLoop1(mainTeleop); }
 
 void mainAuto(void) { // 1:1.08
+
   fifteen.setTransmission(false);
+  wait(500, msec);
+
+  // Weird Kohmei thing to keep arm low
   fifteen.sixBarFL.spin(reverse, 20, percent);
   fifteen.sixBarFR.spin(reverse, 20, percent);
+
+  // Initialize pneumatics
   fifteen.setFrontClamp(false);
   fifteen.setTransmission(false);
+
+  // Forward to goal
   fifteen.driveStraight(100, 60);
   fifteen.setFrontClamp(true);
+
+  // Lift arm a little before going back to not drag on ground
+  //fifteen.sixBarFL.rotateTo(forward, 100, degrees, 100, velocityUnits::pct, false);
+  //fifteen.sixBarFR.spinFor(forward, 100, degrees, 100, velocityUnits::pct, false);
+  fifteen.sixBarFL.rotateFor(forward, 100, degrees, 100, velocityUnits::pct, false);
+  fifteen.sixBarFR.rotateFor(forward, 100, degrees, 100, velocityUnits::pct, false);
+
+  // Switch to torque mode and go back
   fifteen.setTransmission(true);
-  fifteen.sixBarFL.stop();
-  fifteen.sixBarFR.stop();
-  fifteen.driveCurved(reverse, 140, 15);
-  fifteen.driveStraight(20, 5);
-  fifteen.turnToAngle(100, 90, true, forward);
+
+  fifteen.driveCurved(reverse, 140, 13);
+
+  // Final segment of backtracking to wall alignment
+  fifteen.driveCurvedTimed(reverse, 13, 50, 1000);
+
+  // Forward for clearance and turn 90 degrees to platform
+  fifteen.driveStraight(30, 20);
+  fifteen.turnToAngle(30, 220, true, reverse);
+
+  // Go to platform and pick up home goal
+  fifteen.driveStraight(30, -40);
+  fifteen.setBackClamp(true);
+
+  // Use inertial sensor to climb to center of platform 
 }
 
 int tetherAuto(void) { return 0; }

@@ -195,9 +195,31 @@ bool Robot::turnToAngleNonblocking(float percent, float targetDist, bool PID, di
   }
 }
 
-// delta ranges from -100 (hard left) and 100 (hard right). 0 is straight
+void Robot::driveCurvedTimed(directionType d, int delta, int speed, float driveTime) {
+
+  int baseSpeed = speed-abs(delta)/2.0;
+  int velLeft = baseSpeed + delta/2.0;
+  int velRight = baseSpeed - delta/2.0;
+
+  int milliseconds = vex::timer::system();
+  while (vex::timer::system() < milliseconds + driveTime) {
+
+    setLeftVelocity(d, velLeft);
+    setRightVelocity(d, velRight);
+
+    wait(50, msec);
+  }
+  stopLeft();
+  stopRight();
+}
+
 void Robot::driveCurved(directionType d, float dist, int delta) {
-  int baseSpeed = 100-abs(delta)/2.0;
+  driveCurved(d, dist, delta, 100);
+}
+
+// delta ranges from -100 (hard left) and 100 (hard right). 0 is straight
+void Robot::driveCurved(directionType d, float dist, int delta, int speed) {
+  int baseSpeed = speed-abs(delta)/2.0;
   int velLeft = baseSpeed + delta/2.0;
   int velRight = baseSpeed - delta/2.0;
 
@@ -218,7 +240,7 @@ void Robot::driveCurved(directionType d, float dist, int delta) {
     Robot::robotController->Screen.clearScreen();
     Robot::robotController->Screen.print(currPos);
 
-    wait(100, msec);
+    wait(50, msec);
   }
   stopLeft();
   stopRight();

@@ -56,6 +56,8 @@ class Robot {
     void turnToAngle(float percent, float turnAngle, bool PID, directionType direction);
     bool turnToAngleNonblocking(float percent, float targetDist, bool PID, directionType direction);
     void driveCurved(directionType d, float dist, int delta);
+    void driveCurved(directionType d, float dist, int delta, int speed);
+    void driveCurvedTimed(directionType d, int delta, int speed, float driveTime);
     float distanceToDegrees(float dist);
 
     void userControl( void );
