@@ -70,9 +70,8 @@ void vexSkillsAuto(void) {
 
   fifteen.waitGyroCallibrate();
 
-  fifteen.printYaw();
 
-  /*
+  
   fifteen.gyroTurn(forward, 90);
   wait(1000, msec);
   fifteen.gyroTurn(reverse, 90);
@@ -81,7 +80,7 @@ void vexSkillsAuto(void) {
   wait(1000, msec);
   fifteen.gyroTurn(reverse, 180);
   wait(1000, msec);
-  */
+  
   
 
   /*

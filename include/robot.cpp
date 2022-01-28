@@ -81,7 +81,7 @@ void Robot::clampArmsDown() {
 void Robot::waitGyroCallibrate() {
   int i = 0;
   while (gyroSensor.isCalibrating()) {
-    wait(100, msec);
+    wait(20, msec);
     i++;
   }
 }
@@ -109,7 +109,7 @@ void Robot::platformAction(Functor condition, double speed) {
     Brain.Screen.setCursor(1, 1);
     Brain.Screen.print("%f,%f", left, right);
 
-    wait(100, msec);
+    wait(20, msec);
   }
 }
 
@@ -178,7 +178,7 @@ void Robot::teleop() {
   sixBarTeleop();
   clawTeleop();
   pneumaticsTeleop();
-  wait(50, msec);
+  wait(20, msec);
 }
 
 // dist in inches
@@ -224,7 +224,7 @@ void Robot::turnToAngle(float percent, float turnAngle, bool PID, directionType 
   
   while (true) {
     if(turnToAngleNonblocking(percent, targetDist, PID, direction)) break;
-    wait(100, msec);
+    wait(20, msec);
   }
   stopLeft();
   stopRight();
@@ -268,7 +268,7 @@ void Robot::driveCurvedTimed(directionType d, int delta, int speed, float driveT
     setLeftVelocity(d, velLeft);
     setRightVelocity(d, velRight);
 
-    wait(50, msec);
+    wait(20, msec);
   }
   stopLeft();
   stopRight();
@@ -279,7 +279,7 @@ void Robot::printYaw() {
     Brain.Screen.clearScreen();
     Brain.Screen.setCursor(1, 1);
     Brain.Screen.print(gyroSensor.rotation());
-    wait(100,msec);
+    wait(20,msec);
   }
 }
 
@@ -301,11 +301,11 @@ void Robot::gyroTurn(directionType dir, float degrees) {
 
     if (delta <= 0) break;
 
-    double speed = fmin(100, delta*PROPORTIONAL_SCALE+3); // add 3 so it is not infinismally approaching the target but the target + 20 degrees
+    double speed = fmax(10, fmin(100, delta*PROPORTIONAL_SCALE));
     setLeftVelocity(dir, speed);
     setRightVelocity(dir, -speed);
 
-    wait(100, msec);
+    wait(20, msec);
 
   }
 
@@ -348,7 +348,7 @@ void Robot::driveCurved(directionType d, float dist, int delta, int speed) {
     Robot::robotController->Screen.clearScreen();
     Robot::robotController->Screen.print(currPos);
 
-    wait(50, msec);
+    wait(20, msec);
   }
   stopLeft();
   stopRight();
