@@ -29,8 +29,7 @@ void mainAuto(void) { // 1:1.08
   wait(500, msec);
 
   // Weird Kohmei thing to keep arm low
-  fifteen.sixBarFL.spin(reverse, 20, percent);
-  fifteen.sixBarFR.spin(reverse, 20, percent);
+  fifteen.clampArmsDown();
 
   // Initialize pneumatics
   fifteen.setFrontClamp(false);
@@ -41,11 +40,8 @@ void mainAuto(void) { // 1:1.08
   fifteen.setFrontClamp(true);
 
   // Lift arm a little before going back to not drag on ground
-  //fifteen.sixBarFL.rotateTo(forward, 100, degrees, 100, velocityUnits::pct, false);
-  //fifteen.sixBarFR.spinFor(forward, 100, degrees, 100, velocityUnits::pct, false);
-  int startAmount = 180;
-  fifteen.sixBarFL.rotateFor(forward, startAmount, degrees, 100, velocityUnits::pct, false);
-  fifteen.sixBarFR.rotateFor(forward, startAmount, degrees, 100, velocityUnits::pct, false);
+  fifteen.raiseFrontArm(180, 100, false);
+
 
   // Switch to torque mode and go back
   fifteen.setTransmission(true);
@@ -66,39 +62,83 @@ void mainAuto(void) { // 1:1.08
   fifteen.setBackClamp(true);
   fifteen.driveStraight(20, 15);
 
-  // Lock bridge with wheel and lift both armbars parallel to ground
-  fifteen.driveStraight(40, -25);
-  int amount = 200;
-  int frontDelta = 0;
-  fifteen.sixBarFL.rotateFor(forward, amount - startAmount + frontDelta, degrees, 100, velocityUnits::pct, false);
-  fifteen.sixBarFR.rotateFor(forward, amount - startAmount + frontDelta, degrees, 100, velocityUnits::pct, false);
-  fifteen.sixBarBL.rotateFor(reverse, amount, degrees, 100, velocityUnits::pct, false);
-  fifteen.sixBarBR.rotateFor(reverse, amount, degrees, 100, velocityUnits::pct, true);
+}
 
-  // Use inertial sensor to climb to center of platform 
+// To be used on sunday competition. Grab home goal, left yellow goal, go to opposite platform, lift arm, move goal to make platform level,
+// put yellow goal on right side of platform, 180, put blue goal on left side of platform
+void vexSkillsAuto(void) {
+
+  fifteen.waitGyroCallibrate();
+
+  fifteen.printYaw();
+
+  /*
+  fifteen.gyroTurn(forward, 90);
   wait(1000, msec);
-  fifteen.driveStraight(40, -30);
+  fifteen.gyroTurn(reverse, 90);
+  wait(1000, msec);
+  fifteen.gyroTurn(forward, 180);
+  wait(1000, msec);
+  fifteen.gyroTurn(reverse, 180);
+  wait(1000, msec);
+  */
+  
+
+  /*
+
+  // Start the robot facing towards the goal on platform. Align the front of the robot with the edge between the two tiles.
+
+  // Run on torque mode the whole way for reliability. There are no sensors besides gyro so everything must be maximally precise.
+  fifteen.setTransmission(true);
+  fifteen.setFrontClamp(false);
+  fifteen.setBackClamp(false);
+  fifteen.clampArmsDown();
+
+  wait(500, msec);
+
+  // Pick up home goal
+  fifteen.driveStraight(70, 42);
+  wait(500, msec);
+  fifteen.setFrontClamp(true);
+  wait(2000, msec);
+
+  // Orient to align to left yellow goal
+  fifteen.driveCurved(reverse, 10, -40, 70);
+  fifteen.raiseFrontArm(150, 70, true);
+  
+  
+  fifteen.gyroTurn(reverse, 90);
+
+  // Drive to left yellow
+  fifteen.driveStraight(70, -30);
+  fifteen.setBackClamp(true);
+  wait(500, msec);
+  fifteen.raiseFrontArm(150, 70, true);
+
+  // Go to opposite platform
+  fifteen.gyroTurn(forward, 20);
+
+  */
+
+  
+
+
+
 }
 
 void testBalancePlatform(void) {
 
   fifteen.setTransmission(true);
 
-  /*
+  
   // Weird Kohmei thing to keep arm low
   fifteen.setFrontClamp(false);
   fifteen.setBackClamp(false);
-  fifteen.sixBarFL.spin(reverse, 20, percent);
-  fifteen.sixBarFR.spin(reverse, 20, percent);
-  fifteen.sixBarBL.spin(forward, 20, percent);
-  fifteen.sixBarBR.spin(forward, 20, percent);
-  */
+  fifteen.clampArmsDown();
+  
+  fifteen.waitGyroCallibrate();
 
-  while (fifteen.gyroSensor.isCalibrating()) {
-    wait(100, msec);
-  }
-
-  /*wait(5000, msec);
+  wait(5000, msec);
 
     
   fifteen.setFrontClamp(true);
@@ -110,14 +150,15 @@ void testBalancePlatform(void) {
   fifteen.sixBarBL.stop();
   fifteen.sixBarBR.stop();
 
-  int startAmount = 200;
-  fifteen.sixBarFL.rotateFor(forward, startAmount, degrees, 100, velocityUnits::pct, false);
-  fifteen.sixBarFR.rotateFor(forward, startAmount, degrees, 100, velocityUnits::pct, true);
+  fifteen.sixBarFL.rotateFor(forward, 250, degrees, 100, velocityUnits::pct, false);
+  fifteen.sixBarFR.rotateFor(forward, 250, degrees, 100, velocityUnits::pct, false);
+  fifteen.sixBarBL.rotateFor(forward, 180, degrees, 100, velocityUnits::pct, false);
+  fifteen.sixBarBR.rotateFor(forward, 180, degrees, 100, velocityUnits::pct, true);
 
   wait(1000, msec);
-  */
+  
 
-  fifteen.driveStraight(100, 20);
+  fifteen.driveStraight(60, 80);
 
   fifteen.balancePlatform();
 
@@ -126,7 +167,7 @@ void testBalancePlatform(void) {
 
 int tetherAuto(void) { return 0; }
 
-void autonomous() { thread auto1(testBalancePlatform); }
+void autonomous() { thread auto1(vexSkillsAuto); }
 
 
 int main() {

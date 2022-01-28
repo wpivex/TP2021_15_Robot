@@ -16,10 +16,11 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   rightMotorD = motor(PORT10, ratio6_1, true);
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
+  // forward is UP, reverse is DOWN
   sixBarFL = motor(PORT17, ratio36_1, true);
   sixBarFR = motor(PORT19, ratio36_1, false);
-  sixBarBL = motor(PORT18, ratio36_1, true);
-  sixBarBR = motor(PORT20, ratio36_1, false);
+  sixBarBL = motor(PORT18, ratio36_1, false);
+  sixBarBR = motor(PORT20, ratio36_1, true);
 
   driveType = ARCADE;
   robotController = c; 
@@ -56,48 +57,72 @@ void Robot::handleSixBarMechanism(motor* l, motor* r, controller::button* up, co
 
   if (up->pressing()) {
     // arm go up
-    l->spin(reverse, MOTOR_SPEED, pct);
-    r->spin(reverse, MOTOR_SPEED, pct);
-  } else if (down->pressing()) {
-    // arm go down
     l->spin(forward, MOTOR_SPEED, pct);
     r->spin(forward, MOTOR_SPEED, pct);
+  } else if (down->pressing()) {
+    // arm go down
+    l->spin(reverse, MOTOR_SPEED, pct);
+    r->spin(reverse, MOTOR_SPEED, pct);
   } else {
     l->stop();
     r->stop();
   }
 }
 
-// Use inertial sensor for proportional control in both yaw and pitch
-void Robot::balancePlatform() {
+void Robot::clampArmsDown() {
 
-  double PITCH_SCALE = 3.5;
-  double YAW_SCALE = 2;
-  double speed, turn, left, right;
+  // Weird Kohmei thing to keep arms low
+  sixBarFL.spin(reverse, 20, percent);
+  sixBarFR.spin(reverse, 20, percent);
+  sixBarBL.spin(reverse, 20, percent);
+  sixBarBR.spin(reverse, 20, percent);
+}
+
+void Robot::waitGyroCallibrate() {
+  int i = 0;
+  while (gyroSensor.isCalibrating()) {
+    wait(100, msec);
+    i++;
+  }
+}
+
+template<typename Functor>
+void Robot::platformAction(Functor condition, double speed) {
+
+  double YAW_CONSTANT = 1;
+  double left, right;
 
   while (true) {
 
     double pitch = gyroSensor.pitch();
     double yaw = gyroSensor.yaw();
 
-    
+    // Exit condition
+    if (condition(pitch)) break;
 
-    speed = 0 - pitch * PITCH_SCALE;
-    turn = yaw * YAW_SCALE;
-    turn = 0;
-
-    left = fmax(-100, fmin(speed - turn, 100));
-    right = fmax(-100, fmin(speed + turn, 100));
+    left = speed - yaw * YAW_CONSTANT;
+    right = speed + yaw * YAW_CONSTANT;
 
     setLeftVelocity(forward, left);
     setRightVelocity(forward, right);
-
     Brain.Screen.clearScreen();
     Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("%f,%f,%f,%f", roll, yaw, left, right);
+    Brain.Screen.print("%f,%f", left, right);
 
     wait(100, msec);
   }
+}
+
+// Use inertial sensor for proportional control in both yaw and pitch
+void Robot::balancePlatform() {
+
+  double START_SPEED = 25;
+  double REGULAR_SPEED = 20;
+  double margin = 5;
+
+  platformAction([margin] (double pitch) {return pitch < margin;}, -START_SPEED);
+  platformAction([] (double pitch) {return pitch < 0;}, REGULAR_SPEED);
+  platformAction([] (double pitch) {return pitch > 0;}, REGULAR_SPEED);
 
   stopLeft();
   stopRight();
@@ -106,7 +131,7 @@ void Robot::balancePlatform() {
 
 void Robot::sixBarTeleop() {
   // front
-  handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonB, &robotController->ButtonX);
+  handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonX, &robotController->ButtonB);
   // back
   handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonUp, &robotController->ButtonDown);
 }
@@ -173,7 +198,7 @@ void Robot::driveStraight(float percent, float dist) {
   
   while (currPos < travelDist) {
     setLeftVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * ((travelDist - currPos) / travelDist));
-    setRightVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * ((travelDist - currPos) / travelDist) - ((currRight - currLeft) / travelDist * 10));
+    setRightVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * ((travelDist - currPos) / travelDist));
     currLeft = leftMotorA.position(degrees);
     currRight = rightMotorA.position(degrees);
     currPos = fabs((currLeft + currRight) / 2);
@@ -247,6 +272,53 @@ void Robot::driveCurvedTimed(directionType d, int delta, int speed, float driveT
   }
   stopLeft();
   stopRight();
+}
+
+void Robot::printYaw() {
+  while (true) {
+    Brain.Screen.clearScreen();
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print(gyroSensor.rotation());
+    wait(100,msec);
+  }
+}
+
+
+
+
+// proportional turn with gyro. Degrees MUST be positive
+// forward = clockwise, reverse = counterclockwise
+void Robot::gyroTurn(directionType dir, float degrees) {
+
+
+  double PROPORTIONAL_SCALE = 2;
+
+  gyroSensor.resetRotation();
+
+  while (true) {
+
+    double delta = degrees - fabs(gyroSensor.rotation());
+
+    if (delta <= 0) break;
+
+    double speed = fmin(100, delta*PROPORTIONAL_SCALE+3); // add 3 so it is not infinismally approaching the target but the target + 20 degrees
+    setLeftVelocity(dir, speed);
+    setRightVelocity(dir, -speed);
+
+    wait(100, msec);
+
+  }
+
+}
+
+void Robot::raiseFrontArm(double amount, double vel, bool blocking) {
+  sixBarFL.rotateFor(forward, amount, degrees, vel, velocityUnits::pct, false); // always false here, so both arms raise concurrently
+  sixBarFR.rotateFor(forward, amount, degrees, vel, velocityUnits::pct, blocking);
+}
+
+void Robot::raiseBackArm(double amount, double vel, bool blocking) {
+  sixBarBL.rotateFor(forward, amount, degrees, vel, velocityUnits::pct, false); // always false here, so both arms raise concurrently
+  sixBarBR.rotateFor(forward, amount, degrees, vel, velocityUnits::pct, blocking);
 }
 
 void Robot::driveCurved(directionType d, float dist, int delta) {

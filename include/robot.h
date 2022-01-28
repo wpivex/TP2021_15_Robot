@@ -55,6 +55,7 @@ class Robot {
     void driveTimed(float percent, float driveTime);
     int getTurnAngle(float turnAngle);
     void turnToAngle(float percent, float turnAngle, bool PID, directionType direction);
+    void gyroTurn(directionType direction, float degrees);
     bool turnToAngleNonblocking(float percent, float targetDist, bool PID, directionType direction);
     void driveCurved(directionType d, float dist, int delta);
     void driveCurved(directionType d, float dist, int delta, int speed);
@@ -69,6 +70,11 @@ class Robot {
     void setRightVelocity(directionType d, double percent);
     void stopLeft();
     void stopRight();
+    void clampArmsDown();
+    void waitGyroCallibrate();
+
+    void raiseFrontArm(double amount, double vel, bool blocking);
+    void raiseBackArm(double amount, double vel, bool blocking);
 
     void setFrontClamp(bool clamp);
     void setBackClamp(bool clamp);
@@ -76,13 +82,20 @@ class Robot {
 
     void balancePlatform();
 
+    void printYaw();
+
     enum DriveType { ARCADE, TANK };
     DriveType driveType;
 
   private:
     void driveTeleop();
 
+    void _gyroTurn(directionType direction, float degrees);
+
     void handleSixBarMechanism(motor* l, motor* r, controller::button* up, controller::button* down);
+
+    template<typename Functor>
+    void platformAction(Functor condition, double speed);
 
     void pneumaticsTeleop();
     
