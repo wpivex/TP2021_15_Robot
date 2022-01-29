@@ -25,15 +25,12 @@ void userControl(void) { task controlLoop1(mainTeleop); }
 
 void mainAuto(void) { // 1:1.08
 
-  fifteen.setTransmission(false);
-  wait(500, msec);
-
+  
   // Weird Kohmei thing to keep arm low
   fifteen.clampArmsDown();
 
   // Initialize pneumatics
   fifteen.setFrontClamp(false);
-  fifteen.setTransmission(false);
 
   // Forward to goal
   fifteen.driveStraight(100, 60);
@@ -166,12 +163,14 @@ void testBalancePlatform(void) {
 
 int tetherAuto(void) { return 0; }
 
-void autonomous() { thread auto1(vexSkillsAuto); }
+void autonomous() { thread auto1(mainAuto); }
 
 
 int main() {
 
   fifteen.gyroSensor.calibrate();
+  //fifteen.setTransmission(false);
+
   Competition.autonomous(autonomous);
   Competition.drivercontrol(userControl);
 

@@ -131,20 +131,21 @@ void Robot::balancePlatform() {
 
 void Robot::sixBarTeleop() {
   // front
-  handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonX, &robotController->ButtonB);
+  handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonL1, &robotController->ButtonL2);
   // back
-  handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonUp, &robotController->ButtonDown);
+  handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonR1, &robotController->ButtonR2);
 }
 
+// transmission
 void Robot::pneumaticsTeleop() {
 
-    if (robotController->ButtonL1.pressing())    {
-
+    if (robotController->ButtonLeft.pressing() || robotController->ButtonDown.pressing()) {
+        // torque mode
         drivePistonRight.set(true);
         drivePistonLeft.set(true);
 
-    } else if (robotController->ButtonR1.pressing()) {
-
+    } else if (robotController->ButtonRight.pressing() || robotController->ButtonUp.pressing()) {
+        // fast mode
         drivePistonRight.set(false);
         drivePistonLeft.set(false);
     }
@@ -153,23 +154,20 @@ void Robot::pneumaticsTeleop() {
   
 void Robot::clawTeleop() {
 
-  float DEBOUNCE = 0.25;
-
   //back
-  if (robotController->ButtonL2.pressing()) {
-    time_t now = std::time(nullptr);
-      if(now - lastBackClaw > DEBOUNCE) {
-      backClaw.set(!backClaw.value());
-      lastBackClaw = now;
-    }
+  if (robotController->ButtonY.pressing()) {
+    backClaw.set(true);
+  } else if (robotController->ButtonX.pressing()) {
+    backClaw.set(false);
   }
+
   //front
-  if (robotController->ButtonR2.pressing()) {
-    time_t now = std::time(nullptr);
-    if(now - lastFrontClaw > DEBOUNCE) {
-      frontClaw.set(!frontClaw.value());
-      lastFrontClaw = now;
-  }  }
+  if (robotController->ButtonA.pressing()) {
+    frontClaw.set(true);
+  } else if (robotController->ButtonB.pressing()) {
+    frontClaw.set(false);
+  }
+
 }
 
 // Run every tick
@@ -197,11 +195,12 @@ void Robot::driveStraight(float percent, float dist) {
   float travelDist = fabs(distanceToDegrees(dist));
   
   while (currPos < travelDist) {
-    setLeftVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * ((travelDist - currPos) / travelDist));
-    setRightVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * ((travelDist - currPos) / travelDist));
+    setLeftVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * 1.5 * ((travelDist - currPos) / travelDist));
+    setRightVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * 1.5 * ((travelDist - currPos) / travelDist));
     currLeft = leftMotorA.position(degrees);
     currRight = rightMotorA.position(degrees);
     currPos = fabs((currLeft + currRight) / 2);
+    wait(20, msec);
   }
   stopLeft();
   stopRight();
