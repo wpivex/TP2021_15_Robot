@@ -32,7 +32,7 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
 }
 
 void Robot::driveTeleop() {
-  float leftVert = (float) robotController->Axis3.position();
+  float leftVert = (float) robotController->Axis2.position(); // actually right vertical
   float rightHoriz = (pow((float) robotController->Axis1.position()/100.0, 3)*100.0);
 
   if(driveType == ARCADE) {
@@ -53,10 +53,11 @@ void Robot::driveTeleop() {
 
 void Robot::handleSixBarMechanism(motor* l, motor* r, controller::button* up, controller::button* down) {
 
-  float MOTOR_SPEED = 100;
+  
 
+  float MOTOR_SPEED = 100;
   if (up->pressing()) {
-    // arm go up
+    // arm go down
     l->spin(forward, MOTOR_SPEED, pct);
     r->spin(forward, MOTOR_SPEED, pct);
   } else if (down->pressing()) {
@@ -130,21 +131,30 @@ void Robot::balancePlatform() {
 }
 
 void Robot::sixBarTeleop() {
+  
   // front
-  handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonL1, &robotController->ButtonL2);
+  float leftVert = (float) robotController->Axis3.position(); // from -100 to 100
+  if (fabs(leftVert) < 10) {
+    sixBarFL.stop();
+    sixBarFR.stop();
+  } else {
+    sixBarBL.spin(forward, leftVert, pct);
+    sixBarBR.spin(forward, leftVert, pct);
+  }
+
   // back
-  handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonR1, &robotController->ButtonR2);
+  handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonUp, &robotController->ButtonDown);
 }
 
 // transmission
 void Robot::pneumaticsTeleop() {
 
-    if (robotController->ButtonLeft.pressing() || robotController->ButtonDown.pressing()) {
+    if (robotController->ButtonB.pressing()) {
         // torque mode
         drivePistonRight.set(true);
         drivePistonLeft.set(true);
 
-    } else if (robotController->ButtonRight.pressing() || robotController->ButtonUp.pressing()) {
+    } else if (robotController->ButtonX.pressing()) {
         // fast mode
         drivePistonRight.set(false);
         drivePistonLeft.set(false);
@@ -155,16 +165,16 @@ void Robot::pneumaticsTeleop() {
 void Robot::clawTeleop() {
 
   //back
-  if (robotController->ButtonY.pressing()) {
+  if (robotController->ButtonR1.pressing()) {
     backClaw.set(true);
-  } else if (robotController->ButtonX.pressing()) {
+  } else if (robotController->ButtonR2.pressing()) {
     backClaw.set(false);
   }
 
   //front
-  if (robotController->ButtonA.pressing()) {
+  if (robotController->ButtonL1.pressing()) {
     frontClaw.set(true);
-  } else if (robotController->ButtonB.pressing()) {
+  } else if (robotController->ButtonL2.pressing()) {
     frontClaw.set(false);
   }
 
