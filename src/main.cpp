@@ -33,17 +33,18 @@ void mainAuto(void) { // 1:1.08
   fifteen.setFrontClamp(false);
 
   // Forward to goal
-  fifteen.driveStraight(100, 60);
+  fifteen.driveStraight(100, 48, 1.6);
+  fifteen.driveStraight(50,9, 1);
   fifteen.setFrontClamp(true);
+
+  // Switch to torque mode and go back
+  fifteen.setTransmission(true);
+  wait(5000, msec);
 
   // Lift arm a little before going back to not drag on ground
   fifteen.raiseFrontArm(180, 100, false);
 
-
-  // Switch to torque mode and go back
-  fifteen.setTransmission(true);
-
-  fifteen.driveCurved(reverse, 120, 15);
+  fifteen.driveCurved(reverse, 120, 17);
 
   // Final segment of backtracking to wall alignment
   fifteen.driveTimed(-40, 3000);
@@ -55,9 +56,9 @@ void mainAuto(void) { // 1:1.08
   wait(300, msec);
 
   // Go to platform and pick up home goal
-  fifteen.driveStraight(40, -15);
+  fifteen.driveStraight(40, -40);
   fifteen.setBackClamp(true);
-  fifteen.driveStraight(20, 15);
+  fifteen.driveStraight(20, 20);
 
 }
 
@@ -80,7 +81,7 @@ void vexSkillsAuto(void) {
   
   
 
-  /*
+  
 
   // Start the robot facing towards the goal on platform. Align the front of the robot with the edge between the two tiles.
 
@@ -113,8 +114,10 @@ void vexSkillsAuto(void) {
 
   // Go to opposite platform
   fifteen.gyroTurn(forward, 20);
+  fifteen.driveStraight(70, -50);
+  fifteen.gyroTurn(reverse, 30);
 
-  */
+  
 
   
 
@@ -169,7 +172,9 @@ void autonomous() { thread auto1(mainAuto); }
 int main() {
 
   fifteen.gyroSensor.calibrate();
-  //fifteen.setTransmission(false);
+  
+  // DRIVER SKILLS TRUE, OTHERWISE FALSE
+  fifteen.setTransmission(false);
 
   Competition.autonomous(autonomous);
   Competition.drivercontrol(userControl);

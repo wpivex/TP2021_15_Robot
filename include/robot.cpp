@@ -32,8 +32,8 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
 }
 
 void Robot::driveTeleop() {
-  float leftVert = (float) robotController->Axis3.position();
-  float rightHoriz = (pow((float) robotController->Axis1.position()/100.0, 3)*100.0);
+  float leftVert = (float) robotController->Axis3.position() * (invertControls ? -1.0 : 1.0);
+  float rightHoriz = (pow((float) robotController->Axis1.position()/100.0, 3)*100.0) * (invertControls ? -1.0 : 1.0);
 
   if(driveType == ARCADE) {
     float left;
@@ -130,21 +130,31 @@ void Robot::balancePlatform() {
 }
 
 void Robot::sixBarTeleop() {
-  // front
-  handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonL1, &robotController->ButtonL2);
-  // back
-  handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonR1, &robotController->ButtonR2);
+
+  if (invertControls) {
+    // front
+    handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonR2, &robotController->ButtonR1);
+    // back
+    handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonL2, &robotController->ButtonL1);
+
+  } else {
+    // front
+    handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonL2, &robotController->ButtonL1);
+    // back
+    handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonR2, &robotController->ButtonR1);
+  }
+  
 }
 
 // transmission
 void Robot::pneumaticsTeleop() {
 
-    if (robotController->ButtonLeft.pressing() || robotController->ButtonDown.pressing()) {
+    if (robotController->ButtonDown.pressing()) {
         // torque mode
         drivePistonRight.set(true);
         drivePistonLeft.set(true);
 
-    } else if (robotController->ButtonRight.pressing() || robotController->ButtonUp.pressing()) {
+    } else if (robotController->ButtonUp.pressing()) {
         // fast mode
         drivePistonRight.set(false);
         drivePistonLeft.set(false);
@@ -154,17 +164,22 @@ void Robot::pneumaticsTeleop() {
   
 void Robot::clawTeleop() {
 
+  bool a = robotController->ButtonA.pressing();
+  bool b = robotController->ButtonB.pressing();
+  bool x = robotController->ButtonX.pressing();
+  bool y = robotController->ButtonY.pressing();
+
   //back
-  if (robotController->ButtonY.pressing()) {
+  if (invertControls ? x : a) {
     backClaw.set(true);
-  } else if (robotController->ButtonX.pressing()) {
+  } else if (invertControls ? y : b) {
     backClaw.set(false);
   }
 
   //front
-  if (robotController->ButtonA.pressing()) {
+  if (invertControls ? a : x) {
     frontClaw.set(true);
-  } else if (robotController->ButtonB.pressing()) {
+  } else if (invertControls ? b : y) {
     frontClaw.set(false);
   }
 
@@ -172,6 +187,13 @@ void Robot::clawTeleop() {
 
 // Run every tick
 void Robot::teleop() {
+
+  if (robotController->ButtonLeft.pressing()) {
+    invertControls = false;
+  } else if (robotController->ButtonRight.pressing()) {
+    invertControls = true;
+  }
+  
   driveTeleop();
   sixBarTeleop();
   clawTeleop();
@@ -184,7 +206,7 @@ float Robot::distanceToDegrees(float dist) {
   return dist * 360 / 2 / M_PI / (3.25 / 2); // 4 in diameter wheels
 }
 
-void Robot::driveStraight(float percent, float dist) {
+void Robot::driveStraight(float percent, float dist, float fasterAccel) {
   leftMotorA.resetPosition();
   rightMotorA.resetPosition();
   // currPos is the current average encoder position, travelDist is the total encoder distance to be traversed, 
@@ -195,8 +217,8 @@ void Robot::driveStraight(float percent, float dist) {
   float travelDist = fabs(distanceToDegrees(dist));
   
   while (currPos < travelDist) {
-    setLeftVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * 1.5 * ((travelDist - currPos) / travelDist));
-    setRightVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * 1.5 * ((travelDist - currPos) / travelDist));
+    setLeftVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * fasterAccel * ((travelDist - currPos) / travelDist));
+    setRightVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * fasterAccel * ((travelDist - currPos) / travelDist));
     currLeft = leftMotorA.position(degrees);
     currRight = rightMotorA.position(degrees);
     currPos = fabs((currLeft + currRight) / 2);

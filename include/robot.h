@@ -50,8 +50,7 @@ class Robot {
     vision::signature* SIG_1;
     inertial gyroSensor;
 
-    void driveStraight(float percent, float dist);
-    void driveStraight(float percent, float dist, float accPercent);
+    void driveStraight(float percent, float dist, float fasterAccel = 1.0);
     void driveTimed(float percent, float driveTime);
     int getTurnAngle(float turnAngle);
     void turnToAngle(float percent, float turnAngle, bool PID, directionType direction);
@@ -98,6 +97,8 @@ class Robot {
     void platformAction(Functor condition, double speed);
 
     void pneumaticsTeleop();
+
+    bool invertControls = false;
     
     // State variables for claw
     time_t lastBackClaw = std::time(nullptr);
