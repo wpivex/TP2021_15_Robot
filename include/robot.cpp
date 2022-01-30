@@ -86,6 +86,11 @@ void Robot::waitGyroCallibrate() {
   }
 }
 
+void Robot::armMovementVCAT() {
+
+
+}
+
 template<typename Functor>
 void Robot::platformAction(Functor condition, double speed) {
 

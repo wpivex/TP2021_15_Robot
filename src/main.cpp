@@ -118,8 +118,6 @@ void vexSkillsAuto(void) {
 
   
 
-
-
 }
 
 void testBalancePlatform(void) {

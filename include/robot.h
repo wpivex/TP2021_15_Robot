@@ -84,6 +84,8 @@ class Robot {
 
     void printYaw();
 
+    void armMovementVCAT();
+
     enum DriveType { ARCADE, TANK };
     DriveType driveType;
 
