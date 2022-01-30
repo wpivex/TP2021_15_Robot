@@ -14,6 +14,7 @@ controller Controller1(controllerType::primary);
 Robot fifteen = Robot(&Controller1);
 
 int mainTeleop() {
+  fifteen.setTransmission(false);
   while (true) {
     fifteen.teleop();
     wait(100, msec);
@@ -25,6 +26,7 @@ void userControl(void) { task controlLoop1(mainTeleop); }
 
 void mainAuto(void) { // 1:1.08
 
+  fifteen.setTransmission(false);
   
   // Weird Kohmei thing to keep arm low
   fifteen.clampArmsDown();
@@ -33,55 +35,38 @@ void mainAuto(void) { // 1:1.08
   fifteen.setFrontClamp(false);
 
   // Forward to goal
-  fifteen.driveStraight(100, 48, 1.6);
-  fifteen.driveStraight(50,9, 1);
+  fifteen.driveStraight(100, 60);
   fifteen.setFrontClamp(true);
 
   // Switch to torque mode and go back
   fifteen.setTransmission(true);
-  wait(5000, msec);
 
   // Lift arm a little before going back to not drag on ground
   fifteen.raiseFrontArm(180, 100, false);
 
-  fifteen.driveCurved(reverse, 120, 17);
+  fifteen.driveCurved(reverse, 120, 16);
 
   // Final segment of backtracking to wall alignment
-  fifteen.driveTimed(-40, 3000);
+  fifteen.driveTimed(-40, 1500);
 
   // Forward for clearance and turn 90 degrees to platform
   fifteen.driveStraight(40, 12);
   wait(300, msec);
-  fifteen.turnToAngle(40, 200, true, reverse);
+  fifteen.turnToAngle(40, 170, true, reverse);
   wait(300, msec);
 
   // Go to platform and pick up home goal
-  fifteen.driveStraight(40, -40);
+  fifteen.driveStraight(30, -20);
   fifteen.setBackClamp(true);
-  fifteen.driveStraight(20, 20);
-
+  fifteen.driveStraight(30, 25);
 }
 
 // To be used on sunday competition. Grab home goal, left yellow goal, go to opposite platform, lift arm, move goal to make platform level,
 // put yellow goal on right side of platform, 180, put blue goal on left side of platform
 void vexSkillsAuto(void) {
+  // UNTESTED IN FULL, ONLY FOR REFERENCE
 
-  fifteen.waitGyroCallibrate();
-
-
-  
-  fifteen.gyroTurn(forward, 90);
-  wait(1000, msec);
-  fifteen.gyroTurn(reverse, 90);
-  wait(1000, msec);
-  fifteen.gyroTurn(forward, 180);
-  wait(1000, msec);
-  fifteen.gyroTurn(reverse, 180);
-  wait(1000, msec);
-  
-  
-
-  
+  fifteen.waitGyroCallibrate();  
 
   // Start the robot facing towards the goal on platform. Align the front of the robot with the edge between the two tiles.
 
@@ -103,7 +88,6 @@ void vexSkillsAuto(void) {
   fifteen.driveCurved(reverse, 10, -40, 70);
   fifteen.raiseFrontArm(150, 70, true);
   
-  
   fifteen.gyroTurn(reverse, 90);
 
   // Drive to left yellow
@@ -116,20 +100,21 @@ void vexSkillsAuto(void) {
   fifteen.gyroTurn(forward, 20);
   fifteen.driveStraight(70, -50);
   fifteen.gyroTurn(reverse, 30);
+}
 
-  
-
-  
-
-
-
+void simpleSkillsAuto() {
+  fifteen.setTransmission(true);
+  wait(200, msec);
+  fifteen.raiseFrontArm(400, 70, true);
+  fifteen.driveStraight(70, 42);
+  fifteen.raiseFrontArm(-300, 70, true);
+  fifteen.driveStraight(70, -42);
 }
 
 void testBalancePlatform(void) {
 
   fifteen.setTransmission(true);
 
-  
   // Weird Kohmei thing to keep arm low
   fifteen.setFrontClamp(false);
   fifteen.setBackClamp(false);
@@ -160,11 +145,7 @@ void testBalancePlatform(void) {
   fifteen.driveStraight(60, 80);
 
   fifteen.balancePlatform();
-
-
 }
-
-int tetherAuto(void) { return 0; }
 
 void autonomous() { thread auto1(mainAuto); }
 
