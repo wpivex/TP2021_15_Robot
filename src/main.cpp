@@ -14,7 +14,7 @@ controller Controller1(controllerType::primary);
 Robot fifteen = Robot(&Controller1);
 
 int mainTeleop() {
-  fifteen.setTransmission(false);
+  fifteen.setTransmission(true);
   while (true) {
     fifteen.teleop();
     wait(100, msec);
@@ -44,7 +44,7 @@ void mainAuto(void) { // 1:1.08
   // Lift arm a little before going back to not drag on ground
   fifteen.raiseFrontArm(180, 100, false);
 
-  fifteen.driveCurved(reverse, 120, 16);
+  fifteen.driveCurved(reverse, 120, 20);
 
   // Final segment of backtracking to wall alignment
   fifteen.driveTimed(-40, 1500);
@@ -58,49 +58,9 @@ void mainAuto(void) { // 1:1.08
   // Go to platform and pick up home goal
   fifteen.driveStraight(30, -20);
   fifteen.setBackClamp(true);
-  fifteen.driveStraight(30, 25);
+  fifteen.driveStraight(30, 40);
 }
 
-// To be used on sunday competition. Grab home goal, left yellow goal, go to opposite platform, lift arm, move goal to make platform level,
-// put yellow goal on right side of platform, 180, put blue goal on left side of platform
-void vexSkillsAuto(void) {
-  // UNTESTED IN FULL, ONLY FOR REFERENCE
-
-  fifteen.waitGyroCallibrate();  
-
-  // Start the robot facing towards the goal on platform. Align the front of the robot with the edge between the two tiles.
-
-  // Run on torque mode the whole way for reliability. There are no sensors besides gyro so everything must be maximally precise.
-  fifteen.setTransmission(true);
-  fifteen.setFrontClamp(false);
-  fifteen.setBackClamp(false);
-  fifteen.clampArmsDown();
-
-  wait(500, msec);
-
-  // Pick up home goal
-  fifteen.driveStraight(70, 42);
-  wait(500, msec);
-  fifteen.setFrontClamp(true);
-  wait(2000, msec);
-
-  // Orient to align to left yellow goal
-  fifteen.driveCurved(reverse, 10, -40, 70);
-  fifteen.raiseFrontArm(150, 70, true);
-  
-  fifteen.gyroTurn(reverse, 90);
-
-  // Drive to left yellow
-  fifteen.driveStraight(70, -30);
-  fifteen.setBackClamp(true);
-  wait(500, msec);
-  fifteen.raiseFrontArm(150, 70, true);
-
-  // Go to opposite platform
-  fifteen.gyroTurn(forward, 20);
-  fifteen.driveStraight(70, -50);
-  fifteen.gyroTurn(reverse, 30);
-}
 
 void simpleSkillsAuto() {
   fifteen.setTransmission(true);
