@@ -206,7 +206,7 @@ float Robot::distanceToDegrees(float dist) {
   return dist * 360 / 2 / M_PI / (3.25 / 2); // 4 in diameter wheels
 }
 
-void Robot::driveStraight(float percent, float dist, float fasterAccel) {
+void Robot::driveStraight(float percent, float dist, float fasterAccel, bool stop) {
   leftMotorA.resetPosition();
   rightMotorA.resetPosition();
   // currPos is the current average encoder position, travelDist is the total encoder distance to be traversed, 
@@ -219,6 +219,32 @@ void Robot::driveStraight(float percent, float dist, float fasterAccel) {
   while (currPos < travelDist) {
     setLeftVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * fasterAccel * ((travelDist - currPos) / travelDist));
     setRightVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * fasterAccel * ((travelDist - currPos) / travelDist));
+    currLeft = leftMotorA.position(degrees);
+    currRight = rightMotorA.position(degrees);
+    currPos = fabs((currLeft + currRight) / 2);
+    wait(20, msec);
+  }
+
+  if (stop) {
+    stopLeft();
+    stopRight();
+  }
+}
+
+// no PID, just constant velocity
+void Robot::driveStraightConstant(float percent, float dist) {
+  leftMotorA.resetPosition();
+  rightMotorA.resetPosition();
+  // currPos is the current average encoder position, travelDist is the total encoder distance to be traversed, 
+  // targetDist is the target encoder position, and currLeft/Right are the current left and right encoder positions
+  float currLeft = 0;
+  float currRight = 0;
+  float currPos = (currLeft + currRight) / 2;
+  float travelDist = fabs(distanceToDegrees(dist));
+  
+  while (currPos < travelDist) {
+    setLeftVelocity(dist > 0 ? forward : reverse, percent);
+    setRightVelocity(dist > 0 ? forward : reverse, percent);
     currLeft = leftMotorA.position(degrees);
     currRight = rightMotorA.position(degrees);
     currPos = fabs((currLeft + currRight) / 2);

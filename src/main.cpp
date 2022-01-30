@@ -24,19 +24,34 @@ int mainTeleop() {
 
 void userControl(void) { task controlLoop1(mainTeleop); }
 
+void pushAuto(void) {
+
+  fifteen.setTransmission(false);
+
+  fifteen.driveStraightConstant(100, 55); // pushaway drivestraight
+  fifteen.driveCurved(reverse, 120, 10);
+
+}
+
+
 void mainAuto(void) { // 1:1.08
 
   fifteen.setTransmission(false);
   
   // Weird Kohmei thing to keep arm low
-  fifteen.clampArmsDown();
+  fifteen.sixBarFL.spin(reverse, 20, percent);
+  fifteen.sixBarFR.spin(reverse, 20, percent);
 
   // Initialize pneumatics
   fifteen.setFrontClamp(false);
 
   // Forward to goal
-  fifteen.driveStraight(100, 60);
+  //fifteen.driveStraight(100, 60);
+  fifteen.driveStraight(100, 46, 3.0, false);
+  fifteen.driveStraightConstant(50, 5);
   fifteen.setFrontClamp(true);
+
+  //fifteen.driveStraightConstant(100, 55); // pushaway drivestraight
 
   // Switch to torque mode and go back
   fifteen.setTransmission(true);

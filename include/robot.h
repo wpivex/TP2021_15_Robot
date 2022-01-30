@@ -50,7 +50,8 @@ class Robot {
     vision::signature* SIG_1;
     inertial gyroSensor;
 
-    void driveStraight(float percent, float dist, float fasterAccel = 1.0);
+    void driveStraight(float percent, float dist, float fasterAccel = 1.0, bool stop = false);
+    void driveStraightConstant(float percent, float dist);
     void driveTimed(float percent, float driveTime);
     int getTurnAngle(float turnAngle);
     void turnToAngle(float percent, float turnAngle, bool PID, directionType direction);
