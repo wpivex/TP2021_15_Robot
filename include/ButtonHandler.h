@@ -6,7 +6,6 @@ const int NUM_BUTTONS = 12;
 class ButtonHandler {
 
 public:
-
 enum Button {UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3, X = 4, Y = 5, A = 6, B = 7, L1 = 8, L2 = 9, R1 = 10, R2 = 11, NONE = 12};
 
 

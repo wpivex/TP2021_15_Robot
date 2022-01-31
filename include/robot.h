@@ -1,5 +1,6 @@
 #pragma once
 #include "vex.h"
+#include "ButtonHandler.h"
 #include <string>
 #include <fstream>
 #include <vector>
@@ -13,6 +14,7 @@
 #include <math.h>       /* sin */
 #include <stdio.h>      /* printf, fgets */
 #include <unistd.h>
+#include <functional>
 
 using namespace vex;
 brain Brain;
@@ -73,6 +75,20 @@ class Robot {
     void clampArmsDown();
     void waitGyroCallibrate();
 
+
+
+
+    void smartDrive(float distInches, float speed, directionType left, directionType right, int timeout, float slowDownInches, 
+      float turnPercent, bool stopAfter, std::function<bool(void)> func);
+    void driveTurn(float degrees, float speed, bool isClockwise, int timeout, float slowDownInches = 10, 
+      bool stopAfter = true, std::function<bool(void)> func = {});
+    void driveCurved(float distInches, float speed, directionType dir, int timeout, 
+      float slowDownInches, float turnPercent, bool stopAfter = true, std::function<bool(void)> func = {});
+    void driveStraight(float distInches, float speed, directionType dir, int timeout, 
+      float slowDownInches, bool stopAfter = true, std::function<bool(void)> func = {});
+    void Robot::driveStraightTimed(float speed, directionType dir, int timeMs, bool stopAfter, std::function<bool(void)> func) {
+      driveStraight(0, speed, dir, timeMs, 1, stopAfter, func);
+
     void raiseFrontArm(double amount, double vel, bool blocking);
     void raiseBackArm(double amount, double vel, bool blocking);
 
@@ -90,18 +106,16 @@ class Robot {
     DriveType driveType;
 
   private:
+
+    ButtonHandler buttons;
+
     void driveTeleop();
 
     void _gyroTurn(directionType direction, float degrees);
 
     void handleSixBarMechanism(motor* l, motor* r, controller::button* up, controller::button* down);
 
-    template<typename Functor>
-    void platformAction(Functor condition, double speed);
 
     void pneumaticsTeleop();
     
-    // State variables for claw
-    time_t lastBackClaw = std::time(nullptr);
-    time_t lastFrontClaw = std::time(nullptr);
 };

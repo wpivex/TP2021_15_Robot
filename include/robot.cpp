@@ -3,7 +3,7 @@
 // Motor ports Left: 1R, 2F, 3F,  20T Right: 12R, 11F, 13F
 // gear ratio is 60/36
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0), gyroSensor(PORT6) {
+  rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0), gyroSensor(PORT6), buttons(c) {
   leftMotorA = motor(PORT1, ratio6_1, false); 
   leftMotorB = motor(PORT2, ratio6_1, false);
   leftMotorC = motor(PORT3, ratio6_1, false);
@@ -23,12 +23,26 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   sixBarBR = motor(PORT20, ratio36_1, true);
 
   driveType = ARCADE;
-  robotController = c; 
+  robotController = c;
 
   sixBarFL.setBrake(hold);
   sixBarFR.setBrake(hold);
   sixBarBL.setBrake(hold);
   sixBarBR.setBrake(hold);
+}
+
+// Run every tick
+void Robot::teleop() {
+
+  // call at the start of each tick to get which buttons are pressed
+  buttons.updateButtonState();
+
+  driveTeleop();
+  sixBarTeleop();
+  clawTeleop();
+  pneumaticsTeleop();
+
+  wait(20, msec);
 }
 
 void Robot::driveTeleop() {
@@ -51,165 +65,98 @@ void Robot::driveTeleop() {
   }
 }
 
-void Robot::handleSixBarMechanism(motor* l, motor* r, controller::button* up, controller::button* down) {
-
-  float MOTOR_SPEED = 100;
-
-  if (up->pressing()) {
-    // arm go up
-    l->spin(forward, MOTOR_SPEED, pct);
-    r->spin(forward, MOTOR_SPEED, pct);
-  } else if (down->pressing()) {
-    // arm go down
-    l->spin(reverse, MOTOR_SPEED, pct);
-    r->spin(reverse, MOTOR_SPEED, pct);
-  } else {
-    l->stop();
-    r->stop();
-  }
+void Robot::driveStraightTimed(float speed, directionType dir, int timeMs, bool stopAfter, std::function<bool(void)> func) {
+  driveStraight(0, speed, dir, timeMs, 1, stopAfter, func);
 }
 
-void Robot::clampArmsDown() {
 
-  // Weird Kohmei thing to keep arms low
-  sixBarFL.spin(reverse, 20, percent);
-  sixBarFR.spin(reverse, 20, percent);
-  sixBarBL.spin(reverse, 20, percent);
-  sixBarBR.spin(reverse, 20, percent);
-}
+void Robot::driveStraight(float distInches, float speed, directionType dir, int timeout, 
+float slowDownInches, bool stopAfter, std::function<bool(void)> func) {
 
-void Robot::waitGyroCallibrate() {
-  int i = 0;
-  while (gyroSensor.isCalibrating()) {
-    wait(20, msec);
-    i++;
-  }
-}
-
-void Robot::armMovementVCAT() {
-
+  driveCurved(distInches, speed, dir, timeout, slowDownInches, 0, stopAfter, func);
 
 }
 
-template<typename Functor>
-void Robot::platformAction(Functor condition, double speed) {
+void Robot::driveCurved(float distInches, float speed, directionType dir, int timeout, 
+float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void)> func) {
 
-  double YAW_CONSTANT = 1;
-  double left, right;
-
-  while (true) {
-
-    double pitch = gyroSensor.pitch();
-    double yaw = gyroSensor.yaw();
-
-    // Exit condition
-    if (condition(pitch)) break;
-
-    left = speed - yaw * YAW_CONSTANT;
-    right = speed + yaw * YAW_CONSTANT;
-
-    setLeftVelocity(forward, left);
-    setRightVelocity(forward, right);
-    Brain.Screen.clearScreen();
-    Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("%f,%f", left, right);
-
-    wait(20, msec);
-  }
-}
-
-// Use inertial sensor for proportional control in both yaw and pitch
-void Robot::balancePlatform() {
-
-  double START_SPEED = 25;
-  double REGULAR_SPEED = 20;
-  double margin = 5;
-
-  platformAction([margin] (double pitch) {return pitch < margin;}, -START_SPEED);
-  platformAction([] (double pitch) {return pitch < 0;}, REGULAR_SPEED);
-  platformAction([] (double pitch) {return pitch > 0;}, REGULAR_SPEED);
-
-  stopLeft();
-  stopRight();
+  smartDrive(distInches, speed, dir, dir, timeout, slowDownInches, turnPercent, stopAfter, func);
 
 }
 
-void Robot::sixBarTeleop() {
-  // front
-  handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonL1, &robotController->ButtonL2);
-  // back
-  handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonR1, &robotController->ButtonR2);
-}
+void Robot::driveTurn(float degrees, float speed, bool isClockwise, int timeout, float slowDownInches, 
+bool stopAfter, std::function<bool(void)> func) {
 
-// transmission
-void Robot::pneumaticsTeleop() {
-
-    if (robotController->ButtonLeft.pressing() || robotController->ButtonDown.pressing()) {
-        // torque mode
-        drivePistonRight.set(true);
-        drivePistonLeft.set(true);
-
-    } else if (robotController->ButtonRight.pressing() || robotController->ButtonUp.pressing()) {
-        // fast mode
-        drivePistonRight.set(false);
-        drivePistonLeft.set(false);
-    }
-        
-}
-  
-void Robot::clawTeleop() {
-
-  //back
-  if (robotController->ButtonY.pressing()) {
-    backClaw.set(true);
-  } else if (robotController->ButtonX.pressing()) {
-    backClaw.set(false);
-  }
-
-  //front
-  if (robotController->ButtonA.pressing()) {
-    frontClaw.set(true);
-  } else if (robotController->ButtonB.pressing()) {
-    frontClaw.set(false);
-  }
+  smartDrive(getTurnAngle(degrees), speed, isClockwise ? forward : reverse, isClockwise ? reverse: forward,
+  timeout, slowDownInches, 0, stopAfter, func);
 
 }
 
-// Run every tick
-void Robot::teleop() {
-  driveTeleop();
-  sixBarTeleop();
-  clawTeleop();
-  pneumaticsTeleop();
-  wait(20, msec);
-}
+// distInches is positive distance in inches to destination. 0 means indefinite (until timeout)
+// speed is percent 1-100
+// direction is for left motor, right depends if turning
+// timeout (optional parameter defaults to 0 -> none) in ms, terminates once reached
+// slowDownInches representing from what distance to destination the robot starts slowing down with proportional speed
+//  control in relation to distInches. Set by default to 10. 0 means attempt instant stop.
+//  a higher value is more controlled/consistent, a lower value is faster/more variable
+// turnPercent (from 0-1) is percent of speed to curve (so curvature now independent from speed). optional, default to 0
+// stopAfter whether to stop motors after function call.
+// func is an optional nonblocking function you can use to run as the same time as this method. It returns true when nonblocking function is gone
+void Robot::smartDrive(float distInches, float speed, directionType left, directionType right, int timeout, 
+float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void)> func) {
 
-// dist in inches
-float Robot::distanceToDegrees(float dist) {
-  return dist * 360 / 2 / M_PI / (3.25 / 2); // 4 in diameter wheels
-}
+  float finalDist = distanceToDegrees(distInches);
+  float slowDown = distanceToDegrees(slowDownInches);
 
-void Robot::driveStraight(float percent, float dist) {
+  int startTime = vex::timer::system();
   leftMotorA.resetPosition();
   rightMotorA.resetPosition();
-  // currPos is the current average encoder position, travelDist is the total encoder distance to be traversed, 
-  // targetDist is the target encoder position, and currLeft/Right are the current left and right encoder positions
-  float currLeft = 0;
-  float currRight = 0;
-  float currPos = (currLeft + currRight) / 2;
-  float travelDist = fabs(distanceToDegrees(dist));
-  
-  while (currPos < travelDist) {
-    setLeftVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * 1.5 * ((travelDist - currPos) / travelDist));
-    setRightVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * 1.5 * ((travelDist - currPos) / travelDist));
-    currLeft = leftMotorA.position(degrees);
-    currRight = rightMotorA.position(degrees);
-    currPos = fabs((currLeft + currRight) / 2);
+
+  // finalDist is 0 if we want driveTimed instead of drive some distance
+  float currentDist = 0;
+  while ((finalDist == 0 || currentDist < finalDist) && (timeout == 0 || vex::timer::system() < startTime + timeout)) {
+
+    // if there is a concurrent function to run, run it
+    if (func) {
+      if (func()) {
+        // if func is done, make it empty
+        func = {};
+      }
+    }
+
+    currentDist = (fabs(leftMotorA.position(degrees)) + fabs(rightMotorA.position(degrees))) / 2;
+
+     // from 0 to 1 indicating proportion of velocity. Starts out constant at 1 until it hits the slowDown interval,
+     // where then it linearly decreases to 0
+    float proportion = slowDown == 0 ? 1 : fmin(1, 1 - (currentDist - (finalDist - slowDown)) / slowDown);
+    float baseSpeed = speed*proportion;
+
+    // reduce baseSpeed so that the faster motor always capped at max speed
+    baseSpeed = fmin(baseSpeed, 100 - baseSpeed*turnPercent);
+
+    setLeftVelocity(left, baseSpeed*(1 + turnPercent));
+    setRightVelocity(right, baseSpeed*(1 - turnPercent));
+    
+    wait(20, msec);
+
+  }
+
+  if (stopAfter) {
+    stopLeft();
+    stopRight();
+  }
+
+}
+
+
+
+void Robot::waitGyroCallibrate() {
+  while (gyroSensor.isCalibrating()) {
     wait(20, msec);
   }
-  stopLeft();
-  stopRight();
 }
+
+
 
 void Robot::driveTimed(float percent, float driveTime) {
   int milliseconds = vex::timer::system();
@@ -235,16 +182,6 @@ void Robot::turnToAngle(float percent, float turnAngle, bool PID, directionType 
 }
 
 
-int Robot::getTurnAngle(float turnAngle) {
-  leftMotorA.resetPosition();
-  rightMotorA.resetPosition();
-
-  // currPos is the current average encoder position, travelDist is the total encoder distance to be traversed, 
-  // and targetDist is the target encoder position
-  float targetDist = fabs(distanceToDegrees(turnAngle / 360 * 2 * M_PI * (15.125 / 2)));
-
-  return targetDist;
-}
 
 // Call this method every tick. Must reset encoders of left and right motor A
 // Return true if execution completed
