@@ -13,9 +13,9 @@
 #include <math.h>       /* sin */
 #include <stdio.h>      /* printf, fgets */
 #include <unistd.h>
+#include <Buttons.h>
 
 using namespace vex;
-brain Brain;
 
 class Robot {
   public:
@@ -37,28 +37,44 @@ class Robot {
     motor frontArmL;
     motor frontArmR;
 
+    vision backCamera;
+    vision frontCamera;
 
-    digital_out backClaw = digital_out(Brain.ThreeWirePort.D);
-    digital_out frontClaw = digital_out(Brain.ThreeWirePort.C);
 
-    digital_out drivePistonRight = digital_out(Brain.ThreeWirePort.B);
-    digital_out drivePistonLeft = digital_out(Brain.ThreeWirePort.A);
+    // digital_out backClaw = digital_out(Brain.ThreeWirePort.D);
+    // digital_out frontClaw = digital_out(Brain.ThreeWirePort.C);
 
     controller* robotController;
 
-    vision::signature* SIG_1;
     inertial gyroSensor;
 
-    void driveStraight(float percent, float dist, float fasterAccel = 1.0);
-    void driveTimed(float percent, float driveTime);
-    int getTurnAngle(float turnAngle);
-    void turnToAngle(float percent, float turnAngle, bool PID, directionType direction);
-    void gyroTurn(directionType direction, float degrees);
-    bool turnToAngleNonblocking(float percent, float targetDist, bool PID, directionType direction);
-    void driveCurved(directionType d, float dist, int delta);
-    void driveCurved(directionType d, float dist, int delta, int speed);
-    void driveCurvedTimed(directionType d, int delta, int speed, float driveTime);
-    float distanceToDegrees(float dist);
+    Buttons buttons;
+
+    enum ControllerMapping {DEFAULT_MAPPING};
+    Buttons::Button FRONT_CLAMP_TOGGLE, BACK_CLAMP_TOGGLE, CLAW_TOGGLE; 
+
+    void setControllerMapping(ControllerMapping mapping);
+
+    void smartDrive(float distInches, float speed, directionType left, directionType right, int timeout, float slowDownInches, 
+                    float turnPercent, bool stopAfter, std::function<bool(void)> func);
+    void driveTurn(float degrees, float speed, bool isClockwise, int timeout, float slowDownInches = 10, 
+                    bool stopAfter = true, std::function<bool(void)> func = {});
+    void driveCurved(float distInches, float speed, directionType dir, int timeout, 
+                      float slowDownInches, float turnPercent, bool stopAfter = true, std::function<bool(void)> func = {});
+    void driveStraight(float distInches, float speed, directionType dir, int timeout, 
+                      float slowDownInches, bool stopAfter = true, std::function<bool(void)> func = {});
+    void driveStraightTimed(float speed, directionType dir, int timeMs, bool stopAfter = true, std::function<bool(void)> func = {});
+
+    void goForwardVision(Goal goal, float speed, directionType dir, float maximumDistance, int timeout, 
+                        digital_in* limitSwitch, std::function<bool(void)> func = {});
+    void alignToGoalVision(Goal goal, bool clockwise, directionType cameraDirection, int timeout);
+    void updateCamera(Goal goal);
+
+    void driveStraightGyro(float distInches, float speed, directionType dir, int timeout, float slowDownInches,
+                            std::function<bool(void)> func = {});
+    void turnToAngleGyro(bool clockwise, float angleDegrees, float maxSpeed, int startSlowDownDegrees,
+                        int timeout, std::function<bool(void)> func = {});
+
 
     void userControl( void );
     void teleop( void );
@@ -68,38 +84,13 @@ class Robot {
     void setRightVelocity(directionType d, double percent);
     void stopLeft();
     void stopRight();
-    void clampArmsDown();
     void waitGyroCallibrate();
 
-    void raiseFrontArm(double amount, double vel, bool blocking);
-    void raiseBackArm(double amount, double vel, bool blocking);
 
-    void setFrontClamp(bool clamp);
-    void setBackClamp(bool clamp);
-    void setTransmission(bool fast);
-
-    void balancePlatform();
-
-    void printYaw();
-
-    enum DriveType { ARCADE, TANK };
+    enum DriveType { ARCADE1, ARCADE2, TANK };
     DriveType driveType;
 
   private:
     void driveTeleop();
 
-    void _gyroTurn(directionType direction, float degrees);
-
-    void handleSixBarMechanism(motor* l, motor* r, controller::button* up, controller::button* down);
-
-    template<typename Functor>
-    void platformAction(Functor condition, double speed);
-
-    void pneumaticsTeleop();
-
-    bool invertControls = false;
-    
-    // State variables for claw
-    time_t lastBackClaw = std::time(nullptr);
-    time_t lastFrontClaw = std::time(nullptr);
 };
