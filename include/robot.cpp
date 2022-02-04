@@ -3,16 +3,16 @@
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
   rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backCamera(0), frontCamera(0), gyroSensor(PORT6), buttons(c) {
 
-  leftMotorA = motor(PORT15, ratio6_1, false); 
-  leftMotorB = motor(PORT12, ratio6_1, false);
-  leftMotorC = motor(PORT13, ratio6_1, false);
-  leftMotorD = motor(PORT11, ratio6_1, false);
+  leftMotorA = motor(PORT15, ratio6_1, true); 
+  leftMotorB = motor(PORT12, ratio6_1, true);
+  leftMotorC = motor(PORT13, ratio6_1, true);
+  leftMotorD = motor(PORT11, ratio6_1, true);
   leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
 
-  rightMotorA = motor(PORT14, ratio6_1, true);
-  rightMotorB = motor(PORT16, ratio6_1, true);
-  rightMotorC = motor(PORT19, ratio6_1, true);
-  rightMotorD = motor(PORT20, ratio6_1, true);
+  rightMotorA = motor(PORT14, ratio6_1, false);
+  rightMotorB = motor(PORT16, ratio6_1, false);
+  rightMotorC = motor(PORT19, ratio6_1, false);
+  rightMotorD = motor(PORT20, ratio6_1, false);
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
   // forward is UP, reverse is DOWN
@@ -20,7 +20,7 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   frontArmR = motor(PORT10, ratio36_1, false);
 
 
-  driveType = ARCADE1;
+  driveType = TWO_STICK_ARCADE;
   robotController = c; 
 
   frontArmL.setBrake(hold);
@@ -28,17 +28,29 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
 
 }
 
+// take in axis value between -100 to 100, discard (-5 to 5) values, divide by 100, and cube
+// output is num between -1 and 1
+float normalize(float axisValue) {
+  if (fabs(axisValue) <= 7) {
+    return 0;
+  }
+  return pow(axisValue / 100.0, 3);
+
+}
+
 void Robot::driveTeleop() {
-  float leftVert = (float) robotController->Axis3.position();
-  float leftHoriz = (pow((float) robotController->Axis4.position()/100.0, 3)*100.0);
-  float rightVert = (float) robotController->Axis2.position();
-  float rightHoriz = (pow((float) robotController->Axis1.position()/100.0, 3)*100.0);
+
+  float leftVert = normalize(robotController->Axis3.position());
+  float leftHoriz = normalize(robotController->Axis4.position());
+  float rightVert = normalize(robotController->Axis2.position());
+  float rightHoriz = normalize(robotController->Axis1.position());
+
 
   if(driveType == TANK) {
     setLeftVelocity(forward,leftVert);
     setRightVelocity(forward,rightVert);
   }else{
-    float drive = driveType == ARCADE1? rightVert:leftVert;
+    float drive = driveType == ONE_STICK_ARCADE ? rightVert:leftVert;
     float turn = rightHoriz;
     float max = std::max(fabs(drive+turn), fabs(drive-turn));
     setLeftVelocity(forward,100 * (drive+turn)/max);

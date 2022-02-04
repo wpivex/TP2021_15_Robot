@@ -89,7 +89,7 @@ class Robot {
     void waitGyroCallibrate();
 
 
-    enum DriveType { ARCADE1, ARCADE2, TANK };
+    enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };
     DriveType driveType;
 
   private:
