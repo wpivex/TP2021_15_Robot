@@ -34,10 +34,9 @@ class Robot {
     motor_group rightDrive;
 
     //Front/Back Left/Right motors for controlling the sixbar lift
-    motor sixBarFL;
-    motor sixBarFR;
-    motor sixBarBL;
-    motor sixBarBR;
+    motor frontArmL;
+    motor frontArmR;
+
 
     digital_out backClaw = digital_out(Brain.ThreeWirePort.D);
     digital_out frontClaw = digital_out(Brain.ThreeWirePort.C);
@@ -63,7 +62,7 @@ class Robot {
 
     void userControl( void );
     void teleop( void );
-    void sixBarTeleop();
+    void armTeleop();
     void clawTeleop();
     void setLeftVelocity(directionType d, double percent);
     void setRightVelocity(directionType d, double percent);

@@ -3,36 +3,35 @@
 // Motor ports Left: 1R, 2F, 3F,  20T Right: 12R, 11F, 13F
 // gear ratio is 60/36
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0), gyroSensor(PORT6) {
-  leftMotorA = motor(PORT1, ratio6_1, false); 
-  leftMotorB = motor(PORT2, ratio6_1, false);
-  leftMotorC = motor(PORT3, ratio6_1, false);
-  leftMotorD = motor(PORT4, ratio6_1, false);
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), gyroSensor(PORT6) {
+  leftMotorA = motor(PORT15, ratio6_1, false); 
+  leftMotorB = motor(PORT12, ratio6_1, false);
+  leftMotorC = motor(PORT13, ratio6_1, false);
+  leftMotorD = motor(PORT11, ratio6_1, false);
   leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
 
-  rightMotorA = motor(PORT7, ratio6_1, true);
-  rightMotorB = motor(PORT8, ratio6_1, true);
-  rightMotorC = motor(PORT9, ratio6_1, true);
-  rightMotorD = motor(PORT10, ratio6_1, true);
+  rightMotorA = motor(PORT14, ratio6_1, true);
+  rightMotorB = motor(PORT16, ratio6_1, true);
+  rightMotorC = motor(PORT19, ratio6_1, true);
+  rightMotorD = motor(PORT20, ratio6_1, true);
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
   // forward is UP, reverse is DOWN
-  sixBarFL = motor(PORT17, ratio36_1, true);
-  sixBarFR = motor(PORT19, ratio36_1, false);
-  sixBarBL = motor(PORT18, ratio36_1, false);
-  sixBarBR = motor(PORT20, ratio36_1, true);
+  frontArmL = motor(PORT1, ratio36_1, true);
+  frontArmR = motor(PORT10, ratio36_1, false);
+
 
   driveType = ARCADE;
   robotController = c; 
 
-  sixBarFL.setBrake(hold);
-  sixBarFR.setBrake(hold);
-  sixBarBL.setBrake(hold);
-  sixBarBR.setBrake(hold);
+  frontArmL.setBrake(hold);
+  frontArmR.setBrake(hold);
+
 }
 
 void Robot::driveTeleop() {
-  float leftVert = (float) robotController->Axis3.position() * (invertControls ? -1.0 : 1.0);
+  invertControls = true;
+  float leftVert = (float) robotController->Axis2.position() * (invertControls ? -1.0 : 1.0);
   float rightHoriz = (pow((float) robotController->Axis1.position()/100.0, 3)*100.0) * (invertControls ? -1.0 : 1.0);
 
   if(driveType == ARCADE) {
@@ -49,6 +48,38 @@ void Robot::driveTeleop() {
     setLeftVelocity(forward, left/fabs(left)*fmin(fabs(left), 100));
     setRightVelocity(forward, right/fabs(right)*fmin(fabs(right), 100));
   }
+}
+
+void Robot::armTeleop() {
+
+  float MOTOR_SPEED = 100;
+
+  if (robotController->ButtonUp.pressing()) {
+    frontArmL.spin(forward, MOTOR_SPEED, pct);
+    frontArmR.spin(forward, MOTOR_SPEED, pct);
+  } else if (robotController->ButtonDown.pressing()) {
+    frontArmL.spin(reverse, MOTOR_SPEED, pct);
+    frontArmR.spin(reverse, MOTOR_SPEED, pct);
+  } else {
+    frontArmL.stop();
+    frontArmR.stop();
+  }
+}
+
+// Run every tick
+void Robot::teleop() {
+
+  if (robotController->ButtonLeft.pressing()) {
+    invertControls = false;
+  } else if (robotController->ButtonRight.pressing()) {
+    invertControls = true;
+  }
+  
+  driveTeleop();
+  armTeleop();
+  //clawTeleop();
+  //pneumaticsTeleop();
+  wait(20, msec);
 }
 
 void Robot::handleSixBarMechanism(motor* l, motor* r, controller::button* up, controller::button* down) {
@@ -68,7 +99,7 @@ void Robot::handleSixBarMechanism(motor* l, motor* r, controller::button* up, co
     r->stop();
   }
 }
-
+/*
 void Robot::clampArmsDown() {
 
   // Weird Kohmei thing to keep arms low
@@ -76,7 +107,7 @@ void Robot::clampArmsDown() {
   sixBarFR.spin(reverse, 20, percent);
   sixBarBL.spin(reverse, 20, percent);
   sixBarBR.spin(reverse, 20, percent);
-}
+}*/
 
 void Robot::waitGyroCallibrate() {
   int i = 0;
@@ -128,7 +159,7 @@ void Robot::balancePlatform() {
   stopRight();
 
 }
-
+/*
 void Robot::sixBarTeleop() {
 
   if (invertControls) {
@@ -144,7 +175,7 @@ void Robot::sixBarTeleop() {
     handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonR2, &robotController->ButtonR1);
   }
   
-}
+}*/
 
 // transmission
 void Robot::pneumaticsTeleop() {
@@ -185,21 +216,6 @@ void Robot::clawTeleop() {
 
 }
 
-// Run every tick
-void Robot::teleop() {
-
-  if (robotController->ButtonLeft.pressing()) {
-    invertControls = false;
-  } else if (robotController->ButtonRight.pressing()) {
-    invertControls = true;
-  }
-  
-  driveTeleop();
-  sixBarTeleop();
-  clawTeleop();
-  pneumaticsTeleop();
-  wait(20, msec);
-}
 
 // dist in inches
 float Robot::distanceToDegrees(float dist) {
@@ -331,7 +347,7 @@ void Robot::gyroTurn(directionType dir, float degrees) {
   }
 
 }
-
+/*
 void Robot::raiseFrontArm(double amount, double vel, bool blocking) {
   sixBarFL.rotateFor(forward, amount, degrees, vel, velocityUnits::pct, false); // always false here, so both arms raise concurrently
   sixBarFR.rotateFor(forward, amount, degrees, vel, velocityUnits::pct, blocking);
@@ -340,7 +356,7 @@ void Robot::raiseFrontArm(double amount, double vel, bool blocking) {
 void Robot::raiseBackArm(double amount, double vel, bool blocking) {
   sixBarBL.rotateFor(forward, amount, degrees, vel, velocityUnits::pct, false); // always false here, so both arms raise concurrently
   sixBarBR.rotateFor(forward, amount, degrees, vel, velocityUnits::pct, blocking);
-}
+}*/
 
 void Robot::driveCurved(directionType d, float dist, int delta) {
   driveCurved(d, dist, delta, 100);

@@ -14,15 +14,16 @@ controller Controller1(controllerType::primary);
 Robot fifteen = Robot(&Controller1);
 
 int mainTeleop() {
-  fifteen.setTransmission(true);
+  //fifteen.setTransmission(true);
   while (true) {
     fifteen.teleop();
-    wait(100, msec);
   }
   return 0;
 }
 
 void userControl(void) { task controlLoop1(mainTeleop); }
+
+/*
 
 void mainAuto(void) { // 1:1.08
 
@@ -71,6 +72,10 @@ void simpleSkillsAuto() {
   fifteen.driveStraight(70, -42);
 }
 
+*/
+
+/*
+
 void testBalancePlatform(void) {
 
   fifteen.setTransmission(true);
@@ -106,8 +111,8 @@ void testBalancePlatform(void) {
 
   fifteen.balancePlatform();
 }
-
-void autonomous() { thread auto1(mainAuto); }
+*/
+//void autonomous() { thread auto1(mainAuto); }
 
 
 int main() {
@@ -115,10 +120,12 @@ int main() {
   fifteen.gyroSensor.calibrate();
   
   // DRIVER SKILLS TRUE, OTHERWISE FALSE
-  fifteen.setTransmission(false);
+  //fifteen.setTransmission(false);
 
-  Competition.autonomous(autonomous);
-  Competition.drivercontrol(userControl);
+  //Competition.autonomous(autonomous);
+  //Competition.drivercontrol(userControl);
+
+  mainTeleop();
 
   while (true) {
     wait(100, msec);
