@@ -34,16 +34,23 @@ class Robot {
     motor_group leftDrive;
     motor_group rightDrive;
 
+    motor sixBarFL;
+    motor sixBarFR;
+    motor sixBarBL;
+    motor sixBarBR;
+
     //Front/Back Left/Right motors for controlling the sixbar lift
-    motor frontArmL;
-    motor frontArmR;
+    //motor frontArmL;
+    //motor frontArmR;
 
     vision backCamera;
     vision frontCamera;
 
-
-    // digital_out backClaw = digital_out(Brain.ThreeWirePort.D);
-    // digital_out frontClaw = digital_out(Brain.ThreeWirePort.C);
+    // old 15 only
+    digital_out backClaw = digital_out(Brain.ThreeWirePort.D);
+    digital_out frontClaw = digital_out(Brain.ThreeWirePort.C);
+    digital_out drivePistonRight = digital_out(Brain.ThreeWirePort.B);
+    digital_out drivePistonLeft = digital_out(Brain.ThreeWirePort.A);
 
     controller* robotController;
 
@@ -77,6 +84,8 @@ class Robot {
     void turnToAngleGyro(bool clockwise, float angleDegrees, float maxSpeed, int startSlowDownDegrees,
                         int timeout, std::function<bool(void)> func = {});
 
+    void setTransmission(bool slow);
+
 
     void userControl( void );
     void teleop( void );
@@ -87,6 +96,14 @@ class Robot {
     void stopLeft();
     void stopRight();
     void waitGyroCallibrate();
+
+    void clampArmsDown();
+
+    void setFrontClamp(bool clamp);
+    void setBackClamp(bool clamp);
+
+    void raiseFrontArm(double amount, double vel, bool blocking);
+    void raiseBackArm(double amount, double vel, bool blocking);
 
 
     enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };

@@ -33,30 +33,36 @@ void mainAuto() {
 
 void autonomous() { thread auto1(mainAuto); }
 
-/*
+
 
 // https://discord.com/channels/863826887067435029/869718734409957387/937578714324140053
 void skillsNonClimbing() {
 
   fifteen.waitGyroCallibrate();  
 
+  // only on old robot
+  fifteen.setTransmission(true);
+  fifteen.setFrontClamp(false);
+  fifteen.setBackClamp(false);
+  fifteen.clampArmsDown();
+
   // Start the robot facing towards the home goal on platform.
   wait(500, msec);
 
   // Pick up home goal
-  fifteen.driveStraight(70, 42);
+  fifteen.driveStraight(42, 70, reverse, 10, 5);
   wait(500, msec);
   fifteen.setFrontClamp(true);
   wait(2000, msec);
 
   // Orient to align to left yellow goal
-  fifteen.driveCurved(reverse, 10, -40, 70);
+  fifteen.driveCurved(10, 70, forward, 10, 5, 0.5);
   fifteen.raiseFrontArm(150, 70, true);
-  
-  fifteen.gyroTurn(reverse, 90);
+  fifteen.turnToAngleGyro(true, 60, 100, 20, 10);
 
   // Drive to left yellow
-  fifteen.driveStraight(70, -30);
+  fifteen.driveStraightGyro(15, 70, forward, 10, 5);
+  fifteen.goForwardVision(YELLOW, 40, forward, 15, 10, nullptr);
   fifteen.setBackClamp(true);
   wait(500, msec);
   fifteen.raiseFrontArm(150, 70, true);
@@ -67,7 +73,7 @@ void skillsNonClimbing() {
   fifteen.gyroTurn(reverse, 30);
 
 }
-*/
+
 
 int main() {
 

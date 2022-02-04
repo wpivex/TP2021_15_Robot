@@ -1,30 +1,37 @@
 #include "robot.h"
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backCamera(0), frontCamera(0), gyroSensor(PORT6), buttons(c) {
+  rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0), backCamera(0), frontCamera(0), gyroSensor(PORT6), buttons(c) {
 
-  leftMotorA = motor(PORT15, ratio6_1, true); 
-  leftMotorB = motor(PORT12, ratio6_1, true);
-  leftMotorC = motor(PORT13, ratio6_1, true);
-  leftMotorD = motor(PORT11, ratio6_1, true);
+  leftMotorA = motor(PORT1, ratio6_1, false); 
+  leftMotorB = motor(PORT2, ratio6_1, false);
+  leftMotorC = motor(PORT3, ratio6_1, false);
+  leftMotorD = motor(PORT4, ratio6_1, false);
   leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
 
-  rightMotorA = motor(PORT14, ratio6_1, false);
-  rightMotorB = motor(PORT16, ratio6_1, false);
-  rightMotorC = motor(PORT19, ratio6_1, false);
-  rightMotorD = motor(PORT20, ratio6_1, false);
+  rightMotorA = motor(PORT7, ratio6_1, true);
+  rightMotorB = motor(PORT8, ratio6_1, true);
+  rightMotorC = motor(PORT9, ratio6_1, true);
+  rightMotorD = motor(PORT10, ratio6_1, true);
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
+  sixBarFL = motor(PORT17, ratio36_1, true);
+  sixBarFR = motor(PORT19, ratio36_1, false);
+  sixBarBL = motor(PORT18, ratio36_1, true);
+  sixBarBR = motor(PORT20, ratio36_1, false);
+
   // forward is UP, reverse is DOWN
-  frontArmL = motor(PORT1, ratio36_1, true);
-  frontArmR = motor(PORT10, ratio36_1, false);
+  //frontArmL = motor(PORT1, ratio36_1, true);
+  //frontArmR = motor(PORT10, ratio36_1, false);
 
 
   driveType = TWO_STICK_ARCADE;
   robotController = c; 
 
-  frontArmL.setBrake(hold);
-  frontArmR.setBrake(hold);
+  sixBarFL.setBrake(hold);
+  sixBarFR.setBrake(hold);
+  sixBarBL.setBrake(hold);
+  sixBarBR.setBrake(hold);
 
 }
 
@@ -57,7 +64,7 @@ void Robot::driveTeleop() {
     setRightVelocity(forward,100 * (drive-turn)/max);
   }
 }
-
+/*
 void Robot::armTeleop() {
 
   float MOTOR_SPEED = 100;
@@ -73,6 +80,7 @@ void Robot::armTeleop() {
     frontArmR.stop();
   }
 }
+*/
 
 // Run every tick
 void Robot::teleop() {
@@ -284,7 +292,7 @@ int timeout, std::function<bool(void)> func) {
 
   void Robot::updateCamera(Goal goal) {
     backCamera = vision(PORT8, goal.bright, goal.sig);
-    frontCamera = vision(PORT9, goal.bright, goal.sig);
+    frontCamera = vision(PORT16, goal.bright, goal.sig);
   }
 
 // Go forward until the maximum distance is hit, the timeout is reached, or limitSwitch is turned on (collision with goal)
@@ -392,6 +400,23 @@ void Robot::alignToGoalVision(Goal goal, bool clockwise, directionType cameraDir
   stopRight();
 }
 
+void Robot::clampArmsDown() {
+
+  // Weird Kohmei thing to keep arms low
+  sixBarFL.spin(reverse, 20, percent);
+  sixBarFR.spin(reverse, 20, percent);
+  sixBarBL.spin(reverse, 20, percent);
+  sixBarBR.spin(reverse, 20, percent);
+}
+
+void Robot::setFrontClamp(bool clamp) {
+  frontClaw.set(clamp);
+}
+
+void Robot::setBackClamp(bool clamp) {
+  backClaw.set(clamp);
+}
+
 
 void Robot::setLeftVelocity(directionType d, double percent) {
   leftMotorA.spin(d, percent, pct);
@@ -405,6 +430,21 @@ void Robot::setRightVelocity(directionType d, double percent) {
   rightMotorB.spin(d, percent, pct);
   rightMotorC.spin(d, percent, pct);
   rightMotorD.spin(d, percent, pct);
+}
+
+void Robot::setTransmission(bool slow) {
+  drivePistonLeft.set(slow);
+  drivePistonRight.set(slow);
+}
+
+void Robot::raiseFrontArm(double amount, double vel, bool blocking) {
+  sixBarFL.rotateFor(forward, amount, degrees, vel, velocityUnits::pct, false); // always false here, so both arms raise concurrently
+  sixBarFR.rotateFor(forward, amount, degrees, vel, velocityUnits::pct, blocking);
+}
+
+void Robot::raiseBackArm(double amount, double vel, bool blocking) {
+  sixBarBL.rotateFor(forward, amount, degrees, vel, velocityUnits::pct, false); // always false here, so both arms raise concurrently
+  sixBarBR.rotateFor(forward, amount, degrees, vel, velocityUnits::pct, blocking);
 }
 
 void Robot::stopLeft() {
