@@ -31,7 +31,7 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
 // take in axis value between -100 to 100, discard (-5 to 5) values, divide by 100, and cube
 // output is num between -1 and 1
 float normalize(float axisValue) {
-  if (fabs(axisValue) <= 7) {
+  if (fabs(axisValue) <= 5) {
     return 0;
   }
   return pow(axisValue / 100.0, 3);
@@ -51,8 +51,8 @@ void Robot::driveTeleop() {
     setRightVelocity(forward,rightVert);
   }else{
     float drive = driveType == ONE_STICK_ARCADE ? rightVert:leftVert;
-    float turn = rightHoriz;
-    float max = std::max(fabs(drive+turn), fabs(drive-turn));
+    float turn = rightHoriz / 2.0;
+    float max = std::max(1.0, std::max(fabs(drive+turn), fabs(drive-turn)));
     setLeftVelocity(forward,100 * (drive+turn)/max);
     setRightVelocity(forward,100 * (drive-turn)/max);
   }
@@ -420,3 +420,4 @@ void Robot::stopRight() {
   rightMotorC.stop();
   rightMotorD.stop();
 }
+
