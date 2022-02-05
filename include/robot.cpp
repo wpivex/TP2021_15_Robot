@@ -1,7 +1,7 @@
 #include "robot.h"
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0), backCamera(0), frontCamera(0), gyroSensor(PORT6), buttons(c) {
+  rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0), frontArmL(0), frontArmR(0), camera(0), gyroSensor(PORT6), buttons(c) {
 
   leftMotorA = motor(PORT1, ratio6_1, false); 
   leftMotorB = motor(PORT2, ratio6_1, false);
@@ -21,8 +21,8 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   sixBarBR = motor(PORT20, ratio36_1, false);
 
   // forward is UP, reverse is DOWN
-  //frontArmL = motor(PORT1, ratio36_1, true);
-  //frontArmR = motor(PORT10, ratio36_1, false);
+  frontArmL = motor(PORT17, ratio36_1, true);
+  frontArmR = motor(PORT15, ratio36_1, false);
 
 
   driveType = TWO_STICK_ARCADE;
@@ -64,7 +64,7 @@ void Robot::driveTeleop() {
     setRightVelocity(forward,100 * (drive-turn)/max);
   }
 }
-/*
+
 void Robot::armTeleop() {
 
   float MOTOR_SPEED = 100;
@@ -80,7 +80,6 @@ void Robot::armTeleop() {
     frontArmR.stop();
   }
 }
-*/
 
 // Run every tick
 void Robot::teleop() {
@@ -291,8 +290,7 @@ int timeout, std::function<bool(void)> func) {
 }
 
   void Robot::updateCamera(Goal goal) {
-    backCamera = vision(PORT8, goal.bright, goal.sig);
-    frontCamera = vision(PORT16, goal.bright, goal.sig);
+    camera = vision(PORT16, goal.bright, goal.sig);
   }
 
 // Go forward until the maximum distance is hit, the timeout is reached, or limitSwitch is turned on (collision with goal)
@@ -301,7 +299,7 @@ void Robot::goForwardVision(Goal goal, float speed, directionType dir, float max
 digital_in* limitSwitch, std::function<bool(void)> func) {
 
   // The proportion to turn in relation to how offset the goal is. Is consistent through all speeds
-  const float PMOD_MULTIPLIER = 1.2;
+  const float PMOD_MULTIPLIER = 0.3;
 
   int pMod = speed * PMOD_MULTIPLIER;
   float baseSpeed = fmin(speed, 100 - pMod);
@@ -311,8 +309,6 @@ digital_in* limitSwitch, std::function<bool(void)> func) {
 
   updateCamera(goal);
 
-  vision *camera = (dir == forward) ? &frontCamera : &backCamera;
-
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();
   rightMotorA.resetPosition();
@@ -320,7 +316,7 @@ digital_in* limitSwitch, std::function<bool(void)> func) {
   int sign = (dir == forward) ? 1 : -1;
 
   // forward until the maximum distance is hit, the timeout is reached, or limitSwitch is turned on
-  while (dist < totalDist && !isTimeout(startTime, timeout) && (limitSwitch == nullptr || !limitSwitch->value())) {
+  while (dist < totalDist && !isTimeout(startTime, timeout) && (limitSwitch == nullptr || limitSwitch->value())) {
     // log("Start of loop");
     // if there is a concurrent function to run, run it
     if (func) {
@@ -331,11 +327,11 @@ digital_in* limitSwitch, std::function<bool(void)> func) {
     }
 
     // log("Before snapshot");
-    camera->takeSnapshot(goal.sig);
+    camera.takeSnapshot(goal.sig);
     
-    if(camera->largestObject.exists) {
-      log("%d", camera->largestObject.centerX);
-      float mod = pMod * (VISION_CENTER_X-camera->largestObject.centerX) / VISION_CENTER_X;
+    if(camera.largestObject.exists) {
+      log("%d", camera.largestObject.centerX);
+      float mod = pMod * (VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X;
       setLeftVelocity(dir, baseSpeed - mod*sign);
       setRightVelocity(dir, baseSpeed + mod*sign);
     }
@@ -349,13 +345,12 @@ digital_in* limitSwitch, std::function<bool(void)> func) {
   
 }
 
-void Robot::alignToGoalVision(Goal goal, bool clockwise, directionType cameraDirection, int timeout) {
+void Robot::alignToGoalVision(Goal goal, bool clockwise, int timeout) {
 
-  // spin speed is proportional to distance from center, but must be bounded between MIN_SPEED and MAX_SPEED
+    // spin speed is proportional to distance from center, but must be bounded between MIN_SPEED and MAX_SPEED
   const float MAX_SPEED = 40;
 
   updateCamera(goal);
-  vision *camera = (cameraDirection == forward) ? &frontCamera : &backCamera;
 
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();
@@ -363,21 +358,20 @@ void Robot::alignToGoalVision(Goal goal, bool clockwise, directionType cameraDir
 
   // // At the initial snapshot we check where goal is seen. If so, we set our direction to be towards the goal and stop when we pass the center.
   // // Otherwise, the spin will default to the direction specified by the 'clockwise' parameter
-  // camera->takeSnapshot(goal.sig);
-  // if (camera->largestObject.exists) {
-  //   clockwise = (camera->largestObject.centerX / VISION_CENTER_X) > VISION_CENTER_X;
+  // camera.takeSnapshot(goal.sig);
+  // if (camera.largestObject.exists) {
+  //   clockwise = (camera.largestObject.centerX / VISION_CENTER_X) > VISION_CENTER_X;
   // }
 
   int spinSign = clockwise ? -1 : 1;
 
   while (!isTimeout(startTime, timeout)) {
 
-    camera->takeSnapshot(goal.sig);
+    camera.takeSnapshot(goal.sig);
 
     float mod;
-    if (camera->largestObject.exists) {
-      // log("%d", camera->largestObject.centerX);
-      mod = (VISION_CENTER_X-camera->largestObject.centerX) / VISION_CENTER_X;
+    if (camera.largestObject.exists) {
+      mod = (VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X;
 
       // If goal is [left side of screen if clockwise, right side of scree if counterclockwise], that means it's arrived at center and is aligned
       if (fabs(mod) <= 0.05) {

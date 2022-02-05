@@ -40,11 +40,10 @@ class Robot {
     motor sixBarBR;
 
     //Front/Back Left/Right motors for controlling the sixbar lift
-    //motor frontArmL;
-    //motor frontArmR;
+    motor frontArmL;
+    motor frontArmR;
 
-    vision backCamera;
-    vision frontCamera;
+    vision camera;
 
     // old 15 only
     digital_out backClaw = digital_out(Brain.ThreeWirePort.D);
@@ -52,7 +51,7 @@ class Robot {
     digital_out drivePistonRight = digital_out(Brain.ThreeWirePort.B);
     digital_out drivePistonLeft = digital_out(Brain.ThreeWirePort.A);
 
-    digital_in limitSwitchFront = digital_in(Brain.ThreeWirePort.E);
+    digital_in limitSwitchFront = digital_in(Brain.ThreeWirePort.H);
 
     controller* robotController;
 
@@ -78,7 +77,7 @@ class Robot {
 
     void goForwardVision(Goal goal, float speed, directionType dir, float maximumDistance, int timeout, 
                         digital_in* limitSwitch, std::function<bool(void)> func = {});
-    void alignToGoalVision(Goal goal, bool clockwise, directionType cameraDirection, int timeout);
+    void alignToGoalVision(Goal goal, bool clockwise, int timeout);
     void updateCamera(Goal goal);
 
     void driveStraightGyro(float distInches, float speed, directionType dir, int timeout, float slowDownInches,

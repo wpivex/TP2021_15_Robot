@@ -28,7 +28,9 @@ void userControl(void) { task controlLoop1(mainTeleop); }
 void mainAuto() {
 
   fifteen.waitGyroCallibrate();
-
+  // fifteen.alignToGoalVision(YELLOW, true, 1000000);
+  fifteen.goForwardVision(YELLOW, 60, forward, 1000, 10000, &fifteen.limitSwitchFront);
+  // fifteen.setFrontClamp(true);
 }
 
 void autonomous() { thread auto1(mainAuto); }
@@ -80,12 +82,12 @@ int main() {
   fifteen.gyroSensor.calibrate();
   
   // DRIVER SKILLS TRUE, OTHERWISE FALSE
-  //fifteen.setTransmission(false);
+  // fifteen.setTransmission(false);
 
-  //Competition.autonomous(autonomous);
-  //Competition.drivercontrol(userControl);
+  Competition.autonomous(autonomous);
+  Competition.drivercontrol(userControl);
 
-  skillsNonClimbing();
+  // skillsNonClimbing();
 
   while (true) {
     wait(100, msec);
