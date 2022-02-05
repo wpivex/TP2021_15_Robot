@@ -62,15 +62,15 @@ void skillsNonClimbing() {
 
   // Drive to left yellow
   fifteen.driveStraightGyro(15, 70, forward, 10, 5);
-  fifteen.goForwardVision(YELLOW, 40, forward, 15, 10, nullptr);
+  fifteen.goForwardVision(YELLOW, 40, forward, 30, 10, &fifteen.limitSwitchFront);
   fifteen.setBackClamp(true);
   wait(500, msec);
   fifteen.raiseFrontArm(150, 70, true);
 
   // Go to opposite platform
-  fifteen.gyroTurn(forward, 20);
-  fifteen.driveStraight(70, -50);
-  fifteen.gyroTurn(reverse, 30);
+  fifteen.turnToAngleGyro(true, 20, 70, 10, 10);
+  fifteen.driveStraightGyro(50, 70, forward, 10, 10);
+
 
 }
 

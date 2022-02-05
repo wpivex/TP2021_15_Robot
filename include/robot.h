@@ -52,6 +52,8 @@ class Robot {
     digital_out drivePistonRight = digital_out(Brain.ThreeWirePort.B);
     digital_out drivePistonLeft = digital_out(Brain.ThreeWirePort.A);
 
+    digital_in limitSwitchFront = digital_in(Brain.ThreeWirePort.E);
+
     controller* robotController;
 
     inertial gyroSensor;
