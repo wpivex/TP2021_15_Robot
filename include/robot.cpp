@@ -131,18 +131,11 @@ void Robot::balancePlatform() {
 
 void Robot::sixBarTeleop() {
 
-  if (invertControls) {
-    // front
-    handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonR2, &robotController->ButtonR1);
-    // back
-    handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonL2, &robotController->ButtonL1);
+  // front
+  handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonR1, &robotController->ButtonR2);
+  // back
+  handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonL1, &robotController->ButtonL2);
 
-  } else {
-    // front
-    handleSixBarMechanism(&sixBarFL, &sixBarFR, &robotController->ButtonL2, &robotController->ButtonL1);
-    // back
-    handleSixBarMechanism(&sixBarBL, &sixBarBR, &robotController->ButtonR2, &robotController->ButtonR1);
-  }
   
 }
 
@@ -169,19 +162,30 @@ void Robot::clawTeleop() {
   bool x = robotController->ButtonX.pressing();
   bool y = robotController->ButtonY.pressing();
 
-  //back
-  if (invertControls ? x : a) {
-    backClaw.set(true);
-  } else if (invertControls ? y : b) {
-    backClaw.set(false);
-  }
+  static bool prevFront, prevBack;
 
-  //front
-  if (invertControls ? a : x) {
-    frontClaw.set(true);
-  } else if (invertControls ? b : y) {
-    frontClaw.set(false);
+  if(x && x!=prevFront) {
+    frontClaw.set(!frontClaw.value());
   }
+  if(b && b!=prevBack) {
+    backClaw.set(!backClaw.value());
+  }
+  prevFront = x;
+  prevBack = b;
+
+  // //back
+  // if (invertControls ? x : a) {
+  //   backClaw.set(true);
+  // } else if (invertControls ? y : b) {
+  //   backClaw.set(false);
+  // }
+
+  // //front
+  // if (invertControls ? a : x) {
+  //   frontClaw.set(true);
+  // } else if (invertControls ? b : y) {
+  //   frontClaw.set(false);
+  // }
 
 }
 
