@@ -85,7 +85,7 @@ int main() {
   //Competition.autonomous(autonomous);
   //Competition.drivercontrol(userControl);
 
-  mainTeleop();
+  skillsNonClimbing();
 
   while (true) {
     wait(100, msec);
