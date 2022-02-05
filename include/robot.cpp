@@ -18,40 +18,45 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   // forward is UP, reverse is DOWN
   frontArmL = motor(PORT1, ratio36_1, true);
   frontArmR = motor(PORT10, ratio36_1, false);
-
-
-  driveType = TWO_STICK_ARCADE;
+  
   robotController = c; 
 
   frontArmL.setBrake(hold);
   frontArmR.setBrake(hold);
 
+  setControllerMapping(BRIAN_MAPPING);
 }
 
-// take in axis value between -100 to 100, discard (-5 to 5) values, divide by 100, and cube
-// output is num between -1 and 1
-float normalize(float axisValue) {
-  if (fabs(axisValue) <= 5) {
-    return 0;
+void Robot::setControllerMapping(ControllerMapping mapping) {
+
+  cMapping = mapping;
+
+  if (mapping == DEFAULT_MAPPING) {
+    driveType = TWO_STICK_ARCADE;
+    FRONT_ARM_UP = Buttons::UP;
+    FRONT_ARM_DOWN = Buttons::DOWN;
+    CLAW_UP = Buttons::L1;
+    CLAW_DOWN = Buttons::L2;
+  } else if (mapping == BRIAN_MAPPING) {
+    driveType = ONE_STICK_ARCADE;
+    FRONT_ARM_UP = Buttons::NONE; // brian uses left-stick controls
+    FRONT_ARM_DOWN = Buttons::NONE;
+    CLAW_UP = Buttons::L1;
+    CLAW_DOWN = Buttons::L2;
   }
-  return pow(axisValue / 100.0, 3);
 
 }
+
 
 void Robot::driveTeleop() {
 
-  float leftVert = normalize(robotController->Axis3.position());
-  float leftHoriz = normalize(robotController->Axis4.position());
-  float rightVert = normalize(robotController->Axis2.position());
-  float rightHoriz = normalize(robotController->Axis1.position());
-
 
   if(driveType == TANK) {
-    setLeftVelocity(forward,leftVert);
-    setRightVelocity(forward,rightVert);
-  }else{
-    float drive = driveType == ONE_STICK_ARCADE ? rightVert:leftVert;
-    float turn = rightHoriz / 2.0;
+    setLeftVelocity(forward,buttons.axis(Buttons::LEFT_VERTICAL));
+    setRightVelocity(forward,buttons.axis(Buttons::RIGHT_VERTICAL));
+  } else {
+    float drive = driveType == ONE_STICK_ARCADE ? buttons.axis(Buttons::RIGHT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
+    float turn = buttons.axis(Buttons::RIGHT_HORIZONTAL) / 2.0;
     float max = std::max(1.0, std::max(fabs(drive+turn), fabs(drive-turn)));
     setLeftVelocity(forward,100 * (drive+turn)/max);
     setRightVelocity(forward,100 * (drive-turn)/max);
@@ -62,16 +67,30 @@ void Robot::armTeleop() {
 
   float MOTOR_SPEED = 100;
 
-  if (robotController->ButtonUp.pressing()) {
+  float brianArm = buttons.axis(Buttons::LEFT_VERTICAL); // Brian's weird shit
+  
+
+  if (buttons.pressing(FRONT_ARM_UP)) {
     frontArmL.spin(forward, MOTOR_SPEED, pct);
     frontArmR.spin(forward, MOTOR_SPEED, pct);
-  } else if (robotController->ButtonDown.pressing()) {
+  } else if (buttons.pressing(FRONT_ARM_DOWN)) {
     frontArmL.spin(reverse, MOTOR_SPEED, pct);
     frontArmR.spin(reverse, MOTOR_SPEED, pct);
-  } else {
+  } else if (cMapping == BRIAN_MAPPING && brianArm != 0) {
+    frontArmL.spin(forward, brianArm * 100, pct);
+    frontArmR.spin(forward, brianArm * 100, pct);
+  }
+  else {
     frontArmL.stop();
     frontArmR.stop();
   }
+
+  if (buttons.pressing(CLAW_UP)) {
+    frontClaw.set(true);
+  } else if (buttons.pressing(CLAW_DOWN)) {
+    frontClaw.set(false);
+  }
+
 }
 
 // Run every tick

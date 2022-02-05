@@ -42,8 +42,7 @@ class Robot {
     vision frontCamera;
 
 
-    // digital_out backClaw = digital_out(Brain.ThreeWirePort.D);
-    // digital_out frontClaw = digital_out(Brain.ThreeWirePort.C);
+    digital_out frontClaw = digital_out(Brain.ThreeWirePort.A);
 
     controller* robotController;
 
@@ -52,8 +51,12 @@ class Robot {
 
     Buttons buttons;
 
-    enum ControllerMapping {DEFAULT_MAPPING};
-    Buttons::Button FRONT_CLAMP_TOGGLE, BACK_CLAMP_TOGGLE, CLAW_TOGGLE; 
+    enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };
+    DriveType driveType;
+
+    enum ControllerMapping {DEFAULT_MAPPING, BRIAN_MAPPING};
+    ControllerMapping cMapping;
+    Buttons::Button FRONT_ARM_UP, FRONT_ARM_DOWN, FRONT_CLAW_ON, FRONT_CLAW_OFF, CLAW_UP, CLAW_DOWN;
 
     void setControllerMapping(ControllerMapping mapping);
 
@@ -77,6 +80,7 @@ class Robot {
     void turnToAngleGyro(bool clockwise, float angleDegrees, float maxSpeed, int startSlowDownDegrees,
                         int timeout, std::function<bool(void)> func = {});
 
+    float normalize(float axis);
 
     void userControl( void );
     void teleop( void );
@@ -87,10 +91,6 @@ class Robot {
     void stopLeft();
     void stopRight();
     void waitGyroCallibrate();
-
-
-    enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };
-    DriveType driveType;
 
   private:
     void driveTeleop();

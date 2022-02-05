@@ -5,18 +5,38 @@ Buttons::Buttons(vex::controller* c) {
 
   rController = c;
 
+  AXES[0] = &c->Axis1;
+  AXES[1] = &c->Axis2;
+  AXES[2] = &c->Axis3;
+  AXES[3] = &c->Axis4;
+
+}
+
+inline float Buttons::axis(Axis a) {
+  float pos = AXES[a]->position();
+
+  // deadzone
+  if (fabs(pos) <= 5) {
+    return 0;
+  }
+  // normalize between 1-100, and cube to give more sensitivity to small inputs
+  return pow(pos / 100.0, 3);
 }
 
 inline bool Buttons::pressing(Button b) {
+  if (b == NONE) return false;
   return getObject(b)->pressing();
 }
 inline bool Buttons::pressing(int index) {
+  if (index == NONE) return false;
   return pressing(static_cast<Button>(index));
 }
 inline bool Buttons::pressed(Button b) {
+  if (b == NONE) return false;
   return pressing(b) && !prevButtonState[b];
 }
 inline bool Buttons::released(Button b) {
+  if (b == NONE) return false;
   return !pressing(b) && prevButtonState[b];
 }
 
