@@ -7,7 +7,7 @@ class Buttons {
 
   public:
     enum Button {UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3, X = 4, Y = 5, A = 6, B = 7, L1 = 8, L2 = 9, R1 = 10, R2 = 11, NONE = 12};
-    enum Axis {RIGHT_HORIZONTAL = 0 , RIGHT_VERTICAL = 1, LEFT_HORIZONTAL = 2, LEFT_VERTICAL = 3};
+    enum Axis {RIGHT_HORIZONTAL = 0 , RIGHT_VERTICAL = 1, LEFT_VERTICAL = 2, LEFT_HORIZONTAL = 3};
 
 
     Buttons(vex::controller* c);
