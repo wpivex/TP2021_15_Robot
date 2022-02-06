@@ -1,7 +1,7 @@
 #include "robot.h"
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backCamera(0), frontCamera(0), gyroSensor(PORT6), buttons(c) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), backCamera(0), frontCamera(0), gyroSensor(PORT6), buttons(c) {
 
   leftMotorA = motor(PORT15, ratio6_1, true); 
   leftMotorB = motor(PORT12, ratio6_1, true);
@@ -18,11 +18,16 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   // forward is UP, reverse is DOWN
   frontArmL = motor(PORT1, ratio36_1, true);
   frontArmR = motor(PORT10, ratio36_1, false);
+
+  backLiftL = motor(PORT6, ratio36_1, true);
+  backLiftR = motor(PORT7, ratio36_1, true);
   
   robotController = c; 
 
   frontArmL.setBrake(hold);
   frontArmR.setBrake(hold);
+  backLiftL.setBrake(hold);
+  backLiftR.setBrake(hold);
 
   setControllerMapping(BRIAN_MAPPING);
 }
@@ -31,18 +36,21 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 
   cMapping = mapping;
 
+  //Controls that don't change:
+  BACK_LIFT_UP = Buttons::R1;
+  BACK_LIFT_DOWN = Buttons::R2;
+  CLAW_UP = Buttons::L1;
+  CLAW_DOWN = Buttons::L2;
+
+  //Controls that do change:
   if (mapping == DEFAULT_MAPPING) {
     driveType = TWO_STICK_ARCADE;
     FRONT_ARM_UP = Buttons::UP;
     FRONT_ARM_DOWN = Buttons::DOWN;
-    CLAW_UP = Buttons::L1;
-    CLAW_DOWN = Buttons::L2;
   } else if (mapping == BRIAN_MAPPING) {
     driveType = ONE_STICK_ARCADE;
     FRONT_ARM_UP = Buttons::NONE; // brian uses left-stick controls
     FRONT_ARM_DOWN = Buttons::NONE;
-    CLAW_UP = Buttons::L1;
-    CLAW_DOWN = Buttons::L2;
   }
 
 }
@@ -88,9 +96,19 @@ void Robot::armTeleop() {
   if (buttons.pressing(CLAW_UP)) {
     frontClaw.set(true);
   } else if (buttons.pressing(CLAW_DOWN)) {
-    frontClaw.set(false);
+    frontClaw.set(false); 
   }
 
+  if (buttons.pressing(BACK_LIFT_DOWN)){
+    backLiftL.spin(forward,50,pct);
+    backLiftR.spin(forward,50,pct);
+  } else if (buttons.pressing(BACK_LIFT_UP)) {
+    backLiftL.spin(reverse,50,pct);
+    backLiftR.spin(reverse,50,pct);
+  }else{
+    backLiftL.stop();
+    backLiftR.stop();
+  }
 }
 
 // Run every tick

@@ -38,6 +38,10 @@ class Robot {
     motor frontArmL;
     motor frontArmR;
 
+    motor backLiftL;
+    motor backLiftR;
+
+
     vision backCamera;
     vision frontCamera;
 
@@ -56,7 +60,7 @@ class Robot {
 
     enum ControllerMapping {DEFAULT_MAPPING, BRIAN_MAPPING};
     ControllerMapping cMapping;
-    Buttons::Button FRONT_ARM_UP, FRONT_ARM_DOWN, FRONT_CLAW_ON, FRONT_CLAW_OFF, CLAW_UP, CLAW_DOWN;
+    Buttons::Button FRONT_ARM_UP, FRONT_ARM_DOWN, FRONT_CLAW_ON, FRONT_CLAW_OFF, CLAW_UP, CLAW_DOWN, BACK_LIFT_UP, BACK_LIFT_DOWN;
 
     void setControllerMapping(ControllerMapping mapping);
 
