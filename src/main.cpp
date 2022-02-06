@@ -72,6 +72,7 @@ void skillsNonClimbing() {
 int main() {
 
   fifteen.gyroSensor.calibrate();
+  fifteen.setTransmission(true);
   
   // DRIVER SKILLS TRUE, OTHERWISE FALSE
   //fifteen.setTransmission(false);

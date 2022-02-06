@@ -41,8 +41,9 @@ class Robot {
     vision backCamera;
     vision frontCamera;
 
-
-    digital_out frontClaw = digital_out(Brain.ThreeWirePort.A);
+    digital_out drivePistonLeft = digital_out(Brain.ThreeWirePort.A);
+    digital_out drivePistonRight = digital_out(Brain.ThreeWirePort.B);
+    digital_out frontClaw = digital_out(Brain.ThreeWirePort.C);
 
     controller* robotController;
 
@@ -56,7 +57,7 @@ class Robot {
 
     enum ControllerMapping {DEFAULT_MAPPING, BRIAN_MAPPING};
     ControllerMapping cMapping;
-    Buttons::Button FRONT_ARM_UP, FRONT_ARM_DOWN, FRONT_CLAW_ON, FRONT_CLAW_OFF, CLAW_UP, CLAW_DOWN;
+    Buttons::Button FRONT_ARM_UP, FRONT_ARM_DOWN, FRONT_CLAW_ON, FRONT_CLAW_OFF, CLAW_UP, CLAW_DOWN, TRANSMISSION_FAST, TRANSMISSION_SLOW;
 
     void setControllerMapping(ControllerMapping mapping);
 
@@ -81,6 +82,7 @@ class Robot {
                         int timeout, std::function<bool(void)> func = {});
 
     float normalize(float axis);
+    void setTransmission(bool slow);
 
     void userControl( void );
     void teleop( void );

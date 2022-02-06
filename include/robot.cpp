@@ -3,21 +3,24 @@
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
   rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backCamera(0), frontCamera(0), gyroSensor(PORT6), buttons(c) {
 
-  leftMotorA = motor(PORT15, ratio6_1, true); 
-  leftMotorB = motor(PORT12, ratio6_1, true);
-  leftMotorC = motor(PORT13, ratio6_1, true);
-  leftMotorD = motor(PORT11, ratio6_1, true);
+  leftMotorA = motor(PORT1, ratio6_1, false); 
+  leftMotorB = motor(PORT2, ratio6_1, false);
+  leftMotorC = motor(PORT3, ratio6_1, false);
+  leftMotorD = motor(PORT4, ratio6_1, false);
   leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
 
-  rightMotorA = motor(PORT14, ratio6_1, false);
-  rightMotorB = motor(PORT16, ratio6_1, false);
-  rightMotorC = motor(PORT19, ratio6_1, false);
-  rightMotorD = motor(PORT20, ratio6_1, false);
+  rightMotorA = motor(PORT7, ratio6_1, true);
+  rightMotorB = motor(PORT8, ratio6_1, true);
+  rightMotorC = motor(PORT9, ratio6_1, true);
+  rightMotorD = motor(PORT10, ratio6_1, true);
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
   // forward is UP, reverse is DOWN
-  frontArmL = motor(PORT1, ratio36_1, true);
-  frontArmR = motor(PORT10, ratio36_1, false);
+  frontArmL = motor(PORT17, ratio36_1, true);
+  frontArmR = motor(PORT19, ratio36_1, false);
+
+  driveType = TWO_STICK_ARCADE;
+  robotController = c;
   
   robotController = c; 
 
@@ -43,6 +46,8 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
     FRONT_ARM_DOWN = Buttons::NONE;
     CLAW_UP = Buttons::L1;
     CLAW_DOWN = Buttons::L2;
+    TRANSMISSION_FAST = Buttons::R1;
+    TRANSMISSION_SLOW = Buttons::R2;
   }
 
 }
@@ -61,6 +66,11 @@ void Robot::driveTeleop() {
     setLeftVelocity(forward,100 * (drive+turn)/max);
     setRightVelocity(forward,100 * (drive-turn)/max);
   }
+}
+
+void Robot::setTransmission(bool slow) {
+  drivePistonLeft.set(slow);
+  drivePistonRight.set(slow);
 }
 
 void Robot::armTeleop() {
@@ -89,6 +99,12 @@ void Robot::armTeleop() {
     frontClaw.set(true);
   } else if (buttons.pressing(CLAW_DOWN)) {
     frontClaw.set(false);
+  }
+
+  if (buttons.pressing(TRANSMISSION_FAST)) {
+    setTransmission(false);
+  } else if (buttons.pressing(TRANSMISSION_SLOW)) {
+    setTransmission(true);
   }
 
 }
