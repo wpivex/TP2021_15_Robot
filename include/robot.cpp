@@ -16,13 +16,13 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
   sixBarFL = motor(PORT17, ratio36_1, true);
-  sixBarFR = motor(PORT15, ratio36_1, false);
+  sixBarFR = motor(PORT19, ratio36_1, false);
   sixBarBL = motor(PORT18, ratio36_1, false);
   sixBarBR = motor(PORT20, ratio36_1, true);
 
   // forward is UP, reverse is DOWN
   frontArmL = motor(PORT17, ratio36_1, true);
-  frontArmR = motor(PORT15, ratio36_1, false);
+  frontArmR = motor(PORT19, ratio36_1, false);
 
 
   driveType = TWO_STICK_ARCADE;
@@ -70,14 +70,14 @@ void Robot::armTeleop() {
   float MOTOR_SPEED = 100;
 
   if (robotController->ButtonUp.pressing()) {
-    frontArmL.spin(forward, MOTOR_SPEED, pct);
-    frontArmR.spin(forward, MOTOR_SPEED, pct);
+    sixBarFL.spin(forward, MOTOR_SPEED, pct);
+    sixBarFR.spin(forward, MOTOR_SPEED, pct);
   } else if (robotController->ButtonDown.pressing()) {
-    frontArmL.spin(reverse, MOTOR_SPEED, pct);
-    frontArmR.spin(reverse, MOTOR_SPEED, pct);
+    sixBarFL.spin(reverse, MOTOR_SPEED, pct);
+    sixBarFR.spin(reverse, MOTOR_SPEED, pct);
   } else {
-    frontArmL.stop();
-    frontArmR.stop();
+    sixBarFL.stop();
+    sixBarFR.stop();
   }
 }
 
@@ -191,6 +191,8 @@ void Robot::driveStraightGyro(float distInches, float speed, directionType dir, 
   float finalDist = distanceToDegrees(distInches);
   float slowDown = distanceToDegrees(slowDownInches);
 
+  log("straight gyro");
+
 
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();
@@ -302,7 +304,7 @@ void Robot::goForwardVision(Goal goal, float speed, directionType dir, float max
 digital_in* limitSwitch, std::function<bool(void)> func) {
 
   // The proportion to turn in relation to how offset the goal is. Is consistent through all speeds
-  const float PMOD_MULTIPLIER = 0.3;
+  const float PMOD_MULTIPLIER = 0.35;
 
   int pMod = speed * PMOD_MULTIPLIER;
   float baseSpeed = fmin(speed, 100 - pMod);
@@ -331,9 +333,10 @@ digital_in* limitSwitch, std::function<bool(void)> func) {
 
     // log("Before snapshot");
     camera.takeSnapshot(goal.sig);
+    displayVision(&camera);
     
     if(camera.largestObject.exists) {
-      log("%d", camera.largestObject.centerX);
+      //log("%d", camera.largestObject.centerX);
       float mod = pMod * (VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X;
       setLeftVelocity(dir, baseSpeed - mod*sign);
       setRightVelocity(dir, baseSpeed + mod*sign);

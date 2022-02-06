@@ -51,29 +51,29 @@ void skillsNonClimbing() {
 
 
   // Pick up home goal
-  fifteen.driveStraight(6, 20, reverse, 10, 5);
+  fifteen.driveStraight(8, 30, reverse, 10, 5);
   wait(500, msec);
-  fifteen.setFrontClamp(true);
+  fifteen.setBackClamp(true);
   wait(1000, msec);
 
   // Orient to align to left yellow goal
-  fifteen.driveCurved(10, 20, forward, 10, 5, 0.5);
+  fifteen.driveCurved(10, 30, forward, 10, 5, 0.5);
   fifteen.raiseBackArm(150, 70, true);
-  fifteen.turnToAngleGyro(true, 40, 20, 20, 10);
+  fifteen.turnToAngleGyro(true, 43, 20, 20, 10);
 
   wait(1000, msec);
 
   // Drive to left yellow
-  fifteen.driveStraightGyro(10, 20, forward, 10, 5);
-  wait(1000, msec);
-  fifteen.goForwardVision(YELLOW, 15, forward, 45, 10, &fifteen.limitSwitchFront);
-  fifteen.setBackClamp(true);
-  wait(500, msec);
-  fifteen.raiseFrontArm(150, 70, true);
+  //fifteen.driveStraightGyro(10, 20, forward, 10, 5);
+  fifteen.goForwardVision(YELLOW, 25, forward, 45, 10, &fifteen.limitSwitchFront);
+  fifteen.setFrontClamp(true);
+  wait(300, msec);
+  fifteen.raiseFrontArm(600, 70, true);
 
   // Go to opposite platform
   fifteen.turnToAngleGyro(true, 15, 20, 10, 10);
-  fifteen.driveStraightGyro(30, 20, forward, 10, 10);
+  wait(1000, msec);
+  fifteen.driveStraightGyro(35, 20, forward, 10, 10);
 
 
 }
