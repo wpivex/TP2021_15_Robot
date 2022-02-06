@@ -1,7 +1,7 @@
 #include "robot.h"
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0), frontArmL(0), frontArmR(0), camera(0), gyroSensor(PORT6), buttons(c) {
+  rightMotorC(0), rightMotorD(0), sixBarFL(0), sixBarFR(0), sixBarBL(0), sixBarBR(0), frontArmL(0), frontArmR(0), camera(0), gyroSensor(PORT5), buttons(c) {
 
   leftMotorA = motor(PORT1, ratio6_1, false); 
   leftMotorB = motor(PORT2, ratio6_1, false);
@@ -16,9 +16,9 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
   sixBarFL = motor(PORT17, ratio36_1, true);
-  sixBarFR = motor(PORT19, ratio36_1, false);
-  sixBarBL = motor(PORT18, ratio36_1, true);
-  sixBarBR = motor(PORT20, ratio36_1, false);
+  sixBarFR = motor(PORT15, ratio36_1, false);
+  sixBarBL = motor(PORT18, ratio36_1, false);
+  sixBarBR = motor(PORT20, ratio36_1, true);
 
   // forward is UP, reverse is DOWN
   frontArmL = motor(PORT17, ratio36_1, true);
@@ -26,7 +26,7 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
 
 
   driveType = TWO_STICK_ARCADE;
-  robotController = c; 
+  robotController = c;
 
   sixBarFL.setBrake(hold);
   sixBarFR.setBrake(hold);
@@ -186,7 +186,7 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
 
 // Move forward/backward with proportional gyro feedback.
 // finalDegrees is the delta yaw angle at the end of the curve
-void Robot::driveStraightGyro(float distInches, float speed, directionType dir, int timeout, float slowDownInches, std::function<bool(void)> func) {
+void Robot::driveStraightGyro(float distInches, float speed, directionType dir, int timeout, float slowDownInches, bool stopAfter, std::function<bool(void)> func) {
 
   float finalDist = distanceToDegrees(distInches);
   float slowDown = distanceToDegrees(slowDownInches);
@@ -237,8 +237,11 @@ void Robot::driveStraightGyro(float distInches, float speed, directionType dir, 
     wait(20, msec);
   }
 
-  stopLeft();
-  stopRight();
+  if (stopAfter) {
+    stopLeft();
+    stopRight();
+  }
+  
   
 }
 
