@@ -37,10 +37,10 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
   cMapping = mapping;
 
   //Controls that don't change:
-  BACK_LIFT_UP = Buttons::R1;
-  BACK_LIFT_DOWN = Buttons::R2;
-  CLAW_UP = Buttons::L1;
-  CLAW_DOWN = Buttons::L2;
+  BACK_LIFT_UP = Buttons::L1;
+  BACK_LIFT_DOWN = Buttons::L2;
+  CLAW_UP = Buttons::R1;
+  CLAW_DOWN = Buttons::R2;
 
   //Controls that do change:
   if (mapping == DEFAULT_MAPPING) {
