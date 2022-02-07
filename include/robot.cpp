@@ -63,7 +63,7 @@ void Robot::driveTeleop() {
     setLeftVelocity(forward,buttons.axis(Buttons::LEFT_VERTICAL));
     setRightVelocity(forward,buttons.axis(Buttons::RIGHT_VERTICAL));
   } else {
-    float drive = driveType == ONE_STICK_ARCADE ? buttons.axis(Buttons::RIGHT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
+    float drive = driveType == ONE_STICK_ARCADE ? buttons.axis(Buttons::LEFT_VERTICAL) : buttons.axis(Buttons::RIGHT_VERTICAL);
     float turn = buttons.axis(Buttons::RIGHT_HORIZONTAL) / 2.0;
     float max = std::max(1.0, std::max(fabs(drive+turn), fabs(drive-turn)));
     setLeftVelocity(forward,100 * (drive+turn)/max);
@@ -75,7 +75,7 @@ void Robot::armTeleop() {
 
   float MOTOR_SPEED = 100;
 
-  float brianArm = buttons.axis(Buttons::LEFT_VERTICAL); // Brian's weird shit
+  float brianArm = buttons.axis(Buttons::RIGHT_VERTICAL); // Brian's weird shit
   
 
   if (buttons.pressing(FRONT_ARM_UP)) {
