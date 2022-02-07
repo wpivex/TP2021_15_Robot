@@ -1,4 +1,5 @@
 #include "robot.h"
+#include "math.h"
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
   rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), backCamera(0), frontCamera(0), gyroSensor(PORT6), buttons(c) {
@@ -29,7 +30,7 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   backLiftL.setBrake(hold);
   backLiftR.setBrake(hold);
 
-  setControllerMapping(BRIAN_MAPPING);
+  setControllerMapping(DEFAULT_MAPPING);
 }
 
 void Robot::setControllerMapping(ControllerMapping mapping) {
@@ -37,16 +38,16 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
   cMapping = mapping;
 
   //Controls that don't change:
-  BACK_LIFT_UP = Buttons::R1;
-  BACK_LIFT_DOWN = Buttons::R2;
-  CLAW_UP = Buttons::L1;
-  CLAW_DOWN = Buttons::L2;
+  BACK_LIFT_UP = Buttons::UP;
+  BACK_LIFT_DOWN = Buttons::DOWN;
+  CLAW_UP = Buttons::L2;
+  CLAW_DOWN = Buttons::L1;
 
   //Controls that do change:
   if (mapping == DEFAULT_MAPPING) {
     driveType = TWO_STICK_ARCADE;
-    FRONT_ARM_UP = Buttons::UP;
-    FRONT_ARM_DOWN = Buttons::DOWN;
+    FRONT_ARM_UP = Buttons::R1;
+    FRONT_ARM_DOWN = Buttons::R2;
   } else if (mapping == BRIAN_MAPPING) {
     driveType = ONE_STICK_ARCADE;
     FRONT_ARM_UP = Buttons::NONE; // brian uses left-stick controls
