@@ -114,6 +114,44 @@ void skillsNonClimbing() {
   fifteen.driveStraight(70*torqueMultiplier, 100, forward, 10, -1);
 }
 
+void skillsClimbing() {
+  fifteen.waitGyroCallibrate();  
+
+  // only on old robot
+  fifteen.setTransmission(true);
+  fifteen.setFrontClamp(false);
+  fifteen.setBackClamp(false);
+  fifteen.clampArmsDown();
+
+  // Pick up home goal
+  fifteen.driveStraight(15*torqueMultiplier, 50, reverse, 10*torqueMultiplier, 5);
+  fifteen.setBackClamp(true);
+
+  // Orient to align to blue goal
+  fifteen.driveCurved(15*torqueMultiplier, 100, forward, 10, 5, 0.5);
+  fifteen.raiseBackArm(150, 70, true);
+
+  // Pick up blue goal
+  fifteen.goForwardVision(BLUE, 100, forward, 72, 10, nullptr);
+  fifteen.setFrontClamp(true);
+  fifteen.raiseFrontArm(150, 70, true);
+  fifteen.driveStraight(55, 100, reverse, 5, 40);
+
+  // Release blue and pick up yellow
+  fifteen.setFrontClamp(false);
+  fifteen.turnToAngleGyro(true, 90, 100, 30, 5);
+  fifteen.driveCurved(24, 100, forward, 5, 10, 80);
+  fifteen.goForwardVision(YELLOW, 50, forward, 20, 5, nullptr);
+  fifteen.setFrontClamp(true);
+
+  // Drive to start of platform
+  fifteen.turnToAngleGyro(false, 30, 50, 20, 5);
+  fifteen.driveStraightTimed(60, forward, 10);
+  fifteen.turnToAngleGyro(true, 90, 100, 90, 5);
+
+  // Climb
+  
+}
 
 void autonomous() { thread auto1(skillsNonClimbing); }
 
