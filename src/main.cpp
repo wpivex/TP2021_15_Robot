@@ -143,11 +143,16 @@ void skillsClimbing() {
   fifteen.driveCurved(24, 100, forward, 5, 10, 80);
   fifteen.goForwardVision(YELLOW, 50, forward, 20, 5, nullptr);
   fifteen.setFrontClamp(true);
+  fifteen.raiseFrontArm(800, 70, true); // MAX ARM VALUE, UNSURE WHAT IT IS
 
   // Drive to start of platform
   fifteen.turnToAngleGyro(false, 30, 50, 20, 5);
   fifteen.driveStraightTimed(60, forward, 10);
   fifteen.turnToAngleGyro(true, 90, 100, 90, 5);
+
+  // Bring platform down
+  fifteen.driveStraightTimed(10, forward, 3);
+  fifteen.raiseFrontArm(0, 20, true);
 
   // Climb
   
