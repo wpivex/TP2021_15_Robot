@@ -1,7 +1,7 @@
 #include "robot.h"
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), backCamera(0), frontCamera(0), gyroSensor(PORT6), buttons(c) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), frontCamera(0), gyroSensor(PORT9), buttons(c) {
 
   leftMotorA = motor(PORT15, ratio6_1, true); 
   leftMotorB = motor(PORT12, ratio6_1, true);
@@ -71,26 +71,46 @@ void Robot::driveTeleop() {
   }
 }
 
+void Robot::checkLowerLimit(std::function<void(void)> doInstead) {
+
+  float LOWER_LIMIT = 20;
+
+  if (frontArmL.rotation(degrees) <= LOWER_LIMIT) {
+      frontArmL.rotateTo(LOWER_LIMIT, degrees, false);
+      frontArmR.rotateTo(LOWER_LIMIT, degrees, false);
+    } else {
+      doInstead();
+    }
+}
+
+
 void Robot::armTeleop() {
 
   float MOTOR_SPEED = 100;
-
-  float brianArm = buttons.axis(Buttons::LEFT_VERTICAL); // Brian's weird shit
   
+  float brianArm = buttons.axis(Buttons::LEFT_VERTICAL); // Brian's weird shit
 
   if (buttons.pressing(FRONT_ARM_UP)) {
     frontArmL.spin(forward, MOTOR_SPEED, pct);
     frontArmR.spin(forward, MOTOR_SPEED, pct);
   } else if (buttons.pressing(FRONT_ARM_DOWN)) {
-    frontArmL.spin(reverse, MOTOR_SPEED, pct);
-    frontArmR.spin(reverse, MOTOR_SPEED, pct);
+
+    checkLowerLimit([this, MOTOR_SPEED]() {
+      frontArmL.spin(reverse, MOTOR_SPEED, pct);
+      frontArmR.spin(reverse, MOTOR_SPEED, pct);
+    });
+    
   } else if (cMapping == BRIAN_MAPPING && brianArm != 0) {
     frontArmL.spin(forward, brianArm * 100, pct);
     frontArmR.spin(forward, brianArm * 100, pct);
   }
   else {
-    frontArmL.stop();
-    frontArmR.stop();
+
+    checkLowerLimit([this]() {
+      frontArmL.stop();
+      frontArmR.stop();
+    });
+
   }
 
   if (buttons.pressing(CLAW_UP)) {
@@ -320,8 +340,7 @@ int timeout, std::function<bool(void)> func) {
 }
 
   void Robot::updateCamera(Goal goal) {
-    backCamera = vision(PORT8, goal.bright, goal.sig);
-    frontCamera = vision(PORT9, goal.bright, goal.sig);
+    frontCamera = vision(PORT5, goal.bright, goal.sig);
   }
 
 // Go forward until the maximum distance is hit, the timeout is reached, or limitSwitch is turned on (collision with goal)
@@ -340,7 +359,7 @@ digital_in* limitSwitch, std::function<bool(void)> func) {
 
   updateCamera(goal);
 
-  vision *camera = (dir == forward) ? &frontCamera : &backCamera;
+  vision *camera = &frontCamera;
 
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();
@@ -384,7 +403,7 @@ void Robot::alignToGoalVision(Goal goal, bool clockwise, directionType cameraDir
   const float MAX_SPEED = 40;
 
   updateCamera(goal);
-  vision *camera = (cameraDirection == forward) ? &frontCamera : &backCamera;
+  vision *camera = &frontCamera;
 
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();

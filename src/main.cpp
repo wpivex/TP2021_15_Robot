@@ -9,7 +9,6 @@
 // CODE FOR 15" ROBOT
 
 competition Competition;
-controller Controller1(controllerType::primary);
 
 Robot fifteen = Robot(&Controller1);
 
@@ -33,41 +32,46 @@ void mainAuto() {
 
 void autonomous() { thread auto1(mainAuto); }
 
-/*
+void platformClimb() {
 
-// https://discord.com/channels/863826887067435029/869718734409957387/937578714324140053
-void skillsNonClimbing() {
+  fifteen.waitGyroCallibrate();
 
-  fifteen.waitGyroCallibrate();  
+  fifteen.gyroSensor.resetRotation();
 
-  // Start the robot facing towards the home goal on platform.
-  wait(500, msec);
+  double PITCH_SCALE = 3.5;
+  double YAW_SCALE = 2;
+  double speed, turn, left, right;
 
-  // Pick up home goal
-  fifteen.driveStraight(70, 42);
-  wait(500, msec);
-  fifteen.setFrontClamp(true);
-  wait(2000, msec);
+  while (true) {
 
-  // Orient to align to left yellow goal
-  fifteen.driveCurved(reverse, 10, -40, 70);
-  fifteen.raiseFrontArm(150, 70, true);
-  
-  fifteen.gyroTurn(reverse, 90);
+    double pitch = -fifteen.gyroSensor.roll(); // gyro sensor is rotated
+    double yaw = fifteen.gyroSensor.yaw();
 
-  // Drive to left yellow
-  fifteen.driveStraight(70, -30);
-  fifteen.setBackClamp(true);
-  wait(500, msec);
-  fifteen.raiseFrontArm(150, 70, true);
+    // normalized pitch is between -1 and 1, bounded to 30 degrees
+    double pitchN = fmin(1, fmax(-1, (pitch / 30.0)));
 
-  // Go to opposite platform
-  fifteen.gyroTurn(forward, 20);
-  fifteen.driveStraight(70, -50);
-  fifteen.gyroTurn(reverse, 30);
+
+
+    speed = 0 - pitch * PITCH_SCALE;
+    turn = yaw * YAW_SCALE;
+    turn = 0;
+
+    left = fmax(-100, fmin(speed - turn, 100));
+    right = fmax(-100, fmin(speed + turn, 100));
+
+    //fifteen.setLeftVelocity(forward, left);
+    //fifteen.setRightVelocity(forward, right);
+
+    //logController("%f,%f,%f,%f", pitch, yaw, left, right);
+    logController("%f", pitchN);
+
+    wait(100, msec);
+  }
+
+  fifteen.stopLeft();
+  fifteen.stopRight();
 
 }
-*/
 
 int main() {
 
@@ -79,7 +83,7 @@ int main() {
   //Competition.autonomous(autonomous);
   //Competition.drivercontrol(userControl);
 
-  mainTeleop();
+  platformClimb();
 
   while (true) {
     wait(100, msec);

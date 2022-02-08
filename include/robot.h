@@ -42,7 +42,6 @@ class Robot {
     motor backLiftR;
 
 
-    vision backCamera;
     vision frontCamera;
 
 
@@ -98,5 +97,6 @@ class Robot {
 
   private:
     void driveTeleop();
+    void checkLowerLimit(std::function<void(void)> doInstead);
 
 };
