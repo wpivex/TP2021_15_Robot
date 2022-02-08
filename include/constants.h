@@ -4,6 +4,7 @@
 #include "vex.h"
 
 vex::brain Brain;
+vex::controller Controller1(vex::controllerType::primary);
 
 struct Goal {
   int id;
@@ -49,6 +50,16 @@ static inline void log(const char *format, Args ... args) {
   Brain.Screen.clearScreen();
   Brain.Screen.setCursor(1, 1);
   Brain.Screen.print(format, args...);
+
+}
+
+// log output to controller display the way you would with printf
+template <class ... Args>
+static inline void logController(const char *format, Args ... args) {
+
+  Controller1.Screen.clearScreen();
+  Controller1.Screen.setCursor(1, 1);
+  Controller1.Screen.print(format, args...);
 
 }
 

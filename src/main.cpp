@@ -9,7 +9,7 @@
 // CODE FOR 15" ROBOT
 
 competition Competition;
-controller Controller1(controllerType::primary);
+
 
 Robot fifteen = Robot(&Controller1);
 
