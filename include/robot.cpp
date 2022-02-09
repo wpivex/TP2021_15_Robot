@@ -136,13 +136,16 @@ void Robot::teleop() {
 }
 
 void Robot::waitGyroCallibrate() {
-  int i = 0;
-  while (gyroSensor.isCalibrating()) {
-    wait(20, msec);
-    i++;
+  if (gyroSensor.isCalibrating()) {
+    int i = 0;
+    while (gyroSensor.isCalibrating()) {
+      wait(20, msec);
+      i++;
+    }
+    gyroSensor.resetRotation();
+    wait(1000, msec);
   }
-  gyroSensor.resetRotation();
-  wait(1000, msec);
+  
   initialPitch = gyroSensor.roll(); 
 }
 
@@ -321,7 +324,7 @@ int timeout, std::function<bool(void)> func) {
     }
 
     currDegrees = fabs(gyroSensor.rotation());
-    if (currDegrees < startSlowDownDegrees) {
+    if (currDegrees < angleDegrees - startSlowDownDegrees) {
       // before hitting theshhold, speed is constant at starting speed
       speed = maxSpeed;
     } else {
@@ -329,7 +332,7 @@ int timeout, std::function<bool(void)> func) {
       speed = TURN_MIN_SPEED + delta * (speed - TURN_MIN_SPEED);
     }
 
-    log("%f %f", speed, currDegrees);
+    logController("%f %f", speed, currDegrees);
     setLeftVelocity(clockwise ? forward : reverse, speed);
     setRightVelocity(clockwise ? reverse : forward, speed);
     wait(20, msec);
