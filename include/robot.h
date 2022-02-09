@@ -79,7 +79,7 @@ class Robot {
     void driveStraightTimed(float speed, directionType dir, int timeMs, bool stopAfter = true, std::function<bool(void)> func = {});
 
     void goForwardVision(Goal goal, float speed, directionType dir, float maximumDistance, int timeout, 
-                        digital_in* limitSwitch, std::function<bool(void)> func = {});
+                        digital_in* limitSwitch = nullptr, std::function<bool(void)> func = {});
     void alignToGoalVision(Goal goal, bool clockwise, directionType cameraDirection, int timeout);
     void updateCamera(Goal goal);
 
@@ -87,6 +87,8 @@ class Robot {
                             std::function<bool(void)> func = {});
     void turnToAngleGyro(bool clockwise, float angleDegrees, float maxSpeed, int startSlowDownDegrees,
                         int timeout, std::function<bool(void)> func = {});
+    void turnToUniversalAngleGyro(float universalAngleDegrees, float maxSpeed, int startSlowDownDegrees,
+int timeout, std::function<bool(void)> func = {});
 
     float normalize(float axis);
 

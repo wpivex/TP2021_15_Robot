@@ -339,9 +339,23 @@ int timeout, std::function<bool(void)> func) {
   stopRight();
 }
 
-  void Robot::updateCamera(Goal goal) {
-    frontCamera = vision(PORT5, goal.bright, goal.sig);
+void Robot::turnToUniversalAngleGyro(float universalAngleDegrees, float maxSpeed, int startSlowDownDegrees,
+int timeout, std::function<bool(void)> func) {
+  float universalHeading = gyroSensor.heading(degrees);
+  float turnAngle = fabs(universalHeading-universalAngleDegrees);
+  bool clockwise = universalHeading < universalAngleDegrees;
+
+  if (turnAngle > 180) {
+    clockwise = !clockwise;
+    turnAngle = 360 - turnAngle;
   }
+
+  turnToAngleGyro(clockwise, turnAngle, maxSpeed, startSlowDownDegrees, timeout);
+}
+
+void Robot::updateCamera(Goal goal) {
+  frontCamera = vision(PORT5, goal.bright, goal.sig);
+}
 
 // Go forward until the maximum distance is hit, the timeout is reached, or limitSwitch is turned on (collision with goal)
 // for indefinite timeout, set to -1
@@ -349,7 +363,7 @@ void Robot::goForwardVision(Goal goal, float speed, directionType dir, float max
 digital_in* limitSwitch, std::function<bool(void)> func) {
 
   // The proportion to turn in relation to how offset the goal is. Is consistent through all speeds
-  const float PMOD_MULTIPLIER = 1.2;
+  const float PMOD_MULTIPLIER = 0.4;
 
   int pMod = speed * PMOD_MULTIPLIER;
   float baseSpeed = fmin(speed, 100 - pMod);
@@ -400,7 +414,7 @@ digital_in* limitSwitch, std::function<bool(void)> func) {
 void Robot::alignToGoalVision(Goal goal, bool clockwise, directionType cameraDirection, int timeout) {
 
   // spin speed is proportional to distance from center, but must be bounded between MIN_SPEED and MAX_SPEED
-  const float MAX_SPEED = 40;
+  const float MAX_SPEED = 10;
 
   updateCamera(goal);
   vision *camera = &frontCamera;
