@@ -25,6 +25,8 @@ static const float TURN_MIN_SPEED = 8; // the robot approaches this speed at the
 
 static const int ARM_TIMEOUT = 3000;
 
+static double initialPitch = 0;
+
 
 static inline float distanceToDegrees(float distInches) {
   return distInches * 360 / 2 / M_PI / (3.25 / 2); // 4 in diameter wheels

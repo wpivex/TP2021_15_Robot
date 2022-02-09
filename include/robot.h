@@ -63,6 +63,11 @@ class Robot {
 
     void setControllerMapping(ControllerMapping mapping);
 
+    void clawUp();
+    void clawDown();
+
+    void moveArmTo(double degr, double speed);
+
     void smartDrive(float distInches, float speed, directionType left, directionType right, int timeout, float slowDownInches, 
                     float turnPercent, bool stopAfter, std::function<bool(void)> func);
     void driveTurn(float degrees, float speed, bool isClockwise, int timeout, float slowDownInches = 10, 

@@ -71,22 +71,24 @@ void Robot::driveTeleop() {
   }
 }
 
-void Robot::checkLowerLimit(std::function<void(void)> doInstead) {
-
-  float LOWER_LIMIT = 20;
-
-  if (frontArmL.rotation(degrees) <= LOWER_LIMIT) {
-      frontArmL.rotateTo(LOWER_LIMIT, degrees, false);
-      frontArmR.rotateTo(LOWER_LIMIT, degrees, false);
-    } else {
-      doInstead();
-    }
+void Robot::clawUp() {
+  frontClaw.set(false);
 }
 
+void Robot::clawDown() {
+  frontClaw.set(true);
+}
+
+void Robot::moveArmTo(double degr, double speed) {
+  frontArmL.rotateTo(degr, degrees, speed, velocityUnits::pct, false);
+  frontArmR.rotateTo(degr, degrees, speed, velocityUnits::pct, true);
+}
 
 void Robot::armTeleop() {
 
   float MOTOR_SPEED = 100;
+
+  logController("%f", frontArmL.rotation(degrees));
   
   float brianArm = buttons.axis(Buttons::LEFT_VERTICAL); // Brian's weird shit
 
@@ -95,10 +97,8 @@ void Robot::armTeleop() {
     frontArmR.spin(forward, MOTOR_SPEED, pct);
   } else if (buttons.pressing(FRONT_ARM_DOWN)) {
 
-    checkLowerLimit([this, MOTOR_SPEED]() {
-      frontArmL.spin(reverse, MOTOR_SPEED, pct);
-      frontArmR.spin(reverse, MOTOR_SPEED, pct);
-    });
+    frontArmL.spin(reverse, MOTOR_SPEED, pct);
+    frontArmR.spin(reverse, MOTOR_SPEED, pct);
     
   } else if (cMapping == BRIAN_MAPPING && brianArm != 0) {
     frontArmL.spin(forward, brianArm * 100, pct);
@@ -106,11 +106,8 @@ void Robot::armTeleop() {
   }
   else {
 
-    checkLowerLimit([this]() {
-      frontArmL.stop();
-      frontArmR.stop();
-    });
-
+    frontArmL.stop();
+    frontArmR.stop();
   }
 
   if (buttons.pressing(CLAW_UP)) {
@@ -144,6 +141,9 @@ void Robot::waitGyroCallibrate() {
     wait(20, msec);
     i++;
   }
+  gyroSensor.resetRotation();
+  wait(1000, msec);
+  initialPitch = gyroSensor.roll(); 
 }
 
 void Robot::driveStraightTimed(float speed, directionType dir, int timeout, bool stopAfter, std::function<bool(void)> func) {
