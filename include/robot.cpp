@@ -146,26 +146,26 @@ void Robot::waitGyroCallibrate() {
   initialPitch = gyroSensor.roll(); 
 }
 
-void Robot::driveStraightTimed(float speed, directionType dir, int timeout, bool stopAfter, std::function<bool(void)> func) {
+void Robot::driveStraightTimed(float speed, directionType dir, float timeout, bool stopAfter, std::function<bool(void)> func) {
   driveStraight(0, speed, dir, timeout, 0, stopAfter, func);
 }
 
 
-void Robot::driveStraight(float distInches, float speed, directionType dir, int timeout, 
+void Robot::driveStraight(float distInches, float speed, directionType dir, float timeout, 
 float slowDownInches, bool stopAfter, std::function<bool(void)> func) {
 
   driveCurved(distInches, speed, dir, timeout, slowDownInches, 0, stopAfter, func);
 
 }
 
-void Robot::driveCurved(float distInches, float speed, directionType dir, int timeout, 
+void Robot::driveCurved(float distInches, float speed, directionType dir, float timeout, 
 float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void)> func) {
 
   smartDrive(distInches, speed, dir, dir, timeout, slowDownInches, turnPercent, stopAfter, func);
 
 }
 
-void Robot::driveTurn(float degrees, float speed, bool isClockwise, int timeout, float slowDownInches, 
+void Robot::driveTurn(float degrees, float speed, bool isClockwise, float timeout, float slowDownInches, 
 bool stopAfter, std::function<bool(void)> func) {
 
   smartDrive(getTurnAngle(degrees), speed, isClockwise ? forward : reverse, isClockwise ? reverse: forward,
@@ -183,7 +183,7 @@ bool stopAfter, std::function<bool(void)> func) {
 // turnPercent (from 0-1) is percent of speed to curve (so curvature now independent from speed). optional, default to 0
 // stopAfter whether to stop motors after function call.
 // func is an optional nonblocking function you can use to run as the same time as this method. It returns true when nonblocking function is gone
-void Robot::smartDrive(float distInches, float speed, directionType left, directionType right, int timeout, 
+void Robot::smartDrive(float distInches, float speed, directionType left, directionType right, float timeout, 
 float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void)> func) {
 
 
@@ -236,7 +236,7 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
 
 // Move forward/backward with proportional gyro feedback.
 // finalDegrees is the delta yaw angle at the end of the curve
-void Robot::driveStraightGyro(float distInches, float speed, directionType dir, int timeout, float slowDownInches, std::function<bool(void)> func) {
+void Robot::driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, std::function<bool(void)> func) {
 
   float finalDist = distanceToDegrees(distInches);
   float slowDown = distanceToDegrees(slowDownInches);

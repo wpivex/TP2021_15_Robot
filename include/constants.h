@@ -41,7 +41,7 @@ static inline float getTurnAngle(float turnAngle) {
 }
 
 // timeout in seconds
-static inline bool isTimeout(int startTime, int timeout) {
+static inline bool isTimeout(int startTime, float timeout) {
   return timeout != -1 && vex::timer::system() >= startTime + timeout*1000;
 }
 
