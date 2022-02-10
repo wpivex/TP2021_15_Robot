@@ -14,6 +14,8 @@ Robot fifteen = Robot(&Controller1);
 
 int mainTeleop() {
   //fifteen.setTransmission(true);
+  fifteen.backLiftL.resetRotation();
+  fifteen.backLiftR.resetRotation();
   while (true) {
     fifteen.teleop();
     wait(20, msec);
@@ -37,10 +39,14 @@ void vcat300Skills() {
   float turnSpeed = 8;
 
   fifteen.waitGyroCallibrate();
-  fifteen.gyroSensor.setHeading(284, deg);
+  fifteen.gyroSensor.setHeading(279.5, deg);
 
   fifteen.frontArmL.resetRotation();
   fifteen.frontArmR.resetRotation();
+  fifteen.backLiftL.resetRotation();
+  fifteen.backLiftR.resetPosition();
+  fifteen.backLiftL.spin(forward, 0, pct);
+  fifteen.backLiftR.spin(forward, 0, pct);
 
   // grab home goal
   fifteen.driveStraight(10, 30, forward, 10, 5);
@@ -130,9 +136,6 @@ void vcat300Skills() {
   fifteen.rightMotorB.setBrake(hold);
   fifteen.rightMotorC.setBrake(hold);
   fifteen.rightMotorD.setBrake(hold);
-
-
-
 
 
 }
@@ -240,7 +243,21 @@ void platformClimb() {
 
 }
 
-void autonomous() { thread auto1(vcat300Skills); }
+void logDistance() {
+
+  fifteen.leftMotorA.resetRotation();
+  fifteen.rightMotorA.resetRotation();
+
+  while (true) {
+    float left = degreesToDistance(fifteen.leftMotorA.rotation(degrees));
+    float right = degreesToDistance(fifteen.rightMotorA.rotation(degrees));
+    log("%f %f", left, right);
+    logController("%f %f", left, right);
+    wait(20, msec);
+  }
+}
+
+void autonomous() { thread auto1(logDistance); }
 
 int main() {
 

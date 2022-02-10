@@ -3,14 +3,17 @@
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
   rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), frontCamera(0), gyroSensor(PORT9), buttons(c) {
 
-  leftMotorA = motor(PORT15, ratio6_1, true); 
-  leftMotorB = motor(PORT12, ratio6_1, true);
-  leftMotorC = motor(PORT13, ratio6_1, true);
-  leftMotorD = motor(PORT11, ratio6_1, true);
+  leftMotorA = motor(PORT3, ratio6_1, true); 
+  leftMotorB = motor(PORT11, ratio6_1, true);
+  leftMotorC = motor(PORT12, ratio6_1, true);
+  leftMotorD = motor(PORT14, ratio6_1, true);
   leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
 
-  rightMotorA = motor(PORT14, ratio6_1, false);
-  rightMotorB = motor(PORT16, ratio6_1, false);
+  // 3L 11L 12L 14L left
+  // 16r 18r 19r 20r right
+
+  rightMotorA = motor(PORT16, ratio6_1, false);
+  rightMotorB = motor(PORT18, ratio6_1, false);
   rightMotorC = motor(PORT19, ratio6_1, false);
   rightMotorD = motor(PORT20, ratio6_1, false);
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
@@ -19,8 +22,10 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   frontArmL = motor(PORT1, ratio36_1, true);
   frontArmR = motor(PORT10, ratio36_1, false);
 
-  backLiftL = motor(PORT6, ratio36_1, true);
-  backLiftR = motor(PORT7, ratio36_1, true);
+  backLiftL = motor(PORT8, ratio36_1, true);
+  backLiftR = motor(PORT13, ratio36_1, true);
+
+  // 8 and 13??
   
   robotController = c; 
 
@@ -36,21 +41,33 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 
   cMapping = mapping;
 
+
   //Controls that don't change:
-  BACK_LIFT_UP = Buttons::R1;
+  BACK_LIFT_MID = Buttons::R1;
   BACK_LIFT_DOWN = Buttons::R2;
+  BACK_LIFT_UPPING = Buttons::RIGHT;
+  BACK_LIFT_DOWNING = Buttons::LEFT;
+
   CLAW_UP = Buttons::L1;
   CLAW_DOWN = Buttons::L2;
 
   //Controls that do change:
   if (mapping == DEFAULT_MAPPING) {
+
     driveType = TWO_STICK_ARCADE;
+
     FRONT_ARM_UP = Buttons::UP;
     FRONT_ARM_DOWN = Buttons::DOWN;
+    BACK_LIFT_UP = Buttons::NONE;
+
+
   } else if (mapping == BRIAN_MAPPING) {
     driveType = ONE_STICK_ARCADE;
+
     FRONT_ARM_UP = Buttons::NONE; // brian uses left-stick controls
     FRONT_ARM_DOWN = Buttons::NONE;
+    BACK_LIFT_UP = Buttons::UP;
+
   }
 
 }
@@ -71,6 +88,38 @@ void Robot::driveTeleop() {
   }
 }
 
+void Robot::setBackLift(Buttons::Button b, bool blocking) {
+
+  float SPEED = 100;
+
+  if (b == BACK_LIFT_UP) {
+    backLiftL.rotateTo(0, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(0, degrees, SPEED, velocityUnits::pct, blocking);
+  } else if (b == BACK_LIFT_MID) {
+    backLiftL.rotateTo(150, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(150, degrees, SPEED, velocityUnits::pct, blocking);
+  } else if (b == BACK_LIFT_DOWN) {
+    backLiftL.rotateTo(385, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(385, degrees, SPEED, velocityUnits::pct, blocking);
+  }
+
+}
+
+
+void Robot::backLiftTeleop() {
+  setBackLift(buttons.get(), false);
+  if (buttons.pressing(BACK_LIFT_UPPING)){
+    backLiftL.spin(forward,50,pct);
+    backLiftR.spin(forward,50,pct);
+  } else if (buttons.pressing(BACK_LIFT_DOWNING)) {
+    backLiftL.spin(reverse,50,pct);
+    backLiftR.spin(reverse,50,pct);
+  } else if (buttons.released(BACK_LIFT_DOWNING) || buttons.released(BACK_LIFT_UPPING)) {
+    backLiftL.stop();
+    backLiftR.stop();
+  }
+}
+
 void Robot::clawUp() {
   frontClaw.set(false);
 }
@@ -88,7 +137,7 @@ void Robot::armTeleop() {
 
   float MOTOR_SPEED = 100;
 
-  logController("%f", frontArmL.rotation(degrees));
+  //logController("%f", frontArmL.rotation(degrees));
   
   float brianArm = buttons.axis(Buttons::LEFT_VERTICAL); // Brian's weird shit
 
@@ -116,16 +165,6 @@ void Robot::armTeleop() {
     frontClaw.set(false); 
   }
 
-  if (buttons.pressing(BACK_LIFT_DOWN)){
-    backLiftL.spin(forward,50,pct);
-    backLiftR.spin(forward,50,pct);
-  } else if (buttons.pressing(BACK_LIFT_UP)) {
-    backLiftL.spin(reverse,50,pct);
-    backLiftR.spin(reverse,50,pct);
-  }else{
-    backLiftL.stop();
-    backLiftR.stop();
-  }
 }
 
 // Run every tick
@@ -133,6 +172,9 @@ void Robot::teleop() {
   
   driveTeleop();
   armTeleop();
+  backLiftTeleop();
+
+  buttons.updateButtonState();
 }
 
 void Robot::waitGyroCallibrate() {
@@ -189,6 +231,7 @@ bool stopAfter, std::function<bool(void)> func) {
 void Robot::smartDrive(float distInches, float speed, directionType left, directionType right, float timeout, 
 float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void)> func) {
 
+  if (slowDownInches > distInches) slowDownInches = distInches;
 
   float finalDist = distInches == 0? -1 : distanceToDegrees(distInches);
   float slowDown = distanceToDegrees(slowDownInches);
@@ -241,6 +284,8 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
 // finalDegrees is the delta yaw angle at the end of the curve
 void Robot::driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, 
 bool resetEncoder, std::function<bool(void)> func) {
+
+  if (slowDownInches > distInches) slowDownInches = distInches;
 
   float finalDist = distanceToDegrees(distInches);
   float slowDown = distanceToDegrees(slowDownInches);
@@ -316,6 +361,7 @@ std::function<bool(void)> func) {
 void Robot::turnToAngleGyro(bool clockwise, float angleDegrees, float maxSpeed, int startSlowDownDegrees,
 int timeout, std::function<bool(void)> func) {
 
+  if (startSlowDownDegrees > angleDegrees) startSlowDownDegrees = angleDegrees;
 
   float speed;
 
@@ -343,7 +389,7 @@ int timeout, std::function<bool(void)> func) {
       speed = maxSpeed;
     } else {
       float delta = (angleDegrees - currDegrees) / (angleDegrees - startSlowDownDegrees); // starts at 1 @deg=startSlowDeg, becomes 0 @deg = final
-      speed = TURN_MIN_SPEED + delta * (speed - TURN_MIN_SPEED);
+      speed = TURN_MIN_SPEED + delta * (maxSpeed - TURN_MIN_SPEED);
     }
 
     logController("%f %f", speed, currDegrees);

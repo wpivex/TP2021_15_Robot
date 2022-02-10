@@ -59,9 +59,13 @@ class Robot {
 
     enum ControllerMapping {DEFAULT_MAPPING, BRIAN_MAPPING};
     ControllerMapping cMapping;
-    Buttons::Button FRONT_ARM_UP, FRONT_ARM_DOWN, FRONT_CLAW_ON, FRONT_CLAW_OFF, CLAW_UP, CLAW_DOWN, BACK_LIFT_UP, BACK_LIFT_DOWN;
+    Buttons::Button FRONT_ARM_UP, FRONT_ARM_DOWN, FRONT_CLAW_ON, FRONT_CLAW_OFF, CLAW_UP, CLAW_DOWN;
+    Buttons::Button BACK_LIFT_UP, BACK_LIFT_MID, BACK_LIFT_DOWN, BACK_LIFT_UPPING, BACK_LIFT_DOWNING;
 
     void setControllerMapping(ControllerMapping mapping);
+
+    void setBackLift(Buttons::Button b, bool blocking);
+    void backLiftTeleop();
 
     void clawUp();
     void clawDown();
