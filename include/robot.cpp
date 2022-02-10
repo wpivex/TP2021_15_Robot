@@ -295,6 +295,19 @@ bool resetEncoder, std::function<bool(void)> func) {
   stopRight();
   
 }
+// drive straight in a specific direction (0-360)
+void Robot::driveStraightGyroHeading(float distInches, float speed, float head, directionType dir, float timeout, float slowDownInches, 
+std::function<bool(void)> func) {
+
+  float correction = gyroSensor.heading() - head;
+  if (correction > 180) correction -= 360;
+  logController("correction: %f", correction);
+  gyroSensor.setRotation(correction, degrees);
+
+  driveStraightGyro(distInches, speed, dir, timeout, slowDownInches, false);
+
+
+}
 
 // BOTH angleDegrees AND startSlowDownDegrees SHOULD BE POSITIVE
 // angleDegrees indicates the angle to turn to.
