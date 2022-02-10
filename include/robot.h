@@ -66,7 +66,7 @@ class Robot {
     void clawUp();
     void clawDown();
 
-    void moveArmTo(double degr, double speed);
+    void moveArmTo(double degr, double speed, bool blocking = true);
 
     void smartDrive(float distInches, float speed, directionType left, directionType right, float timeout, float slowDownInches, 
                     float turnPercent, bool stopAfter, std::function<bool(void)> func);
@@ -86,7 +86,7 @@ class Robot {
     void driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, bool resetEncoder = true,
                             std::function<bool(void)> func = {});
     void driveStraightGyroHeading(float distInches, float speed, float head, directionType dir, float timeout, float slowDownInches, 
-std::function<bool(void)> func);
+std::function<bool(void)> func = {});
     void turnToAngleGyro(bool clockwise, float angleDegrees, float maxSpeed, int startSlowDownDegrees,
                         int timeout, std::function<bool(void)> func = {});
     void turnToUniversalAngleGyro(float universalAngleDegrees, float maxSpeed, int startSlowDownDegrees,

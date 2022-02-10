@@ -79,9 +79,9 @@ void Robot::clawDown() {
   frontClaw.set(true);
 }
 
-void Robot::moveArmTo(double degr, double speed) {
+void Robot::moveArmTo(double degr, double speed, bool blocking) {
   frontArmL.rotateTo(degr, degrees, speed, velocityUnits::pct, false);
-  frontArmR.rotateTo(degr, degrees, speed, velocityUnits::pct, true);
+  frontArmR.rotateTo(degr, degrees, speed, velocityUnits::pct, blocking);
 }
 
 void Robot::armTeleop() {
@@ -301,11 +301,11 @@ std::function<bool(void)> func) {
 
   float correction = gyroSensor.heading() - head;
   if (correction > 180) correction -= 360;
+  else if (correction < -180) correction += 360;
   logController("correction: %f", correction);
   gyroSensor.setRotation(correction, degrees);
 
   driveStraightGyro(distInches, speed, dir, timeout, slowDownInches, false);
-
 
 }
 
