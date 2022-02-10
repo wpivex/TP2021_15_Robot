@@ -239,7 +239,8 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
 
 // Move forward/backward with proportional gyro feedback.
 // finalDegrees is the delta yaw angle at the end of the curve
-void Robot::driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, std::function<bool(void)> func) {
+void Robot::driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, 
+bool resetEncoder, std::function<bool(void)> func) {
 
   float finalDist = distanceToDegrees(distInches);
   float slowDown = distanceToDegrees(slowDownInches);
@@ -248,7 +249,7 @@ void Robot::driveStraightGyro(float distInches, float speed, directionType dir, 
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();
   rightMotorA.resetPosition();
-  gyroSensor.resetRotation();
+  if (resetEncoder) gyroSensor.resetRotation();
 
   const float GYRO_CONSTANT = 0.008;
   bool hasSetToDone = false;

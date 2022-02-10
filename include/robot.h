@@ -83,7 +83,7 @@ class Robot {
     void alignToGoalVision(Goal goal, bool clockwise, directionType cameraDirection, int timeout);
     void updateCamera(Goal goal);
 
-    void driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches,
+    void driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, bool resetEncoder = true,
                             std::function<bool(void)> func = {});
     void turnToAngleGyro(bool clockwise, float angleDegrees, float maxSpeed, int startSlowDownDegrees,
                         int timeout, std::function<bool(void)> func = {});
