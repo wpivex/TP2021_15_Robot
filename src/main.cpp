@@ -73,24 +73,25 @@ void vcat300Skills() {
   fifteen.driveStraightGyro(13, 30, forward, 5, 5);
   fifteen.clawDown(); // clamp red
   wait(300, msec);
+  fifteen.driveStraightGyro(3, 30, reverse, 3, 3);
   fifteen.moveArmTo(600, 100);
   fifteen.driveStraightTimed(30, forward, 2); // align with wall
   fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
   //wait(300, msec);
 
-  fifteen.driveStraightGyro(20, 40, reverse, 10, 10);
-  fifteen.turnToUniversalAngleGyro(180, turnSpeed, 10, 5);
+  fifteen.driveStraightGyro(18, 40, reverse, 10, 10);
+  fifteen.turnToAngleGyro(false, 86, 7, 0, 10);
   wait(300, msec);
   fifteen.driveStraightGyro(65, 100, forward, 10, 10);
   fifteen.clawUp(); // drop off red
   wait(300, msec);
 
   // get blue across field
-  fifteen.driveStraightGyro(3, 40, reverse, 10, 5);
+  fifteen.driveStraightGyro(6.5, 40, reverse, 10, 5);
   fifteen.turnToUniversalAngleGyro(90, turnSpeed, 10, 5);
   fifteen.moveArmTo(lowArmAngle, 100);
-  fifteen.driveStraightGyro(35, 100, forward, 10, 10);
-  fifteen.goForwardVision(BLUE, 40, forward, 36, 10, nullptr);
+  fifteen.driveStraightGyro(32, 100, forward, 10, 10);
+  fifteen.goForwardVision(BLUE, 45, forward, 39, 10, nullptr);
   fifteen.clawDown(); // clamp blue
   wait(300, msec);
 
@@ -100,19 +101,21 @@ void vcat300Skills() {
   fifteen.driveStraightGyro(5, 30, reverse, 10, 5);
 
   // Head to blue platform area
-  fifteen.turnToUniversalAngleGyro(0, turnSpeed, 15, 10);
-  fifteen.driveStraightGyro(60, 70, forward, 10, 15);
-  fifteen.driveStraightTimed(30, forward, 2);
+  fifteen.turnToUniversalAngleGyro(0, turnSpeed, 15, 10); // aim to platform side
+  fifteen.driveStraightGyro(64, 70, forward, 10, 15);
+  fifteen.driveStraightTimed(30, forward, 1.5);
 
   // align to platform
-  fifteen.driveStraightGyro(5, 40, reverse, 5, 5);
+  fifteen.driveStraightGyro(3, 40, reverse, 5, 5);
   fifteen.turnToAngleGyro(false, 90, turnSpeed, 15, 5);
   wait(300, msec);
-  fifteen.driveStraightTimed(30, forward, 2.5); // square with platform
+  fifteen.driveStraightTimed(30, forward, 2); // square with platform
   fifteen.driveStraightGyro(7, 30, reverse, 5, 5);
 
   // climb
   fifteen.moveArmTo(100, 100);
+
+  wait(500, msec);
 
   fifteen.driveStraightGyro(31.5, 30, forward, 50, 5);
   wait(350, msec);

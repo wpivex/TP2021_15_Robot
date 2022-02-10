@@ -250,7 +250,7 @@ void Robot::driveStraightGyro(float distInches, float speed, directionType dir, 
   rightMotorA.resetPosition();
   gyroSensor.resetRotation();
 
-  const float GYRO_CONSTANT = 0.01;
+  const float GYRO_CONSTANT = 0.008;
   bool hasSetToDone = false;
 
   // finalDist is 0 if we want driveTimed instead of drive some distance
