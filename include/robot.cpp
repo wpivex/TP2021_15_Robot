@@ -12,7 +12,7 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   // 3L 11L 12L 14L left
   // 16r 18r 19r 20r right
 
-  rightMotorA = motor(PORT16, ratio6_1, false);
+  rightMotorA = motor(PORT17, ratio6_1, false);
   rightMotorB = motor(PORT18, ratio6_1, false);
   rightMotorC = motor(PORT19, ratio6_1, false);
   rightMotorD = motor(PORT20, ratio6_1, false);
@@ -278,10 +278,12 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
     if (currentDist < startUp && startUp != 0) proportion = currentDist / startUp;
     float baseSpeed = FORWARD_MIN_SPEED + (speed-FORWARD_MIN_SPEED) * proportion;
 
-    //log("%f", baseSpeed);
+    
 
     // reduce baseSpeed so that the faster motor always capped at max speed
     baseSpeed = fmin(baseSpeed, 100 - baseSpeed*turnPercent);
+
+    log("%f %f", degreesToDistance(leftMotorA.position(degrees)), degreesToDistance(rightMotorA.position(degrees)));
 
     setLeftVelocity(left, baseSpeed*(1 + turnPercent));
     setRightVelocity(right, baseSpeed*(1 - turnPercent));
@@ -296,6 +298,34 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
   }
 
   log("done");
+
+}
+
+// Detect whether robot has reached some velocity. If not, never exit or release claw (fighting other robot in mid)
+// velocity is sigma of acceleration * delta t
+void Robot::driveStraightFighting(float distInches, float speed, directionType dir) {
+
+  float velSum = 0;
+
+  while (true) {
+
+    float accel = (0.05 + gyroSensor.acceleration(yaxis)) * 32.174;
+    velSum += accel * 0.02;
+
+    int a = accel * 100;
+    int v = velSum * 100;
+
+    //logController("%f  %f", ((float) a) / 100.0, ((float) v) / 100.0);
+    
+    logController("%f, %f", leftMotorA.current(), rightMotorA.current());
+
+    setLeftVelocity(dir, speed);
+    setRightVelocity(dir, speed);
+
+    wait(20, msec);
+  }
+  stopLeft();
+  stopRight();
 
 }
 

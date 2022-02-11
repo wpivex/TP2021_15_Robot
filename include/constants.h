@@ -32,11 +32,11 @@ static double initialPitch = 0;
 
 
 static inline float distanceToDegrees(float distInches) {
-  return distInches * 360 / 2 / M_PI / (3.25 / 2); // 4 in diameter wheels
+  return distInches * (5/3.0) * 360 / 2 / M_PI / (3.25 / 2); // 4 in diameter wheels
 }
 
 static inline float degreesToDistance(float distDegrees) {
-  return distDegrees / (360 / 2 / M_PI / (3.25 / 2)); // 4 in diameter wheels
+  return distDegrees * (3/5.0) / (360 / 2 / M_PI / (3.25 / 2)); // 4 in diameter wheels
 }
 
 

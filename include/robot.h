@@ -72,6 +72,8 @@ class Robot {
 
     void moveArmTo(double degr, double speed, bool blocking = true);
 
+    void driveStraightFighting(float distInches, float speed, directionType dir);
+
     void smartDrive(float distInches, float speed, directionType left, directionType right, float timeout, float slowDownInches, 
                     float turnPercent, bool stopAfter, std::function<bool(void)> func, float startUpInches = 0);
     void driveTurn(float degrees, float speed, bool isClockwise, float timeout, float slowDownInches = 10, 

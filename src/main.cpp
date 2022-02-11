@@ -14,8 +14,6 @@ Robot fifteen = Robot(&Controller1);
 
 int mainTeleop() {
   //fifteen.setTransmission(true);
-  fifteen.backLiftL.resetRotation();
-  fifteen.backLiftR.resetRotation();
   while (true) {
     fifteen.teleop();
     wait(20, msec);
@@ -31,18 +29,18 @@ void mainAuto() {
   fifteen.waitGyroCallibrate();
 
 
-  fifteen.driveStraight(38.5, 100, forward, 5, 15, true, {}, 3);
+  fifteen.driveStraight(45.5, 100, forward, 5, 10, true, {}, 10);
   fifteen.clawDown();
-  fifteen.driveStraight(31, 70, reverse, 5, 10);
+  fifteen.driveStraight(25, 70, reverse, 5, 5);
   wait(1000, msec);
 
   fifteen.clawUp();
   wait(100, msec);
-  fifteen.driveStraightGyro(12, 30, reverse, 5, 5);
+  fifteen.driveStraightGyro(10, 30, reverse, 5, 5);
   fifteen.turnToAngleGyro(true, 180, 4, 0, 10);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   wait(1000, msec);
-  fifteen.driveStraight(13, 30, reverse, 5, 10);
+  fifteen.driveStraight(10, 30, reverse, 5, 10);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, false);
   wait(1000, msec);
   fifteen.driveStraightGyro(12, 30, forward, 5, 5);
@@ -301,6 +299,11 @@ int logDistance() {
   return 0;
 }
 
+void speedtest() {
+  fifteen.waitGyroCallibrate();
+  fifteen.driveStraightFighting(0, 100, reverse);
+}
+
 void autonomous() { thread auto1(mainAuto); }
 //void autonomous() { thread auto1(logDistance); }
 
@@ -313,6 +316,8 @@ int main() {
   fifteen.leftMotorA.resetRotation();
   fifteen.rightMotorA.resetRotation();
   fifteen.gyroSensor.resetRotation();
+  fifteen.backLiftL.resetRotation();
+  fifteen.backLiftR.resetRotation();
   
   
   // DRIVER SKILLS TRUE, OTHERWISE FALSE
