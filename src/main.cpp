@@ -31,7 +31,7 @@ void mainAuto() {
 
   fifteen.driveStraight(45.5, 100, forward, 5, 10, true, {}, 10);
   fifteen.clawDown();
-  fifteen.driveStraight(25, 70, reverse, 5, 5);
+  fifteen.driveStraightFighting(37, 100, 10, reverse);
   wait(1000, msec);
 
   fifteen.clawUp();
@@ -301,7 +301,7 @@ int logDistance() {
 
 void speedtest() {
   fifteen.waitGyroCallibrate();
-  fifteen.driveStraightFighting(0, 100, reverse);
+  fifteen.driveStraightFighting(0, 100, 5, reverse);
 }
 
 void autonomous() { thread auto1(mainAuto); }

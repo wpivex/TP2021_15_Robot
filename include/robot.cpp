@@ -305,19 +305,20 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
 // velocity is sigma of acceleration * delta t
 void Robot::driveStraightFighting(float distInches, float speed, directionType dir) {
 
-  float velSum = 0;
+  float CURRENT_THRESHHOLD = 1.0;
+  int numCurrentReached = 0;
+  int NUM_CURRENT_NEEDED = 5;
 
-  while (true) {
+  float finalDist = fabs(distanceToDegrees(distInches));
+  float currentDist = 0;
 
-    float accel = (0.05 + gyroSensor.acceleration(yaxis)) * 32.174;
-    velSum += accel * 0.02;
+  while (currentDist < finalDist || numCurrentReached < NUM_CURRENT_NEEDED) {
 
-    int a = accel * 100;
-    int v = velSum * 100;
+    float c = (leftMotorA.current() + rightMotorA.current()) / 2.0;
+    if (c >= CURRENT_THRESHHOLD) numCurrentReached++;
 
-    //logController("%f  %f", ((float) a) / 100.0, ((float) v) / 100.0);
+    currentDist = fabs(leftMotorA.rotation(degrees) + rightMotorA.rotation(degrees)) / 2;
     
-    logController("%f, %f", leftMotorA.current(), rightMotorA.current());
 
     setLeftVelocity(dir, speed);
     setRightVelocity(dir, speed);
