@@ -73,13 +73,13 @@ class Robot {
     void moveArmTo(double degr, double speed, bool blocking = true);
 
     void smartDrive(float distInches, float speed, directionType left, directionType right, float timeout, float slowDownInches, 
-                    float turnPercent, bool stopAfter, std::function<bool(void)> func);
+                    float turnPercent, bool stopAfter, std::function<bool(void)> func, float startUpInches = 0);
     void driveTurn(float degrees, float speed, bool isClockwise, float timeout, float slowDownInches = 10, 
                     bool stopAfter = true, std::function<bool(void)> func = {});
     void driveCurved(float distInches, float speed, directionType dir, float timeout, 
-                      float slowDownInches, float turnPercent, bool stopAfter = true, std::function<bool(void)> func = {});
+                      float slowDownInches, float turnPercent, bool stopAfter = true, std::function<bool(void)> func = {}, float startUpInches = 0);
     void driveStraight(float distInches, float speed, directionType dir, float timeout, 
-                      float slowDownInches, bool stopAfter = true, std::function<bool(void)> func = {});
+                      float slowDownInches, bool stopAfter = true, std::function<bool(void)> func = {}, float startUpInches = 0);
     void driveStraightTimed(float speed, directionType dir, float timeMs, bool stopAfter = true, std::function<bool(void)> func = {});
 
     void goForwardVision(Goal goal, float speed, directionType dir, float maximumDistance, int timeout, 
@@ -88,7 +88,7 @@ class Robot {
     void updateCamera(Goal goal);
 
     void driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, bool resetEncoder = true,
-                            std::function<bool(void)> func = {});
+                            std::function<bool(void)> func = {}, float startUpInches = 0);
     void driveStraightGyroHeading(float distInches, float speed, float head, directionType dir, float timeout, float slowDownInches, 
 std::function<bool(void)> func = {});
     void turnToAngleGyro(bool clockwise, float angleDegrees, float maxSpeed, int startSlowDownDegrees,

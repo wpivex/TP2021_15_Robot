@@ -93,14 +93,17 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
   float SPEED = 100;
 
   if (b == BACK_LIFT_UP) {
+    log("up");
     backLiftL.rotateTo(0, degrees, SPEED, velocityUnits::pct, false);
     backLiftR.rotateTo(0, degrees, SPEED, velocityUnits::pct, blocking);
   } else if (b == BACK_LIFT_MID) {
+    log("mid");
     backLiftL.rotateTo(150, degrees, SPEED, velocityUnits::pct, false);
     backLiftR.rotateTo(150, degrees, SPEED, velocityUnits::pct, blocking);
   } else if (b == BACK_LIFT_DOWN) {
-    backLiftL.rotateTo(385, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(385, degrees, SPEED, velocityUnits::pct, blocking);
+    log("down");
+    backLiftL.rotateTo(350, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(350, degrees, SPEED, velocityUnits::pct, blocking);
   }
 
 }
@@ -109,12 +112,15 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
 void Robot::backLiftTeleop() {
   setBackLift(buttons.get(), false);
   if (buttons.pressing(BACK_LIFT_UPPING)){
+    log("upping");
     backLiftL.spin(forward,50,pct);
     backLiftR.spin(forward,50,pct);
   } else if (buttons.pressing(BACK_LIFT_DOWNING)) {
+    log("downing");
     backLiftL.spin(reverse,50,pct);
     backLiftR.spin(reverse,50,pct);
   } else if (buttons.released(BACK_LIFT_DOWNING) || buttons.released(BACK_LIFT_UPPING)) {
+    log("stop");
     backLiftL.stop();
     backLiftR.stop();
   }
@@ -169,6 +175,17 @@ void Robot::armTeleop() {
 
 // Run every tick
 void Robot::teleop() {
+
+  if (buttons.pressed(Buttons::A)) {
+    leftMotorA.resetRotation();
+    rightMotorA.resetRotation();
+    gyroSensor.resetRotation();
+  }
+
+  float left = degreesToDistance(leftMotorA.rotation(degrees));
+  float right = degreesToDistance(rightMotorA.rotation(degrees));
+  log("%f %f %f", left, right, gyroSensor.rotation());
+  logController("%f %f %f", left, right, gyroSensor.rotation());
   
   driveTeleop();
   armTeleop();
@@ -197,16 +214,16 @@ void Robot::driveStraightTimed(float speed, directionType dir, float timeout, bo
 
 
 void Robot::driveStraight(float distInches, float speed, directionType dir, float timeout, 
-float slowDownInches, bool stopAfter, std::function<bool(void)> func) {
+float slowDownInches, bool stopAfter, std::function<bool(void)> func, float startUpInches) {
 
-  driveCurved(distInches, speed, dir, timeout, slowDownInches, 0, stopAfter, func);
+  driveCurved(distInches, speed, dir, timeout, slowDownInches, 0, stopAfter, func, startUpInches);
 
 }
 
 void Robot::driveCurved(float distInches, float speed, directionType dir, float timeout, 
-float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void)> func) {
+float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void)> func, float startUpInches) {
 
-  smartDrive(distInches, speed, dir, dir, timeout, slowDownInches, turnPercent, stopAfter, func);
+  smartDrive(distInches, speed, dir, dir, timeout, slowDownInches, turnPercent, stopAfter, func, startUpInches);
 
 }
 
@@ -229,12 +246,13 @@ bool stopAfter, std::function<bool(void)> func) {
 // stopAfter whether to stop motors after function call.
 // func is an optional nonblocking function you can use to run as the same time as this method. It returns true when nonblocking function is gone
 void Robot::smartDrive(float distInches, float speed, directionType left, directionType right, float timeout, 
-float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void)> func) {
+float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void)> func, float startUpInches) {
 
   if (slowDownInches > distInches) slowDownInches = distInches;
 
   float finalDist = distInches == 0? -1 : distanceToDegrees(distInches);
   float slowDown = distanceToDegrees(slowDownInches);
+  float startUp = distanceToDegrees(startUpInches);
 
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();
@@ -257,6 +275,7 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
      // from 0 to 1 indicating proportion of velocity. Starts out constant at 1 until it hits the slowDown interval,
      // where then it linearly decreases to 0
     float proportion = slowDown == 0 ? 1 : fmin(1, 1 - (currentDist - (finalDist - slowDown)) / slowDown);
+    if (currentDist < startUp && startUp != 0) proportion = currentDist / startUp;
     float baseSpeed = FORWARD_MIN_SPEED + (speed-FORWARD_MIN_SPEED) * proportion;
 
     //log("%f", baseSpeed);
@@ -283,12 +302,13 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
 // Move forward/backward with proportional gyro feedback.
 // finalDegrees is the delta yaw angle at the end of the curve
 void Robot::driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, 
-bool resetEncoder, std::function<bool(void)> func) {
+bool resetEncoder, std::function<bool(void)> func, float startUpInches) {
 
   if (slowDownInches > distInches) slowDownInches = distInches;
 
   float finalDist = distanceToDegrees(distInches);
   float slowDown = distanceToDegrees(slowDownInches);
+  float startUp = distanceToDegrees(startUpInches);
 
 
   int startTime = vex::timer::system();
@@ -319,6 +339,7 @@ bool resetEncoder, std::function<bool(void)> func) {
      // from 0 to 1 indicating proportion of velocity. Starts out constant at 1 until it hits the slowDown interval,
      // where then it linearly decreases to 0
     float proportion = slowDown == 0 ? 1 : fmin(1, 1 - (currentDist - (finalDist - slowDown)) / slowDown);
+    if (currentDist < startUp && startUp != 0) proportion = currentDist / startUp;
     float baseSpeed = FORWARD_MIN_SPEED + (speed-FORWARD_MIN_SPEED) * proportion;
 
     float gyroCorrection = gyroSensor.rotation() * GYRO_CONSTANT;
@@ -338,6 +359,8 @@ bool resetEncoder, std::function<bool(void)> func) {
 
   stopLeft();
   stopRight();
+
+  
   
 }
 // drive straight in a specific direction (0-360)
@@ -360,6 +383,8 @@ std::function<bool(void)> func) {
 // maxSpeed is the starting speed of the turn. Will slow down once past startSlowDownDegrees theshhold
 void Robot::turnToAngleGyro(bool clockwise, float angleDegrees, float maxSpeed, int startSlowDownDegrees,
 int timeout, std::function<bool(void)> func) {
+
+  angleDegrees *= 0.94;
 
   if (startSlowDownDegrees > angleDegrees) startSlowDownDegrees = angleDegrees;
 
@@ -392,7 +417,7 @@ int timeout, std::function<bool(void)> func) {
       speed = TURN_MIN_SPEED + delta * (maxSpeed - TURN_MIN_SPEED);
     }
 
-    logController("%f %f", speed, currDegrees);
+    logController("%f %f", currDegrees, speed);
     setLeftVelocity(clockwise ? forward : reverse, speed);
     setRightVelocity(clockwise ? reverse : forward, speed);
     wait(20, msec);
