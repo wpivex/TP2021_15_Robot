@@ -35,11 +35,11 @@ void mainAuto() {
 void vcat300Skills() {
 
 
-  float lowArmAngle = 10;
+  float lowArmAngle = 0;
   float turnSpeed = 8;
 
   fifteen.waitGyroCallibrate();
-  fifteen.gyroSensor.setHeading(280, deg);
+  fifteen.gyroSensor.setHeading(285, deg);
 
   fifteen.frontArmL.resetRotation();
   fifteen.frontArmR.resetRotation();
@@ -57,9 +57,11 @@ void vcat300Skills() {
   //wait(300, msec);
 
   // get yellow
-  fifteen.turnToAngleGyro(true, 90, turnSpeed, 20, 5); // rotate to yellow
+  fifteen.turnToAngleGyro(true, 85, turnSpeed, 20, 5); // rotate to yellow
   wait(300, msec);
-  fifteen.goForwardVision(YELLOW, 45, forward, 87, 10, nullptr);
+  fifteen.driveStraightGyro(15, 55, forward, 5, 0);
+  fifteen.goForwardVision(YELLOW, 30, forward, 82, 10, nullptr);
+  fifteen.driveStraightGyro(5, 30, forward, 5, 5);
   fifteen.clawDown(); // grab yellow
   wait(300, msec);
   fifteen.moveArmTo(200, 100);
@@ -67,8 +69,9 @@ void vcat300Skills() {
   wait(300, msec);
 
   // drop yellow off
-  fifteen.driveStraightGyroHeading(78, 90, 0, forward, 10, 10);
+  fifteen.driveStraightGyroHeading(89, 90, 0, forward, 10, 10);
   fifteen.clawUp();
+  fifteen.driveStraightGyro(1, 30, reverse, 5, 0);
   fifteen.turnToUniversalAngleGyro(330, 4, 5, 10);
   wait(300, msec);
   fifteen.driveStraightGyro(21, 50, reverse, 10, 10);
@@ -81,11 +84,11 @@ void vcat300Skills() {
   fifteen.alignToGoalVision(RED, true, forward, 5);
 
   wait(300, msec);
-  fifteen.goForwardVision(RED, 30, forward, 23, 5);
+  fifteen.goForwardVision(RED, 30, forward, 26, 5);
   fifteen.clawDown(); // clamp red
   wait(300, msec);
-  fifteen.moveArmTo(600, 100, false);
   fifteen.driveStraightGyro(3, 30, reverse, 3, 3);
+  fifteen.moveArmTo(600, 100);
   fifteen.driveStraightTimed(30, forward, 2); // align with wall
   fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
   //wait(300, msec);
@@ -259,18 +262,20 @@ int logDistance() {
 
   fifteen.leftMotorA.resetRotation();
   fifteen.rightMotorA.resetRotation();
+  fifteen.gyroSensor.resetRotation();
 
   while (true) {
 
     if (fifteen.buttons.pressed(Buttons::A)) {
       fifteen.leftMotorA.resetRotation();
       fifteen.rightMotorA.resetRotation();
+      fifteen.gyroSensor.resetRotation();
     }
 
     float left = degreesToDistance(fifteen.leftMotorA.rotation(degrees));
     float right = degreesToDistance(fifteen.rightMotorA.rotation(degrees));
-    log("%f %f", left, right);
-    logController("%f %f", left, right);
+    log("%f %f %f", left, right, fifteen.gyroSensor.rotation());
+    log("%f %f %f", left, right, fifteen.gyroSensor.rotation());
     wait(20, msec);
   }
 

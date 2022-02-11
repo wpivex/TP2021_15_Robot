@@ -1,7 +1,7 @@
 #include "robot.h"
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), frontCamera(0), gyroSensor(PORT9), buttons(c) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), frontCamera(0), gyroSensor(PORT6), buttons(c) {
 
   leftMotorA = motor(PORT3, ratio6_1, true); 
   leftMotorB = motor(PORT11, ratio6_1, true);
@@ -426,7 +426,7 @@ void Robot::goForwardVision(Goal goal, float speed, directionType dir, float max
 digital_in* limitSwitch, std::function<bool(void)> func) {
 
   // The proportion to turn in relation to how offset the goal is. Is consistent through all speeds
-  const float PMOD_MULTIPLIER = 0.4;
+  const float PMOD_MULTIPLIER = 0.3;
 
   int pMod = speed * PMOD_MULTIPLIER;
   float baseSpeed = fmin(speed, 100 - pMod);
