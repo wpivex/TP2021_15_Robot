@@ -408,41 +408,45 @@ std::function<bool(void)> func, float startUpInches) {
   logController("correction: %f", correction);
   gyroSensor.setRotation(correction, degrees);
 
-  driveStraightGyro(distInches, speed, dir, timeout, slowDownInches, false, startUpInches);
+  driveStraightGyro(distInches, speed, dir, timeout, slowDownInches, false, func, startUpInches);
 
 }
 
 
-void Robot::dumbGyroTurn(bool clockwise, float angleDegrees, float speed, int timeout) {
+// void Robot::dumbGyroTurn(bool clockwise, float angleDegrees, float speed, int timeout) {
 
-  int startTime = vex::timer::system();
-  leftMotorA.resetPosition();
-  rightMotorA.resetPosition();
-  gyroSensor.resetRotation();
+//   turnToAngleGyro(clockwise, angleDegrees, speed, 180, timeout);
 
-  while (fabs(gyroSensor.rotation()) < angleDegrees && !isTimeout(startTime, timeout)) {
-    setLeftVelocity(clockwise ? forward : reverse, speed);
-    setRightVelocity(clockwise ? reverse : forward, speed);
-    wait(20, msec);
-  }
-  stopLeft();
-  stopRight();
+//   /*
 
-}
+//   int startTime = vex::timer::system();
+//   leftMotorA.resetPosition();
+//   rightMotorA.resetPosition();
+//   gyroSensor.resetRotation();
+
+//   while (fabs(gyroSensor.rotation()) < angleDegrees && !isTimeout(startTime, timeout)) {
+//     setLeftVelocity(clockwise ? forward : reverse, speed);
+//     setRightVelocity(clockwise ? reverse : forward, speed);
+//     wait(20, msec);
+//   }
+//   stopLeft();
+//   stopRight();
+
+//   */
+
+// }
 
 // BOTH angleDegrees AND startSlowDownDegrees SHOULD BE POSITIVE
 // angleDegrees indicates the angle to turn to.
 // startSlowDownDegrees is some absolute angle less than angleDegrees, where gyro proportional control starts
 // maxSpeed is the starting speed of the turn. Will slow down once past startSlowDownDegrees theshhold
-void Robot::turnToAngleGyro(bool clockwise, float angleDegrees, float maxSpeed, int startSlowDownDegrees, 
-int timeout, float tolerance, std::function<bool(void)> func) {
+void Robot::gyroTurn(bool clockwise, float angleDegrees) {
 
-  angleDegrees *= .94;
+  float K_PROPORTIONAL = 0.4;
+  float K_DERIVATIVE = 0.003;
+  float tolerance = 2;
 
-  if (startSlowDownDegrees > angleDegrees) startSlowDownDegrees = angleDegrees;
-  if (maxSpeed < TURN_MIN_SPEED) maxSpeed = TURN_MIN_SPEED; 
-
-
+  float timeout = 5;
   float speed;
 
   log("initing");
@@ -452,45 +456,42 @@ int timeout, float tolerance, std::function<bool(void)> func) {
   gyroSensor.resetRotation();
   log("about to loop");
 
-
-
   float currDegrees = 0; // always positive with abs
   float delta = 0;
-  float prevDegrees = 0;
-  bool slowEnough = false;
-  while ((fabs(currDegrees - angleDegrees) > tolerance /*|| !slowEnough*/) && !isTimeout(startTime, timeout)) {
-    // if there is a concurrent function to run, run it
-    if (func) {
-      if (func()) {
-        // if func is done, make it empty
-        func = {};
-      }
-    }
+  float delta_prev = 0;
+  float delta_dir = 0;
+
+  int NUM_VALID_THRESHOLD = 10;
+  int numValid = 0;
+
+  while (numValid < NUM_VALID_THRESHOLD && !isTimeout(startTime, timeout)) {
 
     currDegrees = fabs(gyroSensor.rotation());
 
-    if (currDegrees < angleDegrees - startSlowDownDegrees) {
-      // before hitting theshhold, speed is constant at starting speed
-      speed = maxSpeed;
-    } else {
-      delta = (angleDegrees - currDegrees) / startSlowDownDegrees; // starts at 1 @deg=startSlowDeg, becomes 0 @deg = final
-      speed = TURN_MIN_SPEED + fabs(delta) * (maxSpeed - TURN_MIN_SPEED);
-    }
-    float trueSpeed = fabs((prevDegrees-currDegrees)/.02); //Difference in position across 20 msec, in degrees/sec
-    slowEnough = trueSpeed < 1;
-    logController("%d %f %f", clockwise? 1:0, speed, delta);
-    setLeftVelocity(clockwise^(delta<0) ? forward : reverse, speed);
-    setRightVelocity(clockwise^(delta<0) ? reverse : forward, speed);
-    prevDegrees = currDegrees;
+    delta = angleDegrees - currDegrees;
+    delta_dir = (delta - delta_prev)/0.02;
+
+    speed = delta * K_PROPORTIONAL + delta_dir * K_DERIVATIVE;
+    
+
+    //logController("%d %f %f", clockwise? 1:0, speed, delta);
+    logController("%f %f", delta*K_PROPORTIONAL, delta_dir*K_DERIVATIVE);
+    setLeftVelocity(clockwise ? forward : reverse, speed);
+    setRightVelocity(clockwise ? reverse : forward, speed);
+
+    delta_prev = delta;
+
     wait(20, msec);
+    if (fabs(currDegrees - angleDegrees) < tolerance) numValid++;
+    else numValid = 0;
+    //logController("%d %f", numValid, delta);
   }
 
   stopLeft();
   stopRight();
 }
 
-void Robot::turnToUniversalAngleGyro(float universalAngleDegrees, float maxSpeed, int startSlowDownDegrees,
-int timeout, float tolerance, std::function<bool(void)> func) {
+void Robot::gyroTurnU(float universalAngleDegrees) {
   float universalHeading = gyroSensor.heading(degrees);
   float turnAngle = fabs(universalHeading-universalAngleDegrees);
   bool clockwise = universalHeading < universalAngleDegrees;
@@ -498,19 +499,24 @@ int timeout, float tolerance, std::function<bool(void)> func) {
     clockwise = !clockwise;
     turnAngle = 360 - turnAngle;
   }
-  turnToAngleGyro(clockwise, turnAngle, maxSpeed, startSlowDownDegrees, timeout, tolerance);
+  gyroTurn(clockwise, turnAngle);
 }
 
-void Robot::dumbUniversalGyroTurn(float universalAngleDegrees, float maxSpeed, int timeout) {
-  float universalHeading = gyroSensor.heading(degrees);
-  float turnAngle = fabs(universalHeading-universalAngleDegrees);
-  bool clockwise = universalHeading < universalAngleDegrees;
-  if (turnAngle > 180) {
-    clockwise = !clockwise;
-    turnAngle = 360 - turnAngle;
-  }
-  dumbGyroTurn(clockwise, turnAngle, maxSpeed, timeout);
-}
+// void Robot::dumbUniversalGyroTurn(float universalAngleDegrees, float maxSpeed, int timeout) {
+
+//   turnToUniversalAngleGyro(universalAngleDegrees, maxSpeed, 180, timeout);
+
+//   /*
+//   float universalHeading = gyroSensor.heading(degrees);
+//   float turnAngle = fabs(universalHeading-universalAngleDegrees);
+//   bool clockwise = universalHeading < universalAngleDegrees;
+//   if (turnAngle > 180) {
+//     clockwise = !clockwise;
+//     turnAngle = 360 - turnAngle;
+//   }
+//   dumbGyroTurn(clockwise, turnAngle, maxSpeed, timeout);
+//   */
+// }
 
 void Robot::updateCamera(Goal goal) {
   frontCamera = vision(PORT5, goal.bright, goal.sig);

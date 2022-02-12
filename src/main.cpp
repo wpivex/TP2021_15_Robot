@@ -68,7 +68,6 @@ int vcat300Skills() {
 
 
   float lowArmAngle = 0;
-  float turnSpeed = 5;
 
   fifteen.waitGyroCallibrate();
   fifteen.gyroSensor.setHeading(285, deg);
@@ -89,7 +88,7 @@ int vcat300Skills() {
   //wait(300, msec);
 
   // get yellow
-  fifteen.dumbGyroTurn(true, 90, turnSpeed, 5); // rotate to yellow
+  fifteen.gyroTurn(true, 90);
   wait(300, msec);
   fifteen.driveStraightGyro(20, 55, forward, 5, 0);
   fifteen.goForwardVision(YELLOW, 30, forward, 32, 10, nullptr);
@@ -97,20 +96,20 @@ int vcat300Skills() {
   fifteen.clawDown(); // grab yellow
   wait(300, msec);
   fifteen.moveArmTo(200, 100, false);
-  fifteen.dumbUniversalGyroTurn(2, 4, 5);
+  fifteen.gyroTurnU(0);
   wait(300, msec);
 
   // drop yellow off
   fifteen.driveStraightGyro(40, 90, forward, 5, 10);
   fifteen.clawUp();
   fifteen.driveStraightGyro(1, 30, reverse, 5, 0);
-  fifteen.dumbUniversalGyroTurn(330, 3, 10);
+  fifteen.gyroTurnU(330);
   wait(300, msec);
   fifteen.driveStraightGyro(10, 50, reverse, 10, 10);
   fifteen.moveArmTo(lowArmAngle, 100, false);
 
   // get red
-  fifteen.dumbUniversalGyroTurn(270, turnSpeed, 5); // turn to red
+  fifteen.gyroTurnU(270);
   //wait(300, msec);
   //fifteen.driveStraight(7, 50, reverse, 5, 5); // go back a little for better vision alignment
   fifteen.alignToGoalVision(RED, true, forward, 5);
@@ -126,10 +125,10 @@ int vcat300Skills() {
   //wait(300, msec);
 
   fifteen.driveStraightGyro(23.5, 30, reverse, 10, 10);
-  fifteen.dumbUniversalGyroTurn(180, 7, 5);
+  fifteen.gyroTurnU(180);
   wait(300, msec);
   fifteen.driveStraightGyroHeading(40, 100, 180, forward, 10, 10);
-  fifteen.dumbGyroTurn(true, 10, 5, 5);
+  fifteen.gyroTurn(true, 10);
   fifteen.driveStraightGyroHeading(23, 100, 180, forward, 10, 10);
   fifteen.clawUp(); // drop off red
   wait(300, msec);
@@ -137,9 +136,9 @@ int vcat300Skills() {
   // get blue across field
   fifteen.moveArmTo(lowArmAngle, 100, false);
   fifteen.driveStraightGyro(6, 40, reverse, 10, 5);
-  fifteen.dumbUniversalGyroTurn(90, turnSpeed, 5);
+  fifteen.gyroTurnU(90);
   fifteen.driveStraightGyroHeading(30, 100, 90, forward, 10, 5, {}, 5);
-  fifteen.goForwardVision(BLUE, 40, forward, 46, 5, nullptr);
+  fifteen.goForwardVision(BLUE, 40, forward, 50, 5, nullptr);
   fifteen.clawDown(); // clamp blue
   wait(300, msec);
 
@@ -150,23 +149,25 @@ int vcat300Skills() {
 
   // multi step turn
   fifteen.driveStraightGyro(18, 20, reverse, 10, 5);
-  fifteen.dumbUniversalGyroTurn(70, turnSpeed, 5);
+  fifteen.gyroTurnU(70);
   fifteen.driveStraightGyro(14, 20, forward, 10, 5);
 
   // Head to blue platform area
-  fifteen.dumbUniversalGyroTurn(0, turnSpeed, 7); // aim to platform side
+  fifteen.gyroTurnU(0);
   fifteen.driveStraightGyroHeading(80, 70, 0, forward, 10, 15); // drive to platform side
   fifteen.driveStraightTimed(20, forward, 1.5);
 
   // align to platform
   fifteen.driveStraightGyro(2, 10, reverse, 2, 2);
-  fifteen.dumbUniversalGyroTurn(285, turnSpeed, 5); // aim to platform side
+  fifteen.gyroTurnU(285);
   fifteen.driveStraightGyroHeading(7, 30, 285, forward, 5, 5);
-  fifteen.dumbUniversalGyroTurn(270, turnSpeed, 5); // aim to platform side
+  fifteen.gyroTurnU(270); // aim platform side
 
+
+  // Wall align to the back
+  fifteen.driveStraightTimed(20, reverse, 2);
   
-  wait(300, msec);
-  fifteen.driveStraightGyroHeading(7, 25, 270, forward, 5, 5);
+  fifteen.driveStraightGyroHeading(20, 25, 270, forward, 5, 5);
 
   // climb
   fifteen.moveArmTo(100, 100);
@@ -177,111 +178,10 @@ int vcat300Skills() {
   wait(350, msec);
   fifteen.driveStraightGyroHeading(2, 30, 270, forward, 50, 4);
 
-  fifteen.leftMotorA.setBrake(hold);
-  fifteen.leftMotorB.setBrake(hold);
-  fifteen.leftMotorC.setBrake(hold);
-  fifteen.leftMotorD.setBrake(hold);
-  fifteen.rightMotorA.setBrake(hold);
-  fifteen.rightMotorB.setBrake(hold);
-  fifteen.rightMotorC.setBrake(hold);
-  fifteen.rightMotorD.setBrake(hold);
+  fifteen.setBrakeType(hold);
+
 
   return 0;
-
-}
-
-void platformClimb3() {
-  fifteen.waitGyroCallibrate();
-
-  fifteen.clawDown();
-  wait(1000, msec);
-  fifteen.moveArmTo(600, 100);
-  fifteen.driveStraightGyro(11, 30, forward, 50, 5);
-  fifteen.moveArmTo(100, 100);
-
-  fifteen.driveStraightGyro(31.5, 30, forward, 50, 5);
-  wait(350, msec);
-  fifteen.driveStraightGyro(4, 30, forward, 50, 4);
-
-  fifteen.setBrakeType(hold);
-}
-
-
-
-void platformClimb2() {
-  fifteen.waitGyroCallibrate();
-
-  fifteen.clawDown();
-  wait(1000, msec);
-
-  bool climbing = false;
-  double pitch = 0;
-  double angle = 18;
-  double turn = 0;
-
-  float SPEED = 15;
-
-  while (!climbing || pitch > angle) {
-
-    pitch = fifteen.gyroSensor.roll() - initialPitch;
-
-    if (pitch > angle + 2) climbing = true;
-    logController("%d %f", climbing ? 1 : 0, pitch);
-
-    fifteen.setLeftVelocity(forward, SPEED - turn);
-    fifteen.setRightVelocity(forward, SPEED + turn);
-
-    wait(20, msec);
-  }
-  fifteen.driveStraight(25, 60, reverse, 10, 5);
-
-
-  while (true) {
-    pitch = fifteen.gyroSensor.roll() - initialPitch;
-    logController("%d %f", climbing ? 1 : 0, pitch);
-    wait(20, msec);
-  }
-}
-
-void platformClimb() {
-
-  fifteen.waitGyroCallibrate();
-  
-
-  double PITCH_SCALE = 70;
-  double YAW_SCALE = 50;
-  double speed, turn, left, right;
-
-  while (true) {
-
-    double pitch = fifteen.gyroSensor.roll() - initialPitch;
-    double yaw = fifteen.gyroSensor.yaw();
-
-    // normalized pitch is between -1 and 1, bounded to 30 degrees
-    double pitchN = fmin(1, fmax(-1, (pitch / 30.0)));
-    double yawN = fmin(1, fmax(-1, (yaw / 30.0)));
-
-    pitch = pow(pitch, 5);
-
-
-    speed = pitchN * PITCH_SCALE;
-    turn = yawN * YAW_SCALE;
-
-    left = fmax(-100, fmin(speed - turn, 100));
-    right = fmax(-100, fmin(speed + turn, 100));
-
-
-    fifteen.setLeftVelocity(forward, left);
-    fifteen.setRightVelocity(forward, right);
-
-    logController("%f,%f,%f", yaw, left, right);
-    log("%f, %f", left, right);
-
-    wait(20, msec);
-  }
-
-  fifteen.stopLeft();
-  fifteen.stopRight();
 
 }
 
@@ -307,6 +207,16 @@ int logDistance() {
   }
 
   return 0;
+}
+
+int testTurn() {
+
+
+  fifteen.waitGyroCallibrate();
+  fifteen.gyroTurn(true, 90);
+  logController("done");
+  return 0;
+
 }
 
 
