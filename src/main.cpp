@@ -120,17 +120,18 @@ int vcat300Skills() {
   //wait(300, msec);
 
   fifteen.driveStraightGyro(33, 50, reverse, 10, 10);
+  fifteen.moveArmTo(200, 60, false);
   fifteen.gyroTurnU(180);
   fifteen.driveStraightGyroHeading(40, 100, 180, forward, 10, 10, {}, 5);
-  fifteen.driveTurn(0.75, 15, true, 2); // fast slight turn
+  fifteen.driveTurn(2, 15, true, 2); // fast slight turn
   wait(200, msec);
-  fifteen.driveStraightGyroHeading(22, 100, 180, forward, 10, 10, {}, 5);
+  fifteen.driveStraightGyroHeading(23, 100, 180, forward, 10, 10, {}, 5);
   fifteen.clawUp(); // drop off red
   wait(100, msec);
 
   // get blue across field
   fifteen.moveArmTo(lowArmAngle, 100, false);
-  fifteen.driveStraightGyro(8, 35, reverse, 10, 5);
+  fifteen.driveStraightGyro(6.5, 35, reverse, 10, 5);
   fifteen.gyroTurnU(90);
   fifteen.driveStraightGyroHeading(40, 100, 90, forward, 10, 5, {}, 5);
   fifteen.goForwardVision(BLUE, 40, forward, 53, 8, nullptr);
@@ -145,7 +146,7 @@ int vcat300Skills() {
   // multi step turn
   fifteen.driveStraightGyro(20, 20, reverse, 10, 5);
   fifteen.gyroTurnU(70);
-  fifteen.driveStraightGyro(12, 20, forward, 10, 5);
+  fifteen.driveStraightGyro(10, 20, forward, 10, 5);
 
   // Head to blue platform areas
   fifteen.gyroTurnU(0);
@@ -153,7 +154,7 @@ int vcat300Skills() {
   fifteen.driveStraightTimed(20, forward, 1.5);
 
   // align to platform
-  fifteen.driveStraightGyro(2.5, 10, reverse, 2, 2);
+  fifteen.driveStraightGyro(4, 10, reverse, 2, 2);
   fifteen.gyroTurnU(285);
   fifteen.driveStraightGyroHeading(7, 30, 285, forward, 5, 5);
   fifteen.gyroTurnU(270); // aim platform side

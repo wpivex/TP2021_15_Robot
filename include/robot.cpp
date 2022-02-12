@@ -444,9 +444,9 @@ void Robot::gyroTurn(bool clockwise, float angleDegrees) {
 
   float K_PROPORTIONAL = 0.42;
   float K_DERIVATIVE = 0.003;
-  float tolerance = 4;
+  float tolerance = 4.5;
 
-  float timeout = 4;
+  float timeout = 3;
   if (angleDegrees < 25){
     timeout = 2;
   }
@@ -465,7 +465,7 @@ void Robot::gyroTurn(bool clockwise, float angleDegrees) {
   float delta_prev = 0;
   float delta_dir = 0;
 
-  int NUM_VALID_THRESHOLD = 10;
+  int NUM_VALID_THRESHOLD = 8;
   int numValid = 0;
 
   while (numValid < NUM_VALID_THRESHOLD && !isTimeout(startTime, timeout)) {
