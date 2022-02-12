@@ -87,24 +87,21 @@ int vcat300Skills() {
   //wait(300, msec);
 
   // get yellow
-  fifteen.gyroTurn(true, 90);
-  wait(300, msec);
+  fifteen.gyroTurn(true, 93);
   fifteen.driveStraightGyro(20, 55, forward, 5, 0);
   fifteen.goForwardVision(YELLOW, 30, forward, 32, 10, nullptr);
   fifteen.driveStraightGyro(5, 30, forward, 5, 5);
   fifteen.clawDown(); // grab yellow
-  wait(300, msec);
+  wait(150, msec);
   fifteen.moveArmTo(200, 100, false);
   fifteen.gyroTurnU(0);
-  wait(300, msec);
 
   // drop yellow off
-  fifteen.driveStraightGyro(40, 90, forward, 5, 10);
+  fifteen.driveStraightGyro(40, 90, forward, 5, 10, true, {}, 5);
   fifteen.clawUp();
   fifteen.driveStraightGyro(1, 30, reverse, 5, 0);
   fifteen.gyroTurnU(330);
-  wait(300, msec);
-  fifteen.driveStraightGyro(10, 50, reverse, 10, 10);
+  fifteen.driveStraightGyro(10, 50, reverse, 10, 10, true, {}, 3);
   fifteen.moveArmTo(lowArmAngle, 100, false);
 
   // get red
@@ -112,34 +109,32 @@ int vcat300Skills() {
   //wait(300, msec);
   //fifteen.driveStraight(7, 50, reverse, 5, 5); // go back a little for better vision alignment
   fifteen.alignToGoalVision(RED, true, forward, 5);
-
-  wait(300, msec);
-  fifteen.goForwardVision(RED, 30, forward, 13, 5);
+  wait(150, msec);
+  fifteen.goForwardVision(RED, 25, forward, 20, 5);
   fifteen.clawDown(); // clamp red
-  wait(300, msec);
+  wait(150, msec);
   fifteen.driveStraightGyro(4, 30, reverse, 3, 3);
   fifteen.moveArmTo(600, 100);
   fifteen.driveStraightTimed(30, forward, 2); // align with wall
   fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
   //wait(300, msec);
 
-  fifteen.driveStraightGyro(23.5, 30, reverse, 10, 10);
+  fifteen.driveStraightGyro(33, 30, reverse, 10, 10);
   fifteen.gyroTurnU(180);
-  wait(300, msec);
-  fifteen.driveStraightGyroHeading(40, 100, 180, forward, 10, 10);
+  fifteen.driveStraightGyroHeading(40, 100, 180, forward, 10, 10, {}, 5);
   fifteen.gyroTurn(true, 10);
-  fifteen.driveStraightGyroHeading(22, 100, 180, forward, 10, 10);
+  fifteen.driveStraightGyroHeading(22, 100, 180, forward, 10, 10, {}, 5);
   fifteen.clawUp(); // drop off red
-  wait(300, msec);
+  wait(150, msec);
 
   // get blue across field
   fifteen.moveArmTo(lowArmAngle, 100, false);
   fifteen.driveStraightGyro(9, 35, reverse, 10, 5);
   fifteen.gyroTurnU(90);
-  fifteen.driveStraightGyroHeading(35, 100, 90, forward, 10, 5, {}, 5);
+  fifteen.driveStraightGyroHeading(40, 100, 90, forward, 10, 5, {}, 5);
   fifteen.goForwardVision(BLUE, 40, forward, 53, 8, nullptr);
   fifteen.clawDown(); // clamp blue
-  wait(300, msec);
+  wait(150, msec);
 
   // Wall align
   fifteen.driveStraightGyro(4, 20, reverse, 5, 0);
@@ -147,13 +142,13 @@ int vcat300Skills() {
   fifteen.driveStraightTimed(30, forward, 2); // align with wall
 
   // multi step turn
-  fifteen.driveStraightGyro(18, 20, reverse, 10, 5);
+  fifteen.driveStraightGyro(20, 20, reverse, 10, 5);
   fifteen.gyroTurnU(70);
   fifteen.driveStraightGyro(14, 20, forward, 10, 5);
 
   // Head to blue platform area
   fifteen.gyroTurnU(0);
-  fifteen.driveStraightGyroHeading(80, 70, 0, forward, 10, 15); // drive to platform side
+  fifteen.driveStraightGyroHeading(80, 70, 0, forward, 10, 15, {}, 5); // drive to platform side
   fifteen.driveStraightTimed(20, forward, 1.5);
 
   // align to platform
@@ -171,9 +166,8 @@ int vcat300Skills() {
   // climb
   fifteen.moveArmTo(100, 100);
 
-  wait(500, msec);
 
-  fifteen.driveStraightGyroHeading(42, 30, 270, forward, 50, 5);
+  fifteen.driveStraightGyroHeading(40.5, 30, 270, forward, 50, 5);
   wait(350, msec);
   fifteen.driveStraightGyroHeading(3.8, 20, 270, forward, 50, 4);
 
