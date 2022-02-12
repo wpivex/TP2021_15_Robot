@@ -128,7 +128,7 @@ int vcat300Skills() {
   wait(300, msec);
   fifteen.driveStraightGyroHeading(40, 100, 180, forward, 10, 10);
   fifteen.gyroTurn(true, 10);
-  fifteen.driveStraightGyroHeading(23, 100, 180, forward, 10, 10);
+  fifteen.driveStraightGyroHeading(22, 100, 180, forward, 10, 10);
   fifteen.clawUp(); // drop off red
   wait(300, msec);
 
