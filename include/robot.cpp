@@ -230,7 +230,7 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
 void Robot::driveTurn(float degrees, float speed, bool isClockwise, float timeout, float slowDownInches, 
 bool stopAfter, std::function<bool(void)> func) {
 
-  smartDrive(getTurnAngle(degrees), speed, isClockwise ? forward : reverse, isClockwise ? reverse: forward,
+  smartDrive(degrees, speed, isClockwise ? forward : reverse, isClockwise ? reverse: forward,
   timeout, slowDownInches, 0, stopAfter, func);
 
 }
@@ -442,11 +442,15 @@ std::function<bool(void)> func, float startUpInches) {
 // maxSpeed is the starting speed of the turn. Will slow down once past startSlowDownDegrees theshhold
 void Robot::gyroTurn(bool clockwise, float angleDegrees) {
 
-  float K_PROPORTIONAL = 0.4;
+  float K_PROPORTIONAL = 0.42;
   float K_DERIVATIVE = 0.003;
-  float tolerance = 3.5;
+  float tolerance = 4;
 
   float timeout = 4;
+  if (angleDegrees < 25){
+    timeout = 2;
+  }
+
   float speed;
 
   log("initing");
