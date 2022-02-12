@@ -1,7 +1,7 @@
 #include "robot.h"
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), frontCamera(0), gyroSensor(PORT6), buttons(c) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), frontCamera(0), gyroSensor(PORT4), buttons(c) {
 
   leftMotorA = motor(PORT3, ratio6_1, true); 
   leftMotorB = motor(PORT11, ratio6_1, true);
@@ -20,7 +20,7 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
 
   // forward is UP, reverse is DOWN
   frontArmL = motor(PORT1, ratio36_1, true);
-  frontArmR = motor(PORT10, ratio36_1, false);
+  frontArmR = motor(PORT9, ratio36_1, false);
 
   backLiftL = motor(PORT8, ratio36_1, true);
   backLiftR = motor(PORT13, ratio36_1, true);
@@ -98,8 +98,8 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
     backLiftR.rotateTo(0, degrees, SPEED, velocityUnits::pct, blocking);
   } else if (b == BACK_LIFT_MID) {
     log("mid");
-    backLiftL.rotateTo(150, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(150, degrees, SPEED, velocityUnits::pct, blocking);
+    backLiftL.rotateTo(130, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(130, degrees, SPEED, velocityUnits::pct, blocking);
   } else if (b == BACK_LIFT_DOWN) {
     log("down");
     backLiftL.rotateTo(350, degrees, SPEED, velocityUnits::pct, false);
@@ -307,15 +307,21 @@ void Robot::driveStraightFighting(float distInches, float speed, directionType d
 
   float CURRENT_THRESHHOLD = 1.0;
   int numCurrentReached = 0;
-  int NUM_CURRENT_NEEDED = 5;
+  int NUM_CURRENT_NEEDED = 4;
 
   float finalDist = fabs(distanceToDegrees(distInches));
   float currentDist = 0;
 
+  leftMotorA.resetRotation();
+  rightMotorA.resetRotation();
+
   while (currentDist < finalDist || numCurrentReached < NUM_CURRENT_NEEDED) {
 
     float c = (leftMotorA.current() + rightMotorA.current()) / 2.0;
-    if (c >= CURRENT_THRESHHOLD) numCurrentReached++;
+    if (c <= CURRENT_THRESHHOLD) {
+      numCurrentReached++;
+    } else numCurrentReached = 0;
+    logController("%d %f", numCurrentReached, c);
 
     currentDist = fabs(leftMotorA.rotation(degrees) + rightMotorA.rotation(degrees)) / 2;
     
@@ -325,8 +331,6 @@ void Robot::driveStraightFighting(float distInches, float speed, directionType d
 
     wait(20, msec);
   }
-  stopLeft();
-  stopRight();
 
 }
 
@@ -610,3 +614,13 @@ void Robot::stopRight() {
   rightMotorD.stop();
 }
 
+void Robot::setBrakeType(brakeType b) {
+  leftMotorA.setBrake(b);
+  leftMotorB.setBrake(b);
+  leftMotorC.setBrake(b);
+  leftMotorD.setBrake(b);
+  rightMotorA.setBrake(b);
+  rightMotorB.setBrake(b);
+  rightMotorC.setBrake(b);
+  rightMotorD.setBrake(b);
+}

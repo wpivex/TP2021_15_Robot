@@ -29,14 +29,23 @@ void mainAuto() {
   fifteen.waitGyroCallibrate();
 
 
-  fifteen.driveStraight(45.5, 100, forward, 5, 10, true, {}, 10);
+  fifteen.driveStraight(45.5, 100, forward, 5, 10, true, {}, 5);
   fifteen.clawDown();
-  fifteen.driveStraightFighting(37, 100, 10, reverse);
+  fifteen.setBrakeType(brake);
+  fifteen.driveStraightFighting(1, 100, reverse);
+  fifteen.stopLeft();
+  fifteen.stopRight();
+  
+  log("stop");
   wait(1000, msec);
+
+  fifteen.driveStraight(18, 30, forward, 5, 5);
 
   fifteen.clawUp();
   wait(100, msec);
+  fifteen.setBrakeType(coast);
   fifteen.driveStraightGyro(10, 30, reverse, 5, 5);
+  
   fifteen.turnToAngleGyro(true, 180, 4, 0, 10);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   wait(1000, msec);
@@ -185,15 +194,7 @@ void platformClimb3() {
   wait(350, msec);
   fifteen.driveStraightGyro(4, 30, forward, 50, 4);
 
-  fifteen.leftMotorA.setBrake(hold);
-  fifteen.leftMotorB.setBrake(hold);
-  fifteen.leftMotorC.setBrake(hold);
-  fifteen.leftMotorD.setBrake(hold);
-  fifteen.rightMotorA.setBrake(hold);
-  fifteen.rightMotorB.setBrake(hold);
-  fifteen.rightMotorC.setBrake(hold);
-  fifteen.rightMotorD.setBrake(hold);
-
+  fifteen.setBrakeType(hold);
 }
 
 
@@ -299,10 +300,6 @@ int logDistance() {
   return 0;
 }
 
-void speedtest() {
-  fifteen.waitGyroCallibrate();
-  fifteen.driveStraightFighting(0, 100, 5, reverse);
-}
 
 void autonomous() { thread auto1(mainAuto); }
 //void autonomous() { thread auto1(logDistance); }

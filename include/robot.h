@@ -109,6 +109,7 @@ int timeout, std::function<bool(void)> func = {});
     void stopLeft();
     void stopRight();
     void waitGyroCallibrate();
+    void setBrakeType(brakeType b);
 
   private:
     void driveTeleop();
