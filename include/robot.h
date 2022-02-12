@@ -94,9 +94,12 @@ class Robot {
     void driveStraightGyroHeading(float distInches, float speed, float head, directionType dir, float timeout, float slowDownInches, 
 std::function<bool(void)> func = {});
     void turnToAngleGyro(bool clockwise, float angleDegrees, float maxSpeed, int startSlowDownDegrees,
-                        int timeout, std::function<bool(void)> func = {});
+                        int timeout, float tolerance = 1, std::function<bool(void)> func = {});
     void turnToUniversalAngleGyro(float universalAngleDegrees, float maxSpeed, int startSlowDownDegrees,
-int timeout, std::function<bool(void)> func = {});
+int timeout, float tolerance = 2, std::function<bool(void)> func = {});
+
+    void dumbGyroTurn(bool clockwise, float angleDegrees, float speed, int timeout);
+    void dumbUniversalGyroTurn(float universalAngleDegrees, float maxSpeed, int timeout);
 
     float normalize(float axis);
 
