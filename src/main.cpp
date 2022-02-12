@@ -40,8 +40,7 @@ void mainAuto() {
   log("stop");
   wait(1000, msec);
 
-  fifteen.turnToUniversalAngleGyro(0, 4, 0, 5);
-  fifteen.dumbUniversalGyroTurn(0, 4, 10);
+  fifteen.gyroTurnU(0);
 
   fifteen.driveStraightTimed(20, reverse, 3);
 
@@ -52,14 +51,14 @@ void mainAuto() {
   fifteen.setBrakeType(coast);
   fifteen.driveStraightGyro(8, 30, reverse, 5, 5);
   
-  fifteen.dumbGyroTurn(true, 180, 4, 10);
+  fifteen.gyroTurn(true, 180);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   wait(1000, msec);
   fifteen.driveStraight(11.5, 30, reverse, 5, 10);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, false);
   wait(1000, msec);
   fifteen.driveStraightGyro(12, 30, forward, 5, 5);
-  fifteen.dumbGyroTurn(true, 180, 8, 10);
+  fifteen.gyroTurn(true, 180);
 
 
 }
@@ -135,10 +134,10 @@ int vcat300Skills() {
 
   // get blue across field
   fifteen.moveArmTo(lowArmAngle, 100, false);
-  fifteen.driveStraightGyro(6, 40, reverse, 10, 5);
+  fifteen.driveStraightGyro(9, 35, reverse, 10, 5);
   fifteen.gyroTurnU(90);
-  fifteen.driveStraightGyroHeading(30, 100, 90, forward, 10, 5, {}, 5);
-  fifteen.goForwardVision(BLUE, 40, forward, 50, 5, nullptr);
+  fifteen.driveStraightGyroHeading(35, 100, 90, forward, 10, 5, {}, 5);
+  fifteen.goForwardVision(BLUE, 40, forward, 53, 8, nullptr);
   fifteen.clawDown(); // clamp blue
   wait(300, msec);
 
@@ -158,7 +157,7 @@ int vcat300Skills() {
   fifteen.driveStraightTimed(20, forward, 1.5);
 
   // align to platform
-  fifteen.driveStraightGyro(2, 10, reverse, 2, 2);
+  fifteen.driveStraightGyro(2.5, 10, reverse, 2, 2);
   fifteen.gyroTurnU(285);
   fifteen.driveStraightGyroHeading(7, 30, 285, forward, 5, 5);
   fifteen.gyroTurnU(270); // aim platform side
@@ -174,9 +173,9 @@ int vcat300Skills() {
 
   wait(500, msec);
 
-  fifteen.driveStraightGyroHeading(16, 30, 270, forward, 50, 5);
+  fifteen.driveStraightGyroHeading(42, 30, 270, forward, 50, 5);
   wait(350, msec);
-  fifteen.driveStraightGyroHeading(2, 30, 270, forward, 50, 4);
+  fifteen.driveStraightGyroHeading(3.8, 20, 270, forward, 50, 4);
 
   fifteen.setBrakeType(hold);
 
