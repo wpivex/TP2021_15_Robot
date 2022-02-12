@@ -125,10 +125,12 @@ int vcat300Skills() {
   fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
   //wait(300, msec);
 
-  fifteen.driveStraightGyro(23, 30, reverse, 10, 10);
+  fifteen.driveStraightGyro(23.5, 30, reverse, 10, 10);
   fifteen.dumbUniversalGyroTurn(180, 7, 5);
   wait(300, msec);
-  fifteen.driveStraightGyroHeading(68.5, 100, 180, forward, 10, 10);
+  fifteen.driveStraightGyroHeading(40, 100, 180, forward, 10, 10);
+  fifteen.dumbGyroTurn(true, 10, 5, 5);
+  fifteen.driveStraightGyroHeading(23, 100, 180, forward, 10, 10);
   fifteen.clawUp(); // drop off red
   wait(300, msec);
 
@@ -136,8 +138,8 @@ int vcat300Skills() {
   fifteen.moveArmTo(lowArmAngle, 100, false);
   fifteen.driveStraightGyro(6, 40, reverse, 10, 5);
   fifteen.dumbUniversalGyroTurn(90, turnSpeed, 5);
-  fifteen.driveStraightGyroHeading(30, 100, 90, forward, 10, 5);
-  fifteen.goForwardVision(BLUE, 40, forward, 50, 5, nullptr);
+  fifteen.driveStraightGyroHeading(30, 100, 90, forward, 10, 5, {}, 5);
+  fifteen.goForwardVision(BLUE, 40, forward, 46, 5, nullptr);
   fifteen.clawDown(); // clamp blue
   wait(300, msec);
 
@@ -147,13 +149,13 @@ int vcat300Skills() {
   fifteen.driveStraightTimed(30, forward, 2); // align with wall
 
   // multi step turn
-  fifteen.driveStraightGyro(14, 20, reverse, 10, 5);
-  fifteen.dumbUniversalGyroTurn(60, turnSpeed, 5);
-  fifteen.driveStraightGyro(12, 20, forward, 10, 5);
+  fifteen.driveStraightGyro(18, 20, reverse, 10, 5);
+  fifteen.dumbUniversalGyroTurn(70, turnSpeed, 5);
+  fifteen.driveStraightGyro(14, 20, forward, 10, 5);
 
   // Head to blue platform area
   fifteen.dumbUniversalGyroTurn(0, turnSpeed, 7); // aim to platform side
-  fifteen.driveStraightGyroHeading(70, 70, 0, forward, 10, 15); // drive to platform side
+  fifteen.driveStraightGyroHeading(80, 70, 0, forward, 10, 15); // drive to platform side
   fifteen.driveStraightTimed(20, forward, 1.5);
 
   // align to platform

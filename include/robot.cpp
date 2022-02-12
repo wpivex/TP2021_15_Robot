@@ -400,7 +400,7 @@ bool resetEncoder, std::function<bool(void)> func, float startUpInches) {
 }
 // drive straight in a specific direction (0-360)
 void Robot::driveStraightGyroHeading(float distInches, float speed, float head, directionType dir, float timeout, float slowDownInches, 
-std::function<bool(void)> func) {
+std::function<bool(void)> func, float startUpInches) {
 
   float correction = gyroSensor.heading() - head;
   if (correction > 180) correction -= 360;
@@ -408,7 +408,7 @@ std::function<bool(void)> func) {
   logController("correction: %f", correction);
   gyroSensor.setRotation(correction, degrees);
 
-  driveStraightGyro(distInches, speed, dir, timeout, slowDownInches, false);
+  driveStraightGyro(distInches, speed, dir, timeout, slowDownInches, false, startUpInches);
 
 }
 
