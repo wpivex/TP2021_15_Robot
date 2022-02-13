@@ -305,13 +305,14 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
 
 }
 
-// Detect whether robot has reached some velocity. If not, never exit or release claw (fighting other robot in mid)
-// velocity is sigma of acceleration * delta t
+// Detect whether the robot is fighting another robot based on measuring current.
+// If current is always above the threshold, never stop backing up or releasing claw (because fighting other robot in mid)
 void Robot::driveStraightFighting(float distInches, float speed, directionType dir) {
 
-  float CURRENT_THRESHHOLD = 1.0;
+  float CURRENT_THRESHHOLD = 1.0; // The threshhold in which "fighting" is detecting
+  int NUM_CURRENT_NEEDED = 4; // The number of times the current must be below threshold in a row to count as stopped fighting
+
   int numCurrentReached = 0;
-  int NUM_CURRENT_NEEDED = 4;
 
   float finalDist = fabs(distanceToDegrees(distInches));
   float currentDist = 0;
@@ -319,17 +320,17 @@ void Robot::driveStraightFighting(float distInches, float speed, directionType d
   leftMotorA.resetRotation();
   rightMotorA.resetRotation();
 
+  // Keep running while distance is not reached or the current has not dipped below threshold for a significant period of time
   while (Competition.isAutonomous() && (currentDist < finalDist || numCurrentReached < NUM_CURRENT_NEEDED)) {
 
     float c = (leftMotorA.current() + rightMotorA.current()) / 2.0;
+
     if (c <= CURRENT_THRESHHOLD) {
       numCurrentReached++;
     } else numCurrentReached = 0;
     logController("%d %f", numCurrentReached, c);
 
     currentDist = fabs(leftMotorA.rotation(degrees) + rightMotorA.rotation(degrees)) / 2;
-    
-
     setLeftVelocity(dir, speed);
     setRightVelocity(dir, speed);
 
