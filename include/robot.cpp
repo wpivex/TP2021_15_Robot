@@ -206,6 +206,10 @@ void Robot::waitGyroCallibrate() {
   }
   
   initialPitch = gyroSensor.roll(); 
+  wait(500, msec);
+  Brain.Screen.setFillColor(green);
+  Brain.Screen.drawRectangle(0, 0, 250, 250);
+  Brain.Screen.render();
 }
 
 void Robot::driveStraightTimed(float speed, directionType dir, float timeout, bool stopAfter, std::function<bool(void)> func) {
@@ -260,7 +264,7 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
 
   // finalDist is 0 if we want driveTimed instead of drive some distance
   float currentDist = 0;
-  while ((finalDist == -1 || currentDist < finalDist) && (timeout == -1 || vex::timer::system() < startTime + timeout*1000)) {
+  while (Competition.isAutonomous() && (finalDist == -1 || currentDist < finalDist) && (timeout == -1 || vex::timer::system() < startTime + timeout*1000)) {
 
     // if there is a concurrent function to run, run it
     if (func) {
@@ -315,7 +319,7 @@ void Robot::driveStraightFighting(float distInches, float speed, directionType d
   leftMotorA.resetRotation();
   rightMotorA.resetRotation();
 
-  while (currentDist < finalDist || numCurrentReached < NUM_CURRENT_NEEDED) {
+  while (Competition.isAutonomous() && (currentDist < finalDist || numCurrentReached < NUM_CURRENT_NEEDED)) {
 
     float c = (leftMotorA.current() + rightMotorA.current()) / 2.0;
     if (c <= CURRENT_THRESHHOLD) {
@@ -330,6 +334,11 @@ void Robot::driveStraightFighting(float distInches, float speed, directionType d
     setRightVelocity(dir, speed);
 
     wait(20, msec);
+  }
+
+  if (!Competition.isAutonomous()) {
+    stopLeft();
+    stopRight();
   }
 
 }
@@ -468,7 +477,7 @@ void Robot::gyroTurn(bool clockwise, float angleDegrees) {
   int NUM_VALID_THRESHOLD = 8;
   int numValid = 0;
 
-  while (numValid < NUM_VALID_THRESHOLD && !isTimeout(startTime, timeout)) {
+  while (numValid < NUM_VALID_THRESHOLD && !isTimeout(startTime, timeout) && Competition.isAutonomous()) {
 
     currDegrees = fabs(gyroSensor.rotation());
 

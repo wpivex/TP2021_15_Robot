@@ -8,7 +8,6 @@
 
 // CODE FOR 15" ROBOT
 
-competition Competition;
 
 Robot fifteen = Robot(&Controller1);
 
@@ -24,10 +23,12 @@ int mainTeleop() {
 
 
 
-void mainAuto() {
+int mainAuto() {
 
-  fifteen.waitGyroCallibrate();
+  //fifteen.waitGyroCallibrate();
+  fifteen.moveArmTo(40, 100, false); // engage arm lock
   
+  fifteen.clawUp();
   fifteen.gyroSensor.setHeading(5, degrees);
 
   fifteen.driveStraight(45.5, 100, forward, 5, 10, true, {}, 5);
@@ -45,6 +46,7 @@ void mainAuto() {
   fifteen.driveStraightTimed(20, reverse, 3);
 
   fifteen.driveStraight(15, 30, forward, 5, 5);
+  fifteen.moveArmTo(0, 100, true);
 
   fifteen.clawUp();
   wait(100, msec);
@@ -60,6 +62,7 @@ void mainAuto() {
   fifteen.driveStraightGyro(12, 30, forward, 5, 5);
   fifteen.gyroTurn(true, 180);
 
+  return 0;
 
 }
 
@@ -68,7 +71,8 @@ int vcat300Skills() {
 
   float lowArmAngle = 0;
 
-  fifteen.waitGyroCallibrate();
+  //fifteen.waitGyroCallibrate();
+  fifteen.clawUp();
   fifteen.gyroSensor.setHeading(285, deg);
 
   fifteen.frontArmL.resetRotation();
@@ -76,14 +80,21 @@ int vcat300Skills() {
   fifteen.backLiftL.resetRotation();
   fifteen.backLiftR.resetPosition();
 
+  fifteen.moveArmTo(40, 100, false); // engage arm lock
+
   //fifteen.backLiftL.spin(forward, 0, pct);
   //fifteen.backLiftR.spin(forward, 0, pct);
 
   // grab home goal
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
   fifteen.driveStraight(10, 30, reverse, 5, 5);
+  fifteen.moveArmTo(0, 100, false); // move arm to locking position
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
   fifteen.driveStraight(17, 30, forward, 10, 5);
+  
+  // reset encoder location once arm is at lowest point
+  fifteen.frontArmL.resetRotation();
+  fifteen.frontArmR.resetRotation();
   //wait(300, msec);
 
   // get yellow
@@ -221,8 +232,21 @@ int testTurn2() {
   return 0;
 }
 
+int testAuto() {
+  Competition.bStopAllTasksBetweenModes = true;
+  while (true) {
+    fifteen.setLeftVelocity(forward, 10);
+    fifteen.setRightVelocity(forward, 10);
+    logController("%s", Competition.isAutonomous() ? "auton" : "auton stop, teleop");
+    wait(20, msec);
+  }
+  fifteen.stopLeft();
+  fifteen.stopRight();
+  return 0;
+}
 
-void autonomous() { task auto1(vcat300Skills); }
+
+void autonomous() { task auto1(mainAuto); }
 //void autonomous() { thread auto1(logDistance); }
 
 void userControl(void) { task controlLoop1(mainTeleop); }
@@ -230,7 +254,14 @@ void userControl(void) { task controlLoop1(mainTeleop); }
 
 int main() {
 
+  wait(500, msec);
   fifteen.gyroSensor.calibrate();
+  fifteen.waitGyroCallibrate();
+
+  Competition.bStopAllTasksBetweenModes = true;
+  fifteen.clawDown();
+
+  
   fifteen.leftMotorA.resetRotation();
   fifteen.rightMotorA.resetRotation();
   fifteen.gyroSensor.resetRotation();

@@ -5,6 +5,7 @@
 
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
+vex::competition Competition;
 
 struct Goal {
   int id;
