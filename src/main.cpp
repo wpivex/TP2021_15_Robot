@@ -188,12 +188,12 @@ int vcat300Skills() {
   // climb
   fifteen.moveArmTo(100, 100);
 
-
+  fifteen.setBrakeType(hold);
   fifteen.driveStraightGyroHeading(39, 30, 270, forward, 50, 5);
   wait(350, msec);
   fifteen.driveStraightGyroHeading(3.8, 20, 270, forward, 50, 4);
 
-  fifteen.setBrakeType(hold);
+  
 
 
   return 0;
