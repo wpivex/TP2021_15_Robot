@@ -151,7 +151,7 @@ int vcat300Skills() {
 
   // get blue across field
   fifteen.moveArmTo(lowArmAngle, 100, false);
-  fifteen.driveStraightGyro(6, 35, reverse, 10, 5);
+  fifteen.driveStraightGyro(4, 35, reverse, 10, 5);
   fifteen.gyroTurnU(90);
   fifteen.driveStraightGyroHeading(40, 100, 90, forward, 10, 5, {}, 5);
   fifteen.goForwardVision(BLUE, 40, forward, 50.5, 8, nullptr);
@@ -191,7 +191,7 @@ int vcat300Skills() {
   fifteen.setBrakeType(hold);
   fifteen.driveStraightGyroHeading(39, 30, 270, forward, 50, 5);
   wait(350, msec);
-  fifteen.driveStraightGyroHeading(3.8, 20, 270, forward, 50, 4);
+  fifteen.driveStraightGyroHeading(2.8, 18, 270, forward, 50, 4);
 
   
 
@@ -234,6 +234,8 @@ int testTurn() {
 
 }
 
+
+
 int testTurn2() {
   fifteen.waitGyroCallibrate();
   fifteen.driveTurn(0.75, 15, true, 2); // fast slight turn
@@ -241,19 +243,22 @@ int testTurn2() {
   return 0;
 }
 
-int testAuto() {
-  Competition.bStopAllTasksBetweenModes = true;
-  while (true) {
-    fifteen.setLeftVelocity(forward, 10);
-    fifteen.setRightVelocity(forward, 10);
-    logController("%s", Competition.isAutonomous() ? "auton" : "auton stop, teleop");
-    wait(20, msec);
-  }
-  fifteen.stopLeft();
-  fifteen.stopRight();
-  return 0;
-}
+int testTurn3() {
+  fifteen.waitGyroCallibrate();
+  fifteen.backLiftL.resetRotation();
+  fifteen.backLiftR.resetRotation();
+  fifteen.gyroSensor.resetRotation();
+  fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
+  wait(1000, msec);
+  fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
+  wait(500, msec);
+  fifteen.driveStraight(3, 30, forward, 3, 3);
+  fifteen.gyroTurn(180, true);
+  logController("done");
 
+  return 0;
+
+}
 
 
 
