@@ -21,12 +21,28 @@ int mainTeleop() {
 }
 
 
+int armStartup() {
+
+  fifteen.frontArmL.spin(forward, 100, percentUnits::pct);
+  fifteen.frontArmR.spin(forward, 100, percentUnits::pct);
+  task::sleep(200);
+  fifteen.frontArmL.spin(reverse, 100, percentUnits::pct);
+  fifteen.frontArmR.spin(reverse, 100, percentUnits::pct);
+  task::sleep(350);
+  fifteen.frontArmL.stop();
+  fifteen.frontArmR.stop();
+  fifteen.frontArmL.resetRotation();
+  fifteen.frontArmL.resetRotation();
+
+  return 0;
+}
 
 
 int mainAuto() {
 
   //fifteen.waitGyroCallibrate();
-  fifteen.moveArmTo(40, 100, false); // engage arm lock
+
+  task a(armStartup);
   
   fifteen.clawUp();
   fifteen.gyroSensor.setHeading(5, degrees);
@@ -46,7 +62,6 @@ int mainAuto() {
   fifteen.driveStraightTimed(20, reverse, 3);
 
   fifteen.driveStraight(15, 30, forward, 5, 5);
-  fifteen.moveArmTo(0, 100, true);
 
   fifteen.clawUp();
   wait(100, msec);
@@ -66,8 +81,10 @@ int mainAuto() {
 
 }
 
+
 int vcat300Skills() {
 
+  task a(armStartup);
 
   float lowArmAngle = 0;
 
@@ -75,12 +92,9 @@ int vcat300Skills() {
   fifteen.clawUp();
   fifteen.gyroSensor.setHeading(285, deg);
 
-  fifteen.frontArmL.resetRotation();
-  fifteen.frontArmR.resetRotation();
   fifteen.backLiftL.resetRotation();
   fifteen.backLiftR.resetPosition();
 
-  fifteen.moveArmTo(40, 100, false); // engage arm lock
 
   //fifteen.backLiftL.spin(forward, 0, pct);
   //fifteen.backLiftR.spin(forward, 0, pct);
@@ -88,14 +102,9 @@ int vcat300Skills() {
   // grab home goal
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
   fifteen.driveStraight(10, 30, reverse, 5, 5);
-  fifteen.moveArmTo(0, 100, false); // move arm to locking position
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
   fifteen.driveStraight(17, 30, forward, 10, 5);
   
-  // reset encoder location once arm is at lowest point
-  fifteen.frontArmL.resetRotation();
-  fifteen.frontArmR.resetRotation();
-  //wait(300, msec);
 
   // get yellow
   fifteen.gyroTurn(true, 93);
@@ -246,7 +255,7 @@ int testAuto() {
 }
 
 
-void autonomous() { task auto1(mainAuto); }
+void autonomous() { task auto1(vcat300Skills); }
 //void autonomous() { thread auto1(logDistance); }
 
 void userControl(void) { task controlLoop1(mainTeleop); }

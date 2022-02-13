@@ -292,7 +292,7 @@ float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void
     setLeftVelocity(left, baseSpeed*(1 + turnPercent));
     setRightVelocity(right, baseSpeed*(1 - turnPercent));
     
-    wait(20, msec);
+    task::sleep(20);
 
   }
 
