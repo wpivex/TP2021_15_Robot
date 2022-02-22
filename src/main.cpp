@@ -272,13 +272,18 @@ void autonomous() { task auto1(vcat300Skills); }
 void userControl(void) { task controlLoop1(mainTeleop); }
 //void userControl(void) { task controlLoop1(logDistance); }
 
-Trajectory point = Trajectory();
+Trajectory myTraj = Trajectory();
 
 int main() {
 
-  Brain.Screen.print("Main");
+  myTraj.addKeyPoint(0, 1, 0, 0);
+  myTraj.addKeyPoint(0, 2.9, 180, 2);
+  myTraj.addKeyPoint(0, 1, 0, 0);
+  myTraj.printKeyPoints();
+  myTraj.interpolatePoints();
+  Brain.Screen.print("Interpolation Done");
   Brain.Screen.newLine();
-  point.printKeyPoints();
+  myTraj.printPoints();
 
   // wait(500, msec);
   // fifteen.gyroSensor.calibrate();

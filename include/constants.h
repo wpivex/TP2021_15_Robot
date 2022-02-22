@@ -2,7 +2,6 @@
 #define MYLIB_CONSTANTS_H 1
 
 #include "vex.h"
-#include "waypoint.cpp"
 
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
@@ -40,13 +39,6 @@ static inline float distanceToDegrees(float distInches) {
 static inline float degreesToDistance(float distDegrees) {
   return distDegrees * (3/5.0) / (360 / 2 / M_PI / (3.25 / 2)); // 4 in diameter wheels
 }
-
-static inline float distanceBetween(Waypoint pointOne, Waypoint pointTwo) {
-    float dx = pointOne.x - pointTwo.x;
-    float dy = pointOne.y - pointTwo.y;
-    return sqrt(dx * dx + dy * dy);
-}
-
 
 // return distance in inches if wanting to turn turnAngle degrees
 static inline float getTurnAngle(float turnAngle) {
