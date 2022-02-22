@@ -2,10 +2,12 @@
 #define MYLIB_CONSTANTS_H 1
 
 #include "vex.h"
+using namespace vex;
 
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
 vex::competition Competition;
+vex::gps GPS11 = gps(PORT11, 0.00, 0.00, mm, 180);
 
 struct Goal {
   int id;

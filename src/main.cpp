@@ -1,8 +1,7 @@
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
-// Vision6              vision        6               
-// DigitalInE           digital_in    E               
+// GPS11                gps           11              
 // ---- END VEXCODE CONFIGURED DEVICES ----
 #include "robot.cpp"
 #include "trajectory.cpp"
@@ -279,11 +278,35 @@ int main() {
   myTraj.addKeyPoint(0, 1, 0, 0);
   myTraj.addKeyPoint(0, 2.9, 180, 2);
   myTraj.addKeyPoint(0, 1, 0, 0);
-  myTraj.printKeyPoints();
+  // myTraj.printKeyPoints();
   myTraj.interpolatePoints();
   Brain.Screen.print("Interpolation Done");
   Brain.Screen.newLine();
-  myTraj.printPoints();
+  // myTraj.printPoints();x
+
+  Brain.Screen.print("GPS Calibraing...");
+  Brain.Screen.newLine();
+  GPS11.calibrate();
+  while(GPS11.isCalibrating()){};
+  if(!GPS11.installed()){
+      Brain.Screen.clearScreen();
+      Brain.Screen.print("GPS NOT INSTALLED");
+      wait(10000,vex::msec);
+  }
+  while (GPS11.quality() < 80){
+    Brain.Screen.clearScreen();
+    Brain.Screen.setCursor(1, 0);
+    Brain.Screen.print("GPS Quality %d",GPS11.quality());
+    Brain.Screen.setCursor(2, 0);
+    Brain.Screen.print("GPS Position (%.02f,%.02f,%.02f)",GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg));
+    Brain.Screen.setCursor(3, 0);
+    Brain.Screen.print("GPS has not locked on!");
+    wait(100, msec);
+  }
+
+  // Waypoint target = myTraj.findLookAheadPoint(3,GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in));
+
+  
 
   // wait(500, msec);
   // fifteen.gyroSensor.calibrate();

@@ -83,4 +83,11 @@ class Trajectory {       // The class
     // Brain.Screen.newLine();   
 
   }
+
+  // Waypoint findLookAheadPoint(int numberOfPointsToLookAhead, float curr_x, float curr_y){
+  //   float minimumDistSoFar = 999; //Inches
+  //   for(Waypoint point: points){
+	//     if (distanceBetween)
+  //   }
+  // }
 };
