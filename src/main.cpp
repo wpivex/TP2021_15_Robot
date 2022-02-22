@@ -5,6 +5,7 @@
 // DigitalInE           digital_in    E               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 #include "robot.cpp"
+#include "trajectory.cpp"
 
 // CODE FOR 15" ROBOT
 
@@ -271,28 +272,34 @@ void autonomous() { task auto1(vcat300Skills); }
 void userControl(void) { task controlLoop1(mainTeleop); }
 //void userControl(void) { task controlLoop1(logDistance); }
 
+Trajectory point = Trajectory();
+
 int main() {
 
-  wait(500, msec);
-  fifteen.gyroSensor.calibrate();
-  fifteen.waitGyroCallibrate();
+  Brain.Screen.print("Main");
+  Brain.Screen.newLine();
+  point.printKeyPoints();
 
-  Competition.bStopAllTasksBetweenModes = true;
-  fifteen.clawDown();
+  // wait(500, msec);
+  // fifteen.gyroSensor.calibrate();
+  // fifteen.waitGyroCallibrate();
+
+  // Competition.bStopAllTasksBetweenModes = true;
+  // fifteen.clawDown();
 
   
-  fifteen.leftMotorA.resetRotation();
-  fifteen.rightMotorA.resetRotation();
-  fifteen.gyroSensor.resetRotation();
-  fifteen.backLiftL.resetRotation();
-  fifteen.backLiftR.resetRotation();
+  // fifteen.leftMotorA.resetRotation();
+  // fifteen.rightMotorA.resetRotation();
+  // fifteen.gyroSensor.resetRotation();
+  // fifteen.backLiftL.resetRotation();
+  // fifteen.backLiftR.resetRotation();
   
   
-  // DRIVER SKILLS TRUE, OTHERWISE FALSE
-  //fifteen.setTransmission(false);
+  // // DRIVER SKILLS TRUE, OTHERWISE FALSE
+  // //fifteen.setTransmission(false);
 
-  Competition.autonomous(autonomous);
-  Competition.drivercontrol(userControl);
+  // Competition.autonomous(autonomous);
+  // Competition.drivercontrol(userControl);
 
   //platformClimb2();
 
