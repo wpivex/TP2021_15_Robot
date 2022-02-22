@@ -42,6 +42,9 @@ int mainAuto() {
 
   //fifteen.waitGyroCallibrate();
 
+  fifteen.frontArmL.setBrake(hold);
+  fifteen.frontArmR.setBrake(hold);
+
   task a(armStartup);
   
   fifteen.clawUp();
