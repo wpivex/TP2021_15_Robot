@@ -1,29 +1,31 @@
 #include "robot.h"
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), frontCamera(0), gyroSensor(PORT4), buttons(c) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), ringMech(0), frontCamera(0), gyroSensor(PORT4), buttons(c) {
 
-  leftMotorA = motor(PORT3, ratio6_1, true); 
-  leftMotorB = motor(PORT11, ratio6_1, true);
-  leftMotorC = motor(PORT12, ratio6_1, true);
-  leftMotorD = motor(PORT14, ratio6_1, true);
+  leftMotorA = motor(PORT1, ratio6_1, true); 
+  leftMotorB = motor(PORT2, ratio6_1, true);
+  leftMotorC = motor(PORT9, ratio6_1, true);
+  leftMotorD = motor(PORT12, ratio6_1, true);
   leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
 
   // 3L 11L 12L 14L left
   // 16r 18r 19r 20r right
 
-  rightMotorA = motor(PORT17, ratio6_1, false);
-  rightMotorB = motor(PORT18, ratio6_1, false);
-  rightMotorC = motor(PORT19, ratio6_1, false);
-  rightMotorD = motor(PORT20, ratio6_1, false);
+  rightMotorA = motor(PORT4, ratio6_1, false);
+  rightMotorB = motor(PORT19, ratio6_1, false);
+  rightMotorC = motor(PORT20, ratio6_1, false);
+  rightMotorD = motor(PORT21, ratio6_1, false);
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
   // forward is UP, reverse is DOWN
-  frontArmL = motor(PORT1, ratio36_1, true);
-  frontArmR = motor(PORT9, ratio36_1, false);
+  frontArmL = motor(PORT14, ratio36_1, true);
+  frontArmR = motor(PORT3, ratio36_1, false);
 
-  backLiftL = motor(PORT8, ratio36_1, true);
+  backLiftL = motor(PORT5, ratio36_1, true);
   backLiftR = motor(PORT13, ratio36_1, true);
+
+  ringMech = motor(PORT8, ratio18_1, false);
 
   // 8 and 13??
   
@@ -173,6 +175,17 @@ void Robot::armTeleop() {
 
 }
 
+void Robot::ringTeleop() {
+
+  // Ring mech
+  if (frontArmL.rotation(degrees) > 300) {
+    ringMech.spin(forward, 100, percentUnits::pct);
+  } else {
+    ringMech.stop();
+  }
+
+}
+
 // Run every tick
 void Robot::teleop() {
 
@@ -189,6 +202,7 @@ void Robot::teleop() {
   
   driveTeleop();
   armTeleop();
+  ringTeleop();
   backLiftTeleop();
 
   buttons.updateButtonState();

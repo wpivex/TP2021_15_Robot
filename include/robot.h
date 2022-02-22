@@ -34,6 +34,8 @@ class Robot {
     motor_group leftDrive;
     motor_group rightDrive;
 
+    motor ringMech;
+
     //Front/Back Left/Right motors for controlling the sixbar lift
     motor frontArmL;
     motor frontArmR;
@@ -106,6 +108,7 @@ std::function<bool(void)> func = {}, float startUpInches = 0);
     void teleop( void );
     void armTeleop();
     void clawTeleop();
+    void ringTeleop();
     void setLeftVelocity(directionType d, double percent);
     void setRightVelocity(directionType d, double percent);
     void stopLeft();
