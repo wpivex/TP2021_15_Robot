@@ -178,7 +178,7 @@ void Robot::armTeleop() {
 void Robot::ringTeleop() {
 
   // Ring mech
-  if (frontArmL.rotation(degrees) > 300) {
+  if (frontArmL.rotation(degrees) > 120) {
     ringMech.spin(forward, 100, percentUnits::pct);
   } else {
     ringMech.stop();
