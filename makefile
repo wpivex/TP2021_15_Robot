@@ -1,7 +1,7 @@
 # VEXcode makefile 2019_03_26_01
 
 # show compiler output
-VERBOSE = 1
+VERBOSE = 0
 
 # include toolchain options
 include vex/mkenv.mk
@@ -21,7 +21,7 @@ SRC_A  = makefile
 INC_F  = include
 
 # build targets
-all: $(BUILD)/$(PROJECT).bin clean
+all: clean $(BUILD)/$(PROJECT).bin 
 
 # include build rules
 include vex/mkrules.mk
