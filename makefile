@@ -1,14 +1,13 @@
 # VEXcode makefile 2019_03_26_01
 
 # show compiler output
-VERBOSE = 0
+VERBOSE = 1
 
 # include toolchain options
 include vex/mkenv.mk
 
 # location of the project source cpp and c files
 SRC_C  = $(wildcard src/main.cpp)  
-SRC_C  += $(wildcard src/robot-config.cpp)  
 
 OBJ = $(addprefix $(BUILD)/, $(addsuffix .o, $(basename $(SRC_C))) )
 
@@ -22,7 +21,7 @@ SRC_A  = makefile
 INC_F  = include
 
 # build targets
-all: $(BUILD)/$(PROJECT).bin
+all: $(BUILD)/$(PROJECT).bin clean
 
 # include build rules
 include vex/mkrules.mk
