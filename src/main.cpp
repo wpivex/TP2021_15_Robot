@@ -8,6 +8,10 @@
 #include "PID.cpp"
 #include "TurnPID.cpp"
 
+#undef __ARM_NEON__
+#undef __ARM_NEON
+#include "Eigen/Dense"
+
 // CODE FOR 15" ROBOT
 
 
@@ -357,26 +361,46 @@ void userControl(void) { task controlLoop1(mainTeleop); }
 
 int main() {  
 
-  wait(500, msec);
-  fifteen.gyroSensor.calibrate();
-  fifteen.waitGyroCallibrate();
+  Eigen::MatrixXd m1(2,2);
+  m1(0,0) = 1;
+  m1(1,0) = 0;
+  m1(0,1) = 0;
+  m1(1,1) = 1;
 
-  Competition.bStopAllTasksBetweenModes = true;
-  fifteen.clawDown();
+  Eigen::MatrixXd m2(2,2);
+  m2(0,0) = 1;
+  m2(1,0) = 2;
+  m2(0,1) = m1(0,0);
+  m2(1,1) = 0;
+
+  Eigen::MatrixXd m3 = m2*m1;
+
+  //Print the Matrix on the screen!
+  Brain.Screen.newLine();
+  Brain.Screen.print("%d %d",m3(0,0),m3(0,1));
+  Brain.Screen.newLine();
+  Brain.Screen.print("%d %d",m3(1,0),m3(1,1));
+
+  // wait(500, msec);
+  // fifteen.gyroSensor.calibrate();
+  // fifteen.waitGyroCallibrate();
+
+  // Competition.bStopAllTasksBetweenModes = true;
+  // fifteen.clawDown();
 
   
-  fifteen.leftMotorA.resetRotation();
-  fifteen.rightMotorA.resetRotation();
-  fifteen.gyroSensor.resetRotation();
-  fifteen.backLiftL.resetRotation();
-  fifteen.backLiftR.resetRotation();
+  // fifteen.leftMotorA.resetRotation();
+  // fifteen.rightMotorA.resetRotation();
+  // fifteen.gyroSensor.resetRotation();
+  // fifteen.backLiftL.resetRotation();
+  // fifteen.backLiftR.resetRotation();
   
   
-  // DRIVER SKILLS TRUE, OTHERWISE FALSE
-  //fifteen.setTransmission(false);
+  // // DRIVER SKILLS TRUE, OTHERWISE FALSE
+  // //fifteen.setTransmission(false);
 
-  Competition.autonomous(autonomous);
-  Competition.drivercontrol(userControl);
+  // Competition.autonomous(autonomous);
+  // Competition.drivercontrol(userControl);
 
   //platformClimb2();
 
