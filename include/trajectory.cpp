@@ -6,6 +6,7 @@ class Trajectory {       // The class
   public :             // Access specifier
   std::vector<Waypoint> keyPoints;
   std::vector<Waypoint> points;
+  bool pathComplete = false;
   Trajectory(){
   }
   void printKeyPoints(){
@@ -84,10 +85,23 @@ class Trajectory {       // The class
 
   }
 
-  // Waypoint findLookAheadPoint(int numberOfPointsToLookAhead, float curr_x, float curr_y){
-  //   float minimumDistSoFar = 999; //Inches
-  //   for(Waypoint point: points){
-	//     if (distanceBetween)
-  //   }
-  // }
+  Waypoint findLookAheadPoint(int numberOfPointsToLookAhead, float curr_x, float curr_y){
+    float minimumDistSoFar = 999; //Inches
+    int closestPointIndex = -1;
+    for(int i = 0; i < points.size(); i++){
+      Waypoint currentPoint = Waypoint(curr_x,curr_y,0,0);
+      float distanceForThisPoint = distanceBetween(points[i], currentPoint);
+	    if (distanceForThisPoint < minimumDistSoFar){
+        minimumDistSoFar = distanceForThisPoint;
+        closestPointIndex = i;
+      } 
+    }
+    if (closestPointIndex + numberOfPointsToLookAhead >= points.size()){
+      pathComplete = true;
+      return points.back();
+    }else{
+      return points[closestPointIndex+numberOfPointsToLookAhead];
+    }
+
+  }
 };

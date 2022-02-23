@@ -5,6 +5,8 @@
 // ---- END VEXCODE CONFIGURED DEVICES ----
 #include "robot.cpp"
 #include "trajectory.cpp"
+#include "PID.cpp"
+#include "TurnPID.cpp"
 
 // CODE FOR 15" ROBOT
 
@@ -275,9 +277,8 @@ Trajectory myTraj = Trajectory();
 
 int main() {
 
-  myTraj.addKeyPoint(0, 1, 0, 0);
-  myTraj.addKeyPoint(0, 2.9, 180, 2);
-  myTraj.addKeyPoint(0, 1, 0, 0);
+  myTraj.addKeyPoint(0, -10, 0, 0);
+  myTraj.addKeyPoint(0, 10, 0, 0);
   // myTraj.printKeyPoints();
   myTraj.interpolatePoints();
   Brain.Screen.print("Interpolation Done");
@@ -295,16 +296,41 @@ int main() {
   }
   while (GPS11.quality() < 80){
     Brain.Screen.clearScreen();
-    Brain.Screen.setCursor(1, 0);
+    Brain.Screen.setCursor(1, 1);
     Brain.Screen.print("GPS Quality %d",GPS11.quality());
-    Brain.Screen.setCursor(2, 0);
+    Brain.Screen.setCursor(2, 1);
     Brain.Screen.print("GPS Position (%.02f,%.02f,%.02f)",GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg));
-    Brain.Screen.setCursor(3, 0);
+    Brain.Screen.setCursor(3, 1);
     Brain.Screen.print("GPS has not locked on!");
     wait(100, msec);
   }
 
-  // Waypoint target = myTraj.findLookAheadPoint(3,GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in));
+  // while (true){
+  //   Waypoint target = myTraj.findLookAheadPoint(3,GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in));
+  //   Brain.Screen.clearScreen();
+  //   Brain.Screen.setCursor(1, 1);
+  //   Brain.Screen.print("GPS Quality %d",GPS11.quality());
+  //   Brain.Screen.setCursor(2, 1);
+  //   Brain.Screen.print("GPS Position (%.02f,%.02f,%.02f)",GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg));
+  //   Brain.Screen.setCursor(4, 1);
+  //   Brain.Screen.print("LookAhead Target (%.02f,%.02f,%.02f)",target.x,target.y,target.theta);
+  //   Brain.Screen.setCursor(5, 1);
+  //   Brain.Screen.print("Trajectory is Complete:%d",myTraj.pathComplete);
+  //   wait(100, msec);
+  // }
+
+  PID straightPID= PID(1,0,0,0,0);
+  TurnPID rotPID= TurnPID(1);
+
+  while(!myTraj.pathComplete){
+    Waypoint targetPt = myTraj.findLookAheadPoint(3,GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in));
+    Waypoint currentPt = Waypoint(GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg),0);
+    double fwdVal = straightPID.calculate(targetPt, currentPt);
+    double turnVal = rotPID.calculate(targetPt, currentPt);
+    fifteen.setLeftVelocity(directionType::fwd, fwdVal+turnVal);
+    fifteen.setRightVelocity(directionType::fwd, fwdVal-turnVal);
+  }
+  
 
   
 
