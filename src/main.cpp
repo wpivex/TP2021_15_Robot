@@ -8,10 +8,6 @@
 #include "PID.cpp"
 #include "TurnPID.cpp"
 
-#undef __ARM_NEON__
-#undef __ARM_NEON
-#include "Eigen/Dense"
-
 // CODE FOR 15" ROBOT
 
 
@@ -90,24 +86,7 @@ int mainAuto() {
 
 }
 
-int GPSTest(){
-  Trajectory myTraj = Trajectory();
-
-  int i = 0;
-
-  myTraj.addKeyPoint(24, 24, 180+(360*i), 0);
-  myTraj.addKeyPoint(24, -24, 270+(360*i), 0);
-  myTraj.addKeyPoint(-24, -24, 360+(360*i), 0);
-  myTraj.addKeyPoint(-24, 24, 450+(360*i), 0);
-
-  // myTraj.addKeyPoint(24, -36, 180, 0);
-  // myTraj.addKeyPoint(24, -36, 180, 0);
-  // myTraj.printKeyPoints();
-  myTraj.interpolatePoints();
-  Brain.Screen.print("Interpolation Done");
-  Brain.Screen.newLine();
-  // myTraj.printPoints();x
-
+void GPSCalibration(){
   Brain.Screen.print("GPS Calibraing...");
   Brain.Screen.newLine();
   GPS11.calibrate();
@@ -122,51 +101,105 @@ int GPSTest(){
     Brain.Screen.setCursor(1, 1);
     Brain.Screen.print("GPS Quality %d",GPS11.quality());
     Brain.Screen.setCursor(2, 1);
-    Brain.Screen.print("GPS Position (%.02f,%.02f,%.02f)",GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg));
+    Brain.Screen.print("GPS Position (%.02f,%.02f,%.02f)",GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),-GPS11.rotation(rotationUnits::deg));
     Brain.Screen.setCursor(3, 1);
     Brain.Screen.print("GPS has not locked on!");
     wait(100, msec);
   }
-
-  // while (true){
+  //Uncomment debug GPS position
+  //   while (true){
   //   Waypoint target = myTraj.findLookAheadPoint(3,GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in));
   //   Brain.Screen.clearScreen();
   //   Brain.Screen.setCursor(1, 1);
   //   Brain.Screen.print("GPS Quality %d",GPS11.quality());
   //   Brain.Screen.setCursor(2, 1);
-  //   Brain.Screen.print("GPS Position (%.02f,%.02f,%.02f)",GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg));
+  //   Brain.Screen.print("GPS Position (%.02f,%.02f,%.02f)",GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),-GPS11.rotation(rotationUnits::deg));
   //   Brain.Screen.setCursor(4, 1);
   //   Brain.Screen.print("LookAhead Target (%.02f,%.02f,%.02f)",target.x,target.y,target.theta);
   //   Brain.Screen.setCursor(5, 1);
   //   Brain.Screen.print("Trajectory is Complete:%d",myTraj.pathComplete);
   //   wait(100, msec);
   // }
+}
+
+int GPSTest(){
+  Trajectory myTraj = Trajectory();
+
+  int i = 0;
+
+  myTraj.addKeyPoint(-24, 0, 0, 0);
+  myTraj.addKeyPoint(-24, 48, 0, 0);
+  myTraj.addKeyPoint(24, 48, 0, 0);
+  myTraj.addKeyPoint(24, -12, 0, 0);
+
+  // myTraj.addKeyPoint(24, 24, 180+(360*i), 0);
+  // myTraj.addKeyPoint(24, -24, 270+(360*i), 0);
+  // myTraj.addKeyPoint(-24, -24, 360+(360*i), 0);
+  // myTraj.addKeyPoint(-24, 24, 450+(360*i), 0);
+
+  // myTraj.addKeyPoint(24, -36, 180, 0);
+  // myTraj.addKeyPoint(24, -36, 180, 0);
+  // myTraj.printKeyPoints();
+  myTraj.interpolatePoints();
+  Brain.Screen.print("Interpolation Done");
+  Brain.Screen.newLine();
+  // myTraj.printPoints();x
+
+  GPSCalibration();
 
   PID straightPID= PID(2,0,0,0,0);
-  TurnPID rotPID= TurnPID(5);
+  TurnPID rotPID= TurnPID(80);
 
   while(!myTraj.pathComplete){
-    Waypoint targetPt = myTraj.findLookAheadPoint(5,GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in));
-    Waypoint currentPt = Waypoint(GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg),0);
-    double fwdVal = straightPID.calculate(targetPt, currentPt);
-    double turnVal = rotPID.calculate(targetPt, currentPt);
-    fifteen.setLeftVelocity(directionType::fwd, fwdVal+turnVal);
-    fifteen.setRightVelocity(directionType::fwd, fwdVal-turnVal);
+    Brain.Screen.clearScreen();
+    Waypoint targetPt = myTraj.findLookAheadPoint(20,GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in));
+    Waypoint currentPt = Waypoint(GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),-GPS11.rotation(rotationUnits::deg),0);
+    // double fwdVal = straightPID.calculate(targetPt, currentPt);
+    // double turnVal = rotPID.calculate(targetPt, currentPt);
+    // fwdVal = 0;
+
+    logController("%d", GPS11.quality());
+
     double xDiff = targetPt.x - currentPt.x;
     double yDiff = targetPt.y - currentPt.y;
     double error = atan2(-xDiff, -yDiff);
-    Brain.Screen.clearScreen();
+
+    Waypoint targetInRobotFrame = targetPt.worldToRobot(currentPt);
+    double x = targetInRobotFrame.x;
+    double l = distanceBetween(targetPt, currentPt);
+
+    double curvature = (2*x) / (l*l);
+    double radius = 1/curvature;
+
+    Waypoint ICC_Robot = Waypoint(radius,0,0,0);
+    Waypoint ICC_World = ICC_Robot.robotToWorld(currentPt);
+
+    double V = 80;
+    double T = 80; //Inches
+
+    fifteen.setLeftVelocity(directionType::fwd, V*(2+curvature*T)/2);
+    fifteen.setRightVelocity(directionType::fwd, V*(2-curvature*T)/2);
+
+    
     Brain.Screen.setCursor(1, 1);
     Brain.Screen.print("GPS Quality %d",GPS11.quality());
     Brain.Screen.setCursor(3, 1);
     Brain.Screen.print("Current_Pt (%.02f,%.02f,%.02f)",currentPt.x,currentPt.y,currentPt.theta);
     Brain.Screen.setCursor(4, 1);
     Brain.Screen.print("Target_Pt: (%.02f,%.02f,%.02f)",targetPt.x,targetPt.y,targetPt.theta);
+    Brain.Screen.setCursor(5, 1);
+    Brain.Screen.print("Target_InRobot: (%.02f,%.02f,%.02f)",targetInRobotFrame.x,targetInRobotFrame.y,targetInRobotFrame.theta);
     Brain.Screen.setCursor(6, 1);
-    Brain.Screen.print("FWD: %.02f ||| TURN: %.02f",fwdVal, turnVal);
+    Brain.Screen.print("LEFT: %.02f ||| RIGHT: %.02f", V*(2+curvature*T)/2, V*(2-curvature*T)/2);
     Brain.Screen.setCursor(7, 1);
-    Brain.Screen.print("X %.02f, Y %.02f, atan %.02f", xDiff, yDiff, error);
-    wait(100, msec);
+    Brain.Screen.print("XDif %.02f, YDiff %.02f, atan2 %.02f", xDiff, yDiff, error);
+    Brain.Screen.setCursor(8, 1);
+    Brain.Screen.print("x %.02f, l %.02f, cur %.02f", x, l, curvature);
+    Brain.Screen.setCursor(9, 1);
+    Brain.Screen.print("radius %.02f", radius);
+    Brain.Screen.setCursor(10, 1);
+    Brain.Screen.print("ICCinWorld (%.02f, %.02f)",ICC_World.x, ICC_World.y);
+    wait(50, msec);
   }
 
   fifteen.setLeftVelocity(directionType::fwd, 0);
@@ -361,25 +394,20 @@ void userControl(void) { task controlLoop1(mainTeleop); }
 
 int main() {  
 
-  Eigen::MatrixXd m1(2,2);
-  m1(0,0) = 1;
-  m1(1,0) = 0;
-  m1(0,1) = 0;
-  m1(1,1) = 1;
+  // Waypoint robot = Waypoint(1,1,90,0);
 
-  Eigen::MatrixXd m2(2,2);
-  m2(0,0) = 1;
-  m2(1,0) = 2;
-  m2(0,1) = m1(0,0);
-  m2(1,1) = 0;
+  // Waypoint pointA = Waypoint(2,2,0,0);
 
-  Eigen::MatrixXd m3 = m2*m1;
+  // Waypoint pointAinRobootFrame = pointA.worldToRobot(robot);
 
-  //Print the Matrix on the screen!
-  Brain.Screen.newLine();
-  Brain.Screen.print("%d %d",m3(0,0),m3(0,1));
-  Brain.Screen.newLine();
-  Brain.Screen.print("%d %d",m3(1,0),m3(1,1));
+  // Brain.Screen.clearScreen();
+  // Brain.Screen.print("Robot (%.02f,%.02f)",robot.x, robot.y);
+  // Brain.Screen.newLine();
+  // Brain.Screen.print("pointA (%.02f,%.02f)",pointA.x, pointA.y);
+  // Brain.Screen.newLine();
+  // Brain.Screen.print("pointAinRobotFrame (%.02f,%.02f)",pointAinRobootFrame.x, pointAinRobootFrame.y);
+  // Brain.Screen.newLine();
+  
 
   // wait(500, msec);
   // fifteen.gyroSensor.calibrate();
@@ -399,8 +427,8 @@ int main() {
   // // DRIVER SKILLS TRUE, OTHERWISE FALSE
   // //fifteen.setTransmission(false);
 
-  // Competition.autonomous(autonomous);
-  // Competition.drivercontrol(userControl);
+  Competition.autonomous(autonomous);
+  Competition.drivercontrol(userControl);
 
   //platformClimb2();
 

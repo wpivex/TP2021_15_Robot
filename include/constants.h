@@ -2,12 +2,17 @@
 #define MYLIB_CONSTANTS_H 1
 
 #include "vex.h"
+
+#undef __ARM_NEON__
+#undef __ARM_NEON
+#include "Eigen/Dense"
+
 using namespace vex;
 
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
 vex::competition Competition;
-gps GPS11 = gps(PORT16, 50.80, 25.40, mm, 90);
+gps GPS11 = gps(PORT16, 2.8, 2.9, inches, 90);
 
 struct Goal {
   int id;
@@ -33,6 +38,13 @@ static const int ARM_TIMEOUT = 3000;
 
 static double initialPitch = 0;
 
+static inline float deg2rad(float deg) {
+  return (deg * M_PI) / 180;
+}
+
+static inline float rad2deg(float rad) {
+  return (rad * 180) / M_PI;
+}
 
 static inline float distanceToDegrees(float distInches) {
   return distInches * (5/3.0) * 360 / 2 / M_PI / (3.25 / 2); // 4 in diameter wheels
