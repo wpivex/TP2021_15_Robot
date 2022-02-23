@@ -1,29 +1,31 @@
 #include "robot.h"
 
-Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), frontCamera(0), gyroSensor(PORT4), buttons(c) {
+Robot::Robot(controller* c) :  leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), frontCamera(0), gyroSensor(PORT4), buttons(c) {
 
-  leftMotorA = motor(PORT3, ratio6_1, true); 
-  leftMotorB = motor(PORT11, ratio6_1, true);
-  leftMotorC = motor(PORT12, ratio6_1, true);
-  leftMotorD = motor(PORT14, ratio6_1, true);
+  leftMotorA = motor(PORT1, ratio6_1, true); 
+  leftMotorB = motor(PORT2, ratio6_1, true);
+  leftMotorC = motor(PORT9, ratio6_1, true);
+  leftMotorD = motor(PORT12, ratio6_1, true);
   leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
 
   // 3L 11L 12L 14L left
   // 16r 18r 19r 20r right
 
-  rightMotorA = motor(PORT17, ratio6_1, false);
-  rightMotorB = motor(PORT18, ratio6_1, false);
-  rightMotorC = motor(PORT19, ratio6_1, false);
-  rightMotorD = motor(PORT20, ratio6_1, false);
+  rightMotorA = motor(PORT4, ratio6_1, false);
+  rightMotorB = motor(PORT19, ratio6_1, false);
+  rightMotorC = motor(PORT20, ratio6_1, false);
+  rightMotorD = motor(PORT21, ratio6_1, false);
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
   // forward is UP, reverse is DOWN
-  frontArmL = motor(PORT1, ratio36_1, true);
-  frontArmR = motor(PORT9, ratio36_1, false);
+  frontArmL = motor(PORT14, ratio36_1, true);
+  frontArmR = motor(PORT3, ratio36_1, false);
 
-  backLiftL = motor(PORT8, ratio36_1, true);
+  backLiftL = motor(PORT5, ratio36_1, true);
   backLiftR = motor(PORT13, ratio36_1, true);
+
+  intake = motor(PORT8, ratio18_1, false);
 
   // 8 and 13??
   
@@ -35,6 +37,8 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   backLiftR.setBrake(hold);
 
   setControllerMapping(BRIAN_MAPPING);
+
+  intakeState = 0; //1=>UP -1=DOWN;
 }
 
 void Robot::setControllerMapping(ControllerMapping mapping) {
@@ -47,6 +51,9 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
   BACK_LIFT_DOWN = Buttons::R2;
   BACK_LIFT_UPPING = Buttons::RIGHT;
   BACK_LIFT_DOWNING = Buttons::LEFT;
+
+  INTAKE_TOGGLE = Buttons::UP;
+  INTAKE_TOGGLE_REV = Buttons::DOWN;
 
   CLAW_UP = Buttons::L1;
   CLAW_DOWN = Buttons::L2;
@@ -66,7 +73,7 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 
     FRONT_ARM_UP = Buttons::NONE; // brian uses left-stick controls
     FRONT_ARM_DOWN = Buttons::NONE;
-    BACK_LIFT_UP = Buttons::UP;
+    BACK_LIFT_UP = Buttons::A;
 
   }
 
@@ -139,6 +146,27 @@ void Robot::moveArmTo(double degr, double speed, bool blocking) {
   frontArmR.rotateTo(degr, degrees, speed, velocityUnits::pct, blocking);
 }
 
+void Robot::intakeTeleop(){
+  int INTAKE_SPEED = 100;
+  if (buttons.pressed(INTAKE_TOGGLE)){
+    if(intakeState == 1){
+      intakeState = 0;
+    }else{
+      intakeState = 1;
+    }
+  }
+  else if (buttons.pressed(INTAKE_TOGGLE_REV)){
+    if(intakeState == -1){
+      intakeState = 0;
+    }else{
+      intakeState = -1;
+    }
+  }
+
+  intake.spin(forward, intakeState*INTAKE_SPEED, pct);
+
+}
+
 void Robot::armTeleop() {
 
   float MOTOR_SPEED = 100;
@@ -171,6 +199,12 @@ void Robot::armTeleop() {
     frontClaw.set(false); 
   }
 
+  if (buttons.pressing(CLAW_UP)) {
+    frontClaw.set(true);
+  } else if (buttons.pressing(CLAW_DOWN)) {
+    frontClaw.set(false); 
+  }
+
 }
 
 // Run every tick
@@ -190,6 +224,7 @@ void Robot::teleop() {
   driveTeleop();
   armTeleop();
   backLiftTeleop();
+  intakeTeleop();
 
   buttons.updateButtonState();
 }
@@ -207,9 +242,9 @@ void Robot::waitGyroCallibrate() {
   
   initialPitch = gyroSensor.roll(); 
   wait(500, msec);
-  Brain.Screen.setFillColor(green);
-  Brain.Screen.drawRectangle(0, 0, 250, 250);
-  Brain.Screen.render();
+  // Brain.Screen.setFillColor(green);
+  // Brain.Screen.drawRectangle(0, 0, 250, 250);
+  // Brain.Screen.render();
 }
 
 void Robot::driveStraightTimed(float speed, directionType dir, float timeout, bool stopAfter, std::function<bool(void)> func) {

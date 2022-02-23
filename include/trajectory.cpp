@@ -69,7 +69,8 @@ class Trajectory {       // The class
         for(int j = 0; j < numberOfMiddlePoints; j++){
           float newXVal = keyPoints[i-1].x + (j+1)*(xDiff / (numberOfMiddlePoints+1));
           float newYVal = keyPoints[i-1].y + (j+1)*(yDiff / (numberOfMiddlePoints+1));
-          float newTVal = keyPoints[i-1].theta + (j+1)*(tDiff / (numberOfMiddlePoints+1));
+          // float newTVal = keyPoints[i-1].theta + (j+1)*(tDiff / (numberOfMiddlePoints+1));
+          float newTVal = keyPoints[i-1].theta;
           float newAVal = keyPoints[i-1].accel + (j+1)*(aDiff / (numberOfMiddlePoints+1));
           addPoint(newXVal, newYVal, newTVal, newAVal);
           // Brain.Screen.print("Adding new point at %f, %f", newXVal, newYVal);

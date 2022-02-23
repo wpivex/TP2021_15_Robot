@@ -86,6 +86,91 @@ int mainAuto() {
 
 }
 
+int GPSTest(){
+  Trajectory myTraj = Trajectory();
+
+  int i = 0;
+
+  myTraj.addKeyPoint(24, 24, 180+(360*i), 0);
+  myTraj.addKeyPoint(24, -24, 270+(360*i), 0);
+  myTraj.addKeyPoint(-24, -24, 360+(360*i), 0);
+  myTraj.addKeyPoint(-24, 24, 450+(360*i), 0);
+
+  // myTraj.addKeyPoint(24, -36, 180, 0);
+  // myTraj.addKeyPoint(24, -36, 180, 0);
+  // myTraj.printKeyPoints();
+  myTraj.interpolatePoints();
+  Brain.Screen.print("Interpolation Done");
+  Brain.Screen.newLine();
+  // myTraj.printPoints();x
+
+  Brain.Screen.print("GPS Calibraing...");
+  Brain.Screen.newLine();
+  GPS11.calibrate();
+  while(GPS11.isCalibrating()){};
+  if(!GPS11.installed()){
+      Brain.Screen.clearScreen();
+      Brain.Screen.print("GPS NOT INSTALLED");
+      wait(10000,vex::msec);
+  }
+  while (GPS11.quality() < 80){
+    Brain.Screen.clearScreen();
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print("GPS Quality %d",GPS11.quality());
+    Brain.Screen.setCursor(2, 1);
+    Brain.Screen.print("GPS Position (%.02f,%.02f,%.02f)",GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg));
+    Brain.Screen.setCursor(3, 1);
+    Brain.Screen.print("GPS has not locked on!");
+    wait(100, msec);
+  }
+
+  // while (true){
+  //   Waypoint target = myTraj.findLookAheadPoint(3,GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in));
+  //   Brain.Screen.clearScreen();
+  //   Brain.Screen.setCursor(1, 1);
+  //   Brain.Screen.print("GPS Quality %d",GPS11.quality());
+  //   Brain.Screen.setCursor(2, 1);
+  //   Brain.Screen.print("GPS Position (%.02f,%.02f,%.02f)",GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg));
+  //   Brain.Screen.setCursor(4, 1);
+  //   Brain.Screen.print("LookAhead Target (%.02f,%.02f,%.02f)",target.x,target.y,target.theta);
+  //   Brain.Screen.setCursor(5, 1);
+  //   Brain.Screen.print("Trajectory is Complete:%d",myTraj.pathComplete);
+  //   wait(100, msec);
+  // }
+
+  PID straightPID= PID(2,0,0,0,0);
+  TurnPID rotPID= TurnPID(5);
+
+  while(!myTraj.pathComplete){
+    Waypoint targetPt = myTraj.findLookAheadPoint(5,GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in));
+    Waypoint currentPt = Waypoint(GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg),0);
+    double fwdVal = straightPID.calculate(targetPt, currentPt);
+    double turnVal = rotPID.calculate(targetPt, currentPt);
+    fifteen.setLeftVelocity(directionType::fwd, fwdVal+turnVal);
+    fifteen.setRightVelocity(directionType::fwd, fwdVal-turnVal);
+    double xDiff = targetPt.x - currentPt.x;
+    double yDiff = targetPt.y - currentPt.y;
+    double error = atan2(-xDiff, -yDiff);
+    Brain.Screen.clearScreen();
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print("GPS Quality %d",GPS11.quality());
+    Brain.Screen.setCursor(3, 1);
+    Brain.Screen.print("Current_Pt (%.02f,%.02f,%.02f)",currentPt.x,currentPt.y,currentPt.theta);
+    Brain.Screen.setCursor(4, 1);
+    Brain.Screen.print("Target_Pt: (%.02f,%.02f,%.02f)",targetPt.x,targetPt.y,targetPt.theta);
+    Brain.Screen.setCursor(6, 1);
+    Brain.Screen.print("FWD: %.02f ||| TURN: %.02f",fwdVal, turnVal);
+    Brain.Screen.setCursor(7, 1);
+    Brain.Screen.print("X %.02f, Y %.02f, atan %.02f", xDiff, yDiff, error);
+    wait(100, msec);
+  }
+
+  fifteen.setLeftVelocity(directionType::fwd, 0);
+  fifteen.setRightVelocity(directionType::fwd, 0);
+
+  return 0;
+}
+
 
 int vcat300Skills() {
 
@@ -198,9 +283,6 @@ int vcat300Skills() {
   wait(350, msec);
   fifteen.driveStraightGyroHeading(2.8, 18, 270, forward, 50, 4);
 
-  
-
-
   return 0;
 
 }
@@ -267,93 +349,34 @@ int testTurn3() {
 
 
 
-void autonomous() { task auto1(vcat300Skills); }
+void autonomous() { task auto1(GPSTest); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { task controlLoop1(mainTeleop); }
 //void userControl(void) { task controlLoop1(logDistance); }
 
-Trajectory myTraj = Trajectory();
+int main() {  
 
-int main() {
+  wait(500, msec);
+  fifteen.gyroSensor.calibrate();
+  fifteen.waitGyroCallibrate();
 
-  myTraj.addKeyPoint(0, -10, 0, 0);
-  myTraj.addKeyPoint(0, 10, 0, 0);
-  // myTraj.printKeyPoints();
-  myTraj.interpolatePoints();
-  Brain.Screen.print("Interpolation Done");
-  Brain.Screen.newLine();
-  // myTraj.printPoints();x
-
-  Brain.Screen.print("GPS Calibraing...");
-  Brain.Screen.newLine();
-  GPS11.calibrate();
-  while(GPS11.isCalibrating()){};
-  if(!GPS11.installed()){
-      Brain.Screen.clearScreen();
-      Brain.Screen.print("GPS NOT INSTALLED");
-      wait(10000,vex::msec);
-  }
-  while (GPS11.quality() < 80){
-    Brain.Screen.clearScreen();
-    Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("GPS Quality %d",GPS11.quality());
-    Brain.Screen.setCursor(2, 1);
-    Brain.Screen.print("GPS Position (%.02f,%.02f,%.02f)",GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg));
-    Brain.Screen.setCursor(3, 1);
-    Brain.Screen.print("GPS has not locked on!");
-    wait(100, msec);
-  }
-
-  // while (true){
-  //   Waypoint target = myTraj.findLookAheadPoint(3,GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in));
-  //   Brain.Screen.clearScreen();
-  //   Brain.Screen.setCursor(1, 1);
-  //   Brain.Screen.print("GPS Quality %d",GPS11.quality());
-  //   Brain.Screen.setCursor(2, 1);
-  //   Brain.Screen.print("GPS Position (%.02f,%.02f,%.02f)",GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg));
-  //   Brain.Screen.setCursor(4, 1);
-  //   Brain.Screen.print("LookAhead Target (%.02f,%.02f,%.02f)",target.x,target.y,target.theta);
-  //   Brain.Screen.setCursor(5, 1);
-  //   Brain.Screen.print("Trajectory is Complete:%d",myTraj.pathComplete);
-  //   wait(100, msec);
-  // }
-
-  PID straightPID= PID(1,0,0,0,0);
-  TurnPID rotPID= TurnPID(1);
-
-  while(!myTraj.pathComplete){
-    Waypoint targetPt = myTraj.findLookAheadPoint(3,GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in));
-    Waypoint currentPt = Waypoint(GPS11.xPosition(distanceUnits::in),GPS11.yPosition(distanceUnits::in),GPS11.rotation(rotationUnits::deg),0);
-    double fwdVal = straightPID.calculate(targetPt, currentPt);
-    double turnVal = rotPID.calculate(targetPt, currentPt);
-    fifteen.setLeftVelocity(directionType::fwd, fwdVal+turnVal);
-    fifteen.setRightVelocity(directionType::fwd, fwdVal-turnVal);
-  }
-  
+  Competition.bStopAllTasksBetweenModes = true;
+  fifteen.clawDown();
 
   
-
-  // wait(500, msec);
-  // fifteen.gyroSensor.calibrate();
-  // fifteen.waitGyroCallibrate();
-
-  // Competition.bStopAllTasksBetweenModes = true;
-  // fifteen.clawDown();
-
-  
-  // fifteen.leftMotorA.resetRotation();
-  // fifteen.rightMotorA.resetRotation();
-  // fifteen.gyroSensor.resetRotation();
-  // fifteen.backLiftL.resetRotation();
-  // fifteen.backLiftR.resetRotation();
+  fifteen.leftMotorA.resetRotation();
+  fifteen.rightMotorA.resetRotation();
+  fifteen.gyroSensor.resetRotation();
+  fifteen.backLiftL.resetRotation();
+  fifteen.backLiftR.resetRotation();
   
   
-  // // DRIVER SKILLS TRUE, OTHERWISE FALSE
-  // //fifteen.setTransmission(false);
+  // DRIVER SKILLS TRUE, OTHERWISE FALSE
+  //fifteen.setTransmission(false);
 
-  // Competition.autonomous(autonomous);
-  // Competition.drivercontrol(userControl);
+  Competition.autonomous(autonomous);
+  Competition.drivercontrol(userControl);
 
   //platformClimb2();
 

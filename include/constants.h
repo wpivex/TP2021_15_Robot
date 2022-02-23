@@ -7,7 +7,7 @@ using namespace vex;
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
 vex::competition Competition;
-vex::gps GPS11 = gps(PORT11, 0.00, 0.00, mm, 180);
+gps GPS11 = gps(PORT16, 50.80, 25.40, mm, 90);
 
 struct Goal {
   int id;

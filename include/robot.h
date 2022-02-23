@@ -41,6 +41,8 @@ class Robot {
     motor backLiftL;
     motor backLiftR;
 
+    motor intake;
+
 
     vision frontCamera;
 
@@ -51,6 +53,7 @@ class Robot {
 
     inertial gyroSensor;
 
+    int intakeState;
 
     Buttons buttons;
 
@@ -61,11 +64,13 @@ class Robot {
     ControllerMapping cMapping;
     Buttons::Button FRONT_ARM_UP, FRONT_ARM_DOWN, FRONT_CLAW_ON, FRONT_CLAW_OFF, CLAW_UP, CLAW_DOWN;
     Buttons::Button BACK_LIFT_UP, BACK_LIFT_MID, BACK_LIFT_DOWN, BACK_LIFT_UPPING, BACK_LIFT_DOWNING;
+    Buttons::Button INTAKE_TOGGLE, INTAKE_TOGGLE_REV;
 
     void setControllerMapping(ControllerMapping mapping);
 
     void setBackLift(Buttons::Button b, bool blocking);
     void backLiftTeleop();
+    void intakeTeleop();
 
     void clawUp();
     void clawDown();
