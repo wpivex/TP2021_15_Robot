@@ -1,5 +1,6 @@
 #include "robot.h"
 
+
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
   rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), ringMech(0), frontCamera(0), gyroSensor(PORT4), buttons(c) {
 
@@ -36,7 +37,7 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   backLiftL.setBrake(hold);
   backLiftR.setBrake(hold);
 
-  setControllerMapping(BRIAN_MAPPING);
+  setControllerMapping(DEFAULT_MAPPING);
 }
 
 void Robot::setControllerMapping(ControllerMapping mapping) {
@@ -60,7 +61,7 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 
     FRONT_ARM_UP = Buttons::UP;
     FRONT_ARM_DOWN = Buttons::DOWN;
-    BACK_LIFT_UP = Buttons::NONE;
+    BACK_LIFT_UP = Buttons::INVALID;
 
 
   } else if (mapping == BRIAN_MAPPING) {
@@ -147,7 +148,7 @@ void Robot::armTeleop() {
 
   //logController("%f", frontArmL.rotation(degrees));
   
-  float brianArm = buttons.axis(Buttons::LEFT_VERTICAL); // Brian's weird shit
+  float brianArm = buttons.axis(Buttons::RIGHT_VERTICAL); // Brian's weird shit
 
   if (buttons.pressing(FRONT_ARM_UP)) {
     frontArmL.spin(forward, MOTOR_SPEED, pct);
@@ -157,7 +158,7 @@ void Robot::armTeleop() {
     frontArmL.spin(reverse, MOTOR_SPEED, pct);
     frontArmR.spin(reverse, MOTOR_SPEED, pct);
     
-  } else if (cMapping == BRIAN_MAPPING && brianArm != 0) {
+  } else if ((cMapping == BRIAN_MAPPING || cMapping == DEFAULT_MAPPING) && brianArm != 0) {
     frontArmL.spin(forward, brianArm * 100, pct);
     frontArmR.spin(forward, brianArm * 100, pct);
   }
@@ -184,6 +185,102 @@ void Robot::ringTeleop() {
     ringMech.stop();
   }
 
+}
+
+void Robot::waitForGPS() {
+  while (GPS11.quality() < 80) {
+    logController("Quality: %f", GPS11.quality());
+    wait(20, msec);
+  }
+}
+
+// go to (x,y) in inches
+void Robot::goPointGPS(float gx, float gy, float maxSpeed, float tolerance, bool stopAfter) {
+
+  waitForGPS();
+
+  float sx = GPS11.xPosition(inches);
+  float sy = GPS11.yPosition(inches);
+
+  float proj_x = gx - sx;
+  float proj_y = gx - sy;
+  float proj_dist = distanceFormula(proj_x, proj_y);
+
+  // Generate a list of intermediate points to go to, including end point
+  std::vector<Point> points;
+  const float INTERVAL_LENGTH = 20;
+  int numIntermediate = fmax(1,round(proj_dist / INTERVAL_LENGTH)); // 1 or more points
+  for (int i = 1; i <= numIntermediate; i++) {
+    float delta = ((float) i) / numIntermediate;
+    points.push_back(Point(sx + (gx-sx)/delta, sy + (gy-sy)/delta ));
+  }
+
+  float currentToGoalAngle = GPS11.heading();
+
+  PID distPID(4, 0, 0, tolerance, 3);
+  PID anglePID(0.5, 0, 0);
+
+  int pointCounter = 0;
+  Point p = points[0];
+
+  bool adjustAngle = true;
+
+  while (!distPID.isCompleted()) {
+
+    float cx = GPS11.xPosition(inches);
+    float cy = GPS11.yPosition(inches);
+
+    float line_x = cx - sx;
+    float line_y = cy - sy;
+
+    // projected distance is dot product of line and projection over magnitude of projection
+    float dist = (proj_x * line_x + proj_y*line_y) / proj_dist; // projected distance to goal
+    float distError = proj_dist - dist;
+    float speed = distPID.tick(distError);
+
+    // Possibly update current point
+    if (pointCounter < numIntermediate-1 && dist / proj_dist > (pointCounter+1) / ( (float) numIntermediate)) {
+      pointCounter++;
+      p = points[pointCounter];
+      }
+
+    // Only adjust current angle to goal if less than 10 inches
+    if (distError < 10) adjustAngle = false;
+    if (adjustAngle) currentToGoalAngle = 90 - (180 / PI * atan2(p.y - cy, p.x - cx)); // aim at point (either intermediate or goal point)
+
+    float correctionAngle = GPS11.heading() - currentToGoalAngle;
+    if (correctionAngle > 180) correctionAngle -= 360;
+    else if (correctionAngle < -180) correctionAngle += 360;
+    float correction = anglePID.tick(correctionAngle);
+    
+    // limit speed to maxSpeed after factoring in correction
+    speed = fmin(maxSpeed, fmax(-maxSpeed, speed));
+    setLeftVelocity(forward, speed - correction);
+    setRightVelocity(forward, speed + correction);
+
+    Brain.Screen.clearScreen();
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print("current distance: %f", dist);
+    Brain.Screen.setCursor(2, 1);
+    Brain.Screen.print("total dist: %f", proj_dist);
+    Brain.Screen.setCursor(3, 1);
+    Brain.Screen.print("Actual error: %f", distanceFormula(gx-cx, gy-cy));
+    Brain.Screen.setCursor(4, 1);
+    Brain.Screen.print("Absolute angle: %f", currentToGoalAngle);
+    Brain.Screen.setCursor(5, 1);
+    Brain.Screen.print("Relative angle: %f", correctionAngle);
+    Brain.Screen.setCursor(6, 1);
+    Brain.Screen.print("point %d / %d", pointCounter+1, numIntermediate);
+    Brain.Screen.setCursor(7, 1);
+    Brain.Screen.print("Quality: %d", GPS11.quality());
+
+    wait(20, msec);
+  }
+
+  if (stopAfter) {
+    stopLeft();
+    stopRight();
+  }
 }
 
 // Run every tick

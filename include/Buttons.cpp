@@ -24,19 +24,19 @@ inline float Buttons::axis(Axis a) {
 }
 
 inline bool Buttons::pressing(Button b) {
-  if (b == NONE) return false;
+  if (b == NONE || b == INVALID) return false;
   return getObject(b)->pressing();
 }
 inline bool Buttons::pressing(int index) {
-  if (index == NONE) return false;
+  if (index == NONE || index == INVALID) return false;
   return pressing(static_cast<Button>(index));
 }
 inline bool Buttons::pressed(Button b) {
-  if (b == NONE) return false;
+  if (b == NONE || b == INVALID) return false;
   return pressing(b) && !prevButtonState[b];
 }
 inline bool Buttons::released(Button b) {
-  if (b == NONE) return false;
+  if (b == NONE || b == INVALID) return false;
   return !pressing(b) && prevButtonState[b];
 }
 

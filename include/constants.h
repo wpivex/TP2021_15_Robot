@@ -6,12 +6,21 @@
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
 vex::competition Competition;
+vex::gps GPS11 = vex::gps(vex::PORT16, 2.8, 2.9, vex::inches, 90);
+
+typedef struct Point {
+  float x;
+  float y;
+  Point(int X, int Y) {x = X; y = Y;}
+} Point;
 
 struct Goal {
   int id;
   int bright;
   vex::vision::signature sig;
 };
+
+const float PI = 3.1415;
 
 
 const struct Goal YELLOW = {0, 13, vex::vision::signature (1, 1849, 2799, 2324, -3795, -3261, -3528, 2.500, 0)};
@@ -39,6 +48,11 @@ static inline float distanceToDegrees(float distInches) {
 static inline float degreesToDistance(float distDegrees) {
   return distDegrees * (3/5.0) / (360 / 2 / M_PI / (3.25 / 2)); // 4 in diameter wheels
 }
+
+static inline float distanceFormula(float dx, float dy) {
+  return sqrt(dx*dx + dy*dy);
+}
+
 
 
 

@@ -263,9 +263,12 @@ int testTurn3() {
 
 }
 
+int testGPS() {
+  fifteen.goPointGPS(28, 48, 60);
+  return 0;
+}
 
-
-void autonomous() { task auto1(vcat300Skills); }
+void autonomous() { task auto1(testGPS); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { task controlLoop1(mainTeleop); }
@@ -275,7 +278,7 @@ int main() {
 
   wait(500, msec);
   fifteen.gyroSensor.calibrate();
-  fifteen.waitGyroCallibrate();
+  //fifteen.waitGyroCallibrate();
 
   Competition.bStopAllTasksBetweenModes = true;
   fifteen.clawDown();

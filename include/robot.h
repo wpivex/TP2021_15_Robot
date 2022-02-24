@@ -14,6 +14,7 @@
 #include <stdio.h>      /* printf, fgets */
 #include <unistd.h>
 #include "Buttons.cpp"
+#include "PIDController.cpp"
 #include <constants.h>
 
 using namespace vex;
@@ -71,6 +72,9 @@ class Robot {
 
     void clawUp();
     void clawDown();
+
+    void waitForGPS();
+    void goPointGPS(float gx, float gy, float maxSpeed, float tolerance = 0.5, bool stopAfter = true);
 
     void moveArmTo(double degr, double speed, bool blocking = true);
 
