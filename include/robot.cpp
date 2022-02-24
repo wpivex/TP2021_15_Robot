@@ -2,7 +2,7 @@
 
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), ringMech(0), camera(0), gyroSensor(PORT4), buttons(c) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), gyroSensor(PORT4), buttons(c) {
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);
@@ -26,7 +26,7 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   backLiftL = motor(PORT5, ratio36_1, true);
   backLiftR = motor(PORT13, ratio36_1, true);
 
-  ringMech = motor(PORT8, ratio18_1, false);
+  intake = motor(PORT8, ratio18_1, false);
 
   // 8 and 13??
   
@@ -44,6 +44,7 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 
   cMapping = mapping;
 
+  driveType = ONE_STICK_ARCADE;
 
   //Controls that don't change:
   BACK_LIFT_MID = Buttons::R1;
@@ -51,27 +52,16 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
   BACK_LIFT_UPPING = Buttons::RIGHT;
   BACK_LIFT_DOWNING = Buttons::LEFT;
 
+  INTAKE_TOGGLE = Buttons::UP;
+  INTAKE_TOGGLE_REV = Buttons::DOWN;
+
   CLAW_UP = Buttons::L1;
   CLAW_DOWN = Buttons::L2;
 
-  //Controls that do change:
-  if (mapping == DEFAULT_MAPPING) {
+  FRONT_ARM_UP = Buttons::INVALID; // brian uses left-stick controls
+  FRONT_ARM_DOWN = Buttons::INVALID;
+  BACK_LIFT_UP = Buttons::A;
 
-    driveType = TWO_STICK_ARCADE;
-
-    FRONT_ARM_UP = Buttons::UP;
-    FRONT_ARM_DOWN = Buttons::DOWN;
-    BACK_LIFT_UP = Buttons::INVALID;
-
-
-  } else if (mapping == BRIAN_MAPPING) {
-    driveType = ONE_STICK_ARCADE;
-
-    FRONT_ARM_UP = Buttons::NONE; // brian uses left-stick controls
-    FRONT_ARM_DOWN = Buttons::NONE;
-    BACK_LIFT_UP = Buttons::UP;
-
-  }
 
 }
 
@@ -176,15 +166,47 @@ void Robot::armTeleop() {
 
 }
 
-void Robot::ringTeleop() {
-
-  // Ring mech
-  if (frontArmL.rotation(degrees) > 120) {
-    ringMech.spin(forward, 100, percentUnits::pct);
-  } else {
-    ringMech.stop();
+void Robot::intakeTeleop() {
+  int INTAKE_SPEED = 100;
+  if (buttons.pressed(INTAKE_TOGGLE)){
+    if(intakeState == 1){
+      intakeState = 0;
+    }else{
+      intakeState = 1;
+    }
+  }
+  else if (buttons.pressed(INTAKE_TOGGLE_REV)){
+    if(intakeState == -1){
+      intakeState = 0;
+    }else{
+      intakeState = -1;
+    }
   }
 
+  intake.spin(forward, intakeState*INTAKE_SPEED, pct);
+
+}
+
+// Run every tick
+void Robot::teleop() {
+
+  if (buttons.pressed(Buttons::A)) {
+    leftMotorA.resetRotation();
+    rightMotorA.resetRotation();
+    gyroSensor.resetRotation();
+  }
+
+  float left = degreesToDistance(leftMotorA.rotation(degrees));
+  float right = degreesToDistance(rightMotorA.rotation(degrees));
+  log("%f %f %f", left, right, gyroSensor.rotation());
+  logController("%f %f %f", left, right, gyroSensor.rotation());
+  
+  driveTeleop();
+  armTeleop();
+  intakeTeleop();
+  backLiftTeleop();
+
+  buttons.updateButtonState();
 }
 
 void Robot::waitForGPS() {
@@ -356,28 +378,6 @@ void Robot::goPointGPS(float gx, float gy, float maxSpeed, float tolerance, bool
     stopLeft();
     stopRight();
   }
-}
-
-// Run every tick
-void Robot::teleop() {
-
-  if (buttons.pressed(Buttons::A)) {
-    leftMotorA.resetRotation();
-    rightMotorA.resetRotation();
-    gyroSensor.resetRotation();
-  }
-
-  float left = degreesToDistance(leftMotorA.rotation(degrees));
-  float right = degreesToDistance(rightMotorA.rotation(degrees));
-  log("%f %f %f", left, right, gyroSensor.rotation());
-  logController("%f %f %f", left, right, gyroSensor.rotation());
-  
-  driveTeleop();
-  armTeleop();
-  ringTeleop();
-  backLiftTeleop();
-
-  buttons.updateButtonState();
 }
 
 void Robot::waitGyroCallibrate() {

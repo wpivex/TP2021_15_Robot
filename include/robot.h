@@ -36,7 +36,7 @@ class Robot {
     motor_group leftDrive;
     motor_group rightDrive;
 
-    motor ringMech;
+    motor intake;
 
     //Front/Back Left/Right motors for controlling the sixbar lift
     motor frontArmL;
@@ -64,7 +64,7 @@ class Robot {
     enum ControllerMapping {DEFAULT_MAPPING, BRIAN_MAPPING};
     ControllerMapping cMapping;
     Buttons::Button FRONT_ARM_UP, FRONT_ARM_DOWN, FRONT_CLAW_ON, FRONT_CLAW_OFF, CLAW_UP, CLAW_DOWN;
-    Buttons::Button BACK_LIFT_UP, BACK_LIFT_MID, BACK_LIFT_DOWN, BACK_LIFT_UPPING, BACK_LIFT_DOWNING;
+    Buttons::Button BACK_LIFT_UP, BACK_LIFT_MID, BACK_LIFT_DOWN, BACK_LIFT_UPPING, BACK_LIFT_DOWNING, INTAKE_TOGGLE, INTAKE_TOGGLE_REV;
 
     void setControllerMapping(ControllerMapping mapping);
 
@@ -126,7 +126,7 @@ std::function<bool(void)> func = {}, float startUpInches = 0);
     void teleop( void );
     void armTeleop();
     void clawTeleop();
-    void ringTeleop();
+    void intakeTeleop();
     void setLeftVelocity(directionType d, double percent);
     void setRightVelocity(directionType d, double percent);
     void stopLeft();
@@ -137,5 +137,7 @@ std::function<bool(void)> func = {}, float startUpInches = 0);
   private:
     void driveTeleop();
     void checkLowerLimit(std::function<void(void)> doInstead);
+
+    bool intakeState;
 
 };
