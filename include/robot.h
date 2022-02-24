@@ -141,6 +141,6 @@ std::function<bool(void)> func = {}, float startUpInches = 0);
     void driveTeleop();
     void checkLowerLimit(std::function<void(void)> doInstead);
 
-    bool intakeState;
+    int intakeState;
 
 };

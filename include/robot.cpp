@@ -293,10 +293,8 @@ void Robot::goTurn(float angleDegrees) {
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle
-// USES GPS FOR INITIAL HEADING WHEN POSSIBLE
 void Robot::goTurnU(float universalAngleDegrees) {
-  float turnAngle = bound180(universalAngleDegrees - getAngle()); 
-  goTurn(turnAngle);
+  goTurn(getAngleDiff(universalAngleDegrees, getAngle()));
 }
 
 
@@ -318,7 +316,6 @@ void Robot::goPointGPS(float x, float y, float maxSpeed, float rampUpInches, flo
 
   // Go forwards to target
   goForwardU(distFinal, maxSpeed, angleU, rampUpInches, slowDownInches, stopAfter, timeout);
-
 
 }
 
