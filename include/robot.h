@@ -73,6 +73,9 @@ class Robot {
     void clawUp();
     void clawDown();
 
+    void goTurn(float angleDegrees, bool fastButInccurate = false, std::function<bool(void)> func = {});
+    void goTurnU(float universalAngleDegrees, bool fastButInaccurate = false, std::function<bool(void)> func);
+
     void waitForGPS();
     void goPointGPS(float gx, float gy, float maxSpeed, float tolerance = 0.5, bool stopAfter = true);
 

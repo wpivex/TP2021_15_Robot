@@ -194,6 +194,57 @@ void Robot::waitForGPS() {
   }
 }
 
+// angleDegrees is positive if clockwise, negative if counterclockwise
+void Robot::goTurn(float angleDegrees, bool fastButInccurate, std::function<bool(void)> func) {
+
+  PID anglePID(3, 0.00, 0.05, 2, 3, 25);
+  if (fastButInccurate) {
+    anglePID = PID(4, 0, 0.05, 5, 1);
+  }
+
+  float timeout = 5;
+  float speed;
+
+  log("initing");
+  int startTime = vex::timer::system();
+  leftMotorA.resetPosition();
+  rightMotorA.resetPosition();
+  gyroSensor.resetRotation();
+  log("about to loop");
+
+  while (!anglePID.isCompleted() && !isTimeout(startTime, timeout)) {
+
+    if (func) {
+      if (func()) {
+        // if func is done, make it empty
+        func = {};
+      }
+    }
+
+    speed = anglePID.tick(angleDegrees - gyroSensor.rotation());
+
+    //logController("wtf %f", speed);
+
+    setLeftVelocity(forward, speed);
+    setRightVelocity(reverse, speed);
+
+    wait(20, msec);
+  }
+  logController("wtf done");
+
+  stopLeft();
+  stopRight();
+}
+
+// Turn to some universal angle based on starting point. Turn direction is determined by smallest angle
+// USES GPS FOR INITIAL HEADING WHEN POSSIBLE
+void Robot::goTurnU(float universalAngleDegrees, bool fastButInaccurate, std::function<bool(void)> func) {
+  float h = (GPS11.quality() > 90) ? GPS11.heading(degrees) : gyroSensor.heading();
+  float turnAngle = bound180(universalAngleDegrees - h); 
+  goTurn(turnAngle, fastButInaccurate, func);
+}
+
+
 // go to (x,y) in inches
 void Robot::goPointGPS(float gx, float gy, float maxSpeed, float tolerance, bool stopAfter) {
 
@@ -206,6 +257,13 @@ void Robot::goPointGPS(float gx, float gy, float maxSpeed, float tolerance, bool
   float proj_y = gx - sy;
   float proj_dist = distanceFormula(proj_x, proj_y);
 
+  // Check for initial angle to target. If close to target (<20 inches) or >20 degrees in either direction, do point turn first
+  float currentToGoalAngle = 90 - (180 / PI * atan2(gy - GPS11.yPosition(inches), gx - GPS11.xPosition(inches)));
+  float correctionAngle = bound180(GPS11.heading() - currentToGoalAngle);
+  if (proj_dist < 20 || fabs(correctionAngle) > 20) {
+    goTurn(correctionAngle, proj_dist > 20); // do fast turn if long distance, otherwise slow turn
+  }
+
   // Generate a list of intermediate points to go to, including end point
   std::vector<Point> points;
   const float INTERVAL_LENGTH = 20;
@@ -215,15 +273,15 @@ void Robot::goPointGPS(float gx, float gy, float maxSpeed, float tolerance, bool
     points.push_back(Point(sx + (gx-sx)/delta, sy + (gy-sy)/delta ));
   }
 
-  float currentToGoalAngle = GPS11.heading();
 
   PID distPID(4, 0, 0, tolerance, 3);
-  PID anglePID(0.5, 0, 0);
+  PID anglePID(0.7, 0, 0);
 
   int pointCounter = 0;
   Point p = points[0];
 
   bool adjustAngle = true;
+  currentToGoalAngle = GPS11.heading();
 
   while (!distPID.isCompleted()) {
 
@@ -248,9 +306,7 @@ void Robot::goPointGPS(float gx, float gy, float maxSpeed, float tolerance, bool
     if (distError < 10) adjustAngle = false;
     if (adjustAngle) currentToGoalAngle = 90 - (180 / PI * atan2(p.y - cy, p.x - cx)); // aim at point (either intermediate or goal point)
 
-    float correctionAngle = GPS11.heading() - currentToGoalAngle;
-    if (correctionAngle > 180) correctionAngle -= 360;
-    else if (correctionAngle < -180) correctionAngle += 360;
+    correctionAngle = bound180(GPS11.heading() - currentToGoalAngle);
     float correction = anglePID.tick(correctionAngle);
     
     // limit speed to maxSpeed after factoring in correction

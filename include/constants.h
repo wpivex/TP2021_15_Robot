@@ -53,7 +53,11 @@ static inline float distanceFormula(float dx, float dy) {
   return sqrt(dx*dx + dy*dy);
 }
 
-
+static inline float bound180(float angle) {
+  if (angle < -180) angle += 360;
+  else if (angle > 180) angle -= 360;
+  return angle;
+}
 
 
 // return distance in inches if wanting to turn turnAngle degrees
