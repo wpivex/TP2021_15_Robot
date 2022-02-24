@@ -53,6 +53,11 @@ static inline float bound180(float angle) {
   return angle;
 }
 
+// Find the closest angle between two universal angles
+static inline float getAngleDiff(float targetAngle, float currentAngle) {
+  return bound180(targetAngle - currentAngle);
+}
+
 
 // return distance in inches if wanting to turn turnAngle degrees
 static inline float getTurnAngle(float turnAngle) {

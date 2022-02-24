@@ -69,6 +69,7 @@ class Robot {
     void setControllerMapping(ControllerMapping mapping);
 
     float getEncoderDistance();
+    float getAngle();
 
     void setBackLift(Buttons::Button b, bool blocking);
     void backLiftTeleop();
@@ -76,13 +77,15 @@ class Robot {
     void clawUp();
     void clawDown();
 
-    void goTurn(float angleDegrees, bool fastButInccurate = false);
-    void goTurnU(float universalAngleDegrees, bool fastButInaccurate = false);
+    void goTurn(float angleDegrees);
+    void goTurnU(float universalAngleDegrees);
 
+    void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
+bool stopAfter, float timeout, bool angleCorrection = true);
     void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float timeout);
 
     void waitForGPS();
-    void goPointGPS(float gx, float gy, float maxSpeed, float tolerance = 0.5, bool stopAfter = true);
+    void goPointGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 10);
 
     void goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
     void goAlignVision(Goal goal, float timeout);

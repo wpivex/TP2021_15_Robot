@@ -220,10 +220,17 @@ float Robot::getEncoderDistance() {
   return (leftMotorA.rotation(deg) + rightMotorA.rotation(deg)) / 2;
 }
 
-void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
+float Robot::getAngle() {
+  return (GPS11.quality() > 90) ? GPS11.heading(degrees) : gyroSensor.heading();
+}
+
+void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
+bool stopAfter, float timeout, bool angleCorrection) {
 
   Trapezoid trap(distInches, maxSpeed, 0, rampUpInches, slowDownInches);
+  PID turnPID(0.42, 0.00, 0);
 
+  float correction = 0;
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();
   rightMotorA.resetPosition();
@@ -231,8 +238,15 @@ void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, floa
   while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
 
     float speed = trap.tick(getEncoderDistance());
-    setLeftVelocity(forward, speed);
-    setRightVelocity(forward, speed);
+    
+    if (angleCorrection) correction = turnPID.tick(getAngleDiff(universalAngle, getAngle()));
+
+    // reduce speed if turn causes speed to exceed max
+    if (speed + correction > 100) speed = 100 - correction;
+    if (speed - correction < -100) speed = -100 + correction;
+ 
+    setLeftVelocity(forward, speed - correction);
+    setRightVelocity(forward, speed + correction);
 
     wait(20, msec);
   }
@@ -242,13 +256,14 @@ void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, floa
   }
 }
 
+void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
+  goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, timeout, false);
+}
+
 // angleDegrees is positive if clockwise, negative if counterclockwise
-void Robot::goTurn(float angleDegrees, bool fastButInccurate) {
+void Robot::goTurn(float angleDegrees) {
 
   PID anglePID(0.42, 0.00, 0.05, 3, 3);
-  if (fastButInccurate) {
-    anglePID = PID(4, 0, 0.05, 5, 1);
-  }
 
   float timeout = 5;
   float speed;
@@ -279,105 +294,32 @@ void Robot::goTurn(float angleDegrees, bool fastButInccurate) {
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle
 // USES GPS FOR INITIAL HEADING WHEN POSSIBLE
-void Robot::goTurnU(float universalAngleDegrees, bool fastButInaccurate) {
-  float h = (GPS11.quality() > 90) ? GPS11.heading(degrees) : gyroSensor.heading();
-  float turnAngle = bound180(universalAngleDegrees - h); 
-  goTurn(turnAngle, fastButInaccurate);
+void Robot::goTurnU(float universalAngleDegrees) {
+  float turnAngle = bound180(universalAngleDegrees - getAngle()); 
+  goTurn(turnAngle);
 }
 
 
 // go to (x,y) in inches
-void Robot::goPointGPS(float gx, float gy, float maxSpeed, float tolerance, bool stopAfter) {
+void Robot::goPointGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
 
   waitForGPS();
 
   float sx = GPS11.xPosition(inches);
   float sy = GPS11.yPosition(inches);
 
-  float proj_x = gx - sx;
-  float proj_y = gx - sy;
-  float proj_dist = distanceFormula(proj_x, proj_y);
+  float proj_x = x - sx;
+  float proj_y = x - sy;
+  float distFinal = distanceFormula(proj_x, proj_y);
 
-  // Check for initial angle to target. If close to target (<20 inches) or >20 degrees in either direction, do point turn first
-  float currentToGoalAngle = 90 - (180 / PI * atan2(gy - GPS11.yPosition(inches), gx - GPS11.xPosition(inches)));
-  float correctionAngle = bound180(GPS11.heading() - currentToGoalAngle);
-  if (proj_dist < 20 || fabs(correctionAngle) > 20) {
-    goTurn(correctionAngle, proj_dist > 20); // do fast turn if long distance, otherwise slow turn
-  }
+  // Point turn to orient towards target
+  float angleU = 90 - (180 / PI * atan2(proj_y, proj_x));
+  goTurnU(angleU);
 
-  // Generate a list of intermediate points to go to, including end point
-  std::vector<Point> points;
-  const float INTERVAL_LENGTH = 20;
-  int numIntermediate = fmax(1,round(proj_dist / INTERVAL_LENGTH)); // 1 or more points
-  for (int i = 1; i <= numIntermediate; i++) {
-    float delta = ((float) i) / numIntermediate;
-    points.push_back(Point(sx + (gx-sx)/delta, sy + (gy-sy)/delta ));
-  }
+  // Go forwards to target
+  goForwardU(distFinal, maxSpeed, angleU, rampUpInches, slowDownInches, stopAfter, timeout);
 
 
-  PID distPID(4, 0, 0, tolerance, 3);
-  PID anglePID(0.7, 0, 0);
-
-  int pointCounter = 0;
-  Point p = points[0];
-
-  bool adjustAngle = true;
-  currentToGoalAngle = GPS11.heading();
-
-  while (!distPID.isCompleted()) {
-
-    float cx = GPS11.xPosition(inches);
-    float cy = GPS11.yPosition(inches);
-
-    float line_x = cx - sx;
-    float line_y = cy - sy;
-
-    // projected distance is dot product of line and projection over magnitude of projection
-    float dist = (proj_x * line_x + proj_y*line_y) / proj_dist; // projected distance to goal
-    float distError = proj_dist - dist;
-    float speed = distPID.tick(distError);
-
-    // Possibly update current point
-    if (pointCounter < numIntermediate-1 && dist / proj_dist > (pointCounter+1) / ( (float) numIntermediate)) {
-      pointCounter++;
-      p = points[pointCounter];
-      }
-
-    // Only adjust current angle to goal if less than 10 inches
-    if (distError < 10) adjustAngle = false;
-    if (adjustAngle) currentToGoalAngle = 90 - (180 / PI * atan2(p.y - cy, p.x - cx)); // aim at point (either intermediate or goal point)
-
-    correctionAngle = bound180(GPS11.heading() - currentToGoalAngle);
-    float correction = anglePID.tick(correctionAngle);
-    
-    // limit speed to maxSpeed after factoring in correction
-    speed = fmin(maxSpeed, fmax(-maxSpeed, speed));
-    setLeftVelocity(forward, speed - correction);
-    setRightVelocity(forward, speed + correction);
-
-    Brain.Screen.clearScreen();
-    Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("current distance: %f", dist);
-    Brain.Screen.setCursor(2, 1);
-    Brain.Screen.print("total dist: %f", proj_dist);
-    Brain.Screen.setCursor(3, 1);
-    Brain.Screen.print("Actual error: %f", distanceFormula(gx-cx, gy-cy));
-    Brain.Screen.setCursor(4, 1);
-    Brain.Screen.print("Absolute angle: %f", currentToGoalAngle);
-    Brain.Screen.setCursor(5, 1);
-    Brain.Screen.print("Relative angle: %f", correctionAngle);
-    Brain.Screen.setCursor(6, 1);
-    Brain.Screen.print("point %d / %d", pointCounter+1, numIntermediate);
-    Brain.Screen.setCursor(7, 1);
-    Brain.Screen.print("Quality: %d", GPS11.quality());
-
-    wait(20, msec);
-  }
-
-  if (stopAfter) {
-    stopLeft();
-    stopRight();
-  }
 }
 
 void Robot::waitGyroCallibrate() {
