@@ -268,10 +268,10 @@ int testGPS() {
   return 0;
 }
 
-void autonomous() { task auto1(testGPS); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(testGPS); }
 //void autonomous() { thread auto1(mainAuto); }
 
-void userControl(void) { task controlLoop1(mainTeleop); }
+void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
 //void userControl(void) { task controlLoop1(logDistance); }
 
 int main() {

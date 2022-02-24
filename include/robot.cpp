@@ -2,7 +2,7 @@
 
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), ringMech(0), frontCamera(0), gyroSensor(PORT4), buttons(c) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), ringMech(0), camera(0), gyroSensor(PORT4), buttons(c) {
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);
@@ -194,10 +194,36 @@ void Robot::waitForGPS() {
   }
 }
 
-// angleDegrees is positive if clockwise, negative if counterclockwise
-void Robot::goTurn(float angleDegrees, bool fastButInccurate, std::function<bool(void)> func) {
+float Robot::getEncoderDistance() {
+  return (leftMotorA.rotation(deg) + rightMotorA.rotation(deg)) / 2;
+}
 
-  PID anglePID(3, 0.00, 0.05, 2, 3, 25);
+void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
+
+  Trapezoid trap(distInches, maxSpeed, 0, rampUpInches, slowDownInches);
+
+  int startTime = vex::timer::system();
+  leftMotorA.resetPosition();
+  rightMotorA.resetPosition();
+
+  while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
+
+    float speed = trap.tick(getEncoderDistance());
+    setLeftVelocity(forward, speed);
+    setRightVelocity(forward, speed);
+
+    wait(20, msec);
+  }
+  if (stopAfter) {
+    stopLeft();
+    stopRight();
+  }
+}
+
+// angleDegrees is positive if clockwise, negative if counterclockwise
+void Robot::goTurn(float angleDegrees, bool fastButInccurate) {
+
+  PID anglePID(0.42, 0.00, 0.05, 3, 3);
   if (fastButInccurate) {
     anglePID = PID(4, 0, 0.05, 5, 1);
   }
@@ -213,13 +239,6 @@ void Robot::goTurn(float angleDegrees, bool fastButInccurate, std::function<bool
   log("about to loop");
 
   while (!anglePID.isCompleted() && !isTimeout(startTime, timeout)) {
-
-    if (func) {
-      if (func()) {
-        // if func is done, make it empty
-        func = {};
-      }
-    }
 
     speed = anglePID.tick(angleDegrees - gyroSensor.rotation());
 
@@ -238,10 +257,10 @@ void Robot::goTurn(float angleDegrees, bool fastButInccurate, std::function<bool
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle
 // USES GPS FOR INITIAL HEADING WHEN POSSIBLE
-void Robot::goTurnU(float universalAngleDegrees, bool fastButInaccurate, std::function<bool(void)> func) {
+void Robot::goTurnU(float universalAngleDegrees, bool fastButInaccurate) {
   float h = (GPS11.quality() > 90) ? GPS11.heading(degrees) : gyroSensor.heading();
   float turnAngle = bound180(universalAngleDegrees - h); 
-  goTurn(turnAngle, fastButInaccurate, func);
+  goTurn(turnAngle, fastButInaccurate);
 }
 
 
@@ -372,105 +391,12 @@ void Robot::waitGyroCallibrate() {
     wait(1000, msec);
   }
   
-  initialPitch = gyroSensor.roll(); 
   wait(500, msec);
   Brain.Screen.setFillColor(green);
   Brain.Screen.drawRectangle(0, 0, 250, 250);
   Brain.Screen.render();
 }
 
-void Robot::driveStraightTimed(float speed, directionType dir, float timeout, bool stopAfter, std::function<bool(void)> func) {
-  driveStraight(0, speed, dir, timeout, 0, stopAfter, func);
-}
-
-
-void Robot::driveStraight(float distInches, float speed, directionType dir, float timeout, 
-float slowDownInches, bool stopAfter, std::function<bool(void)> func, float startUpInches) {
-
-  driveCurved(distInches, speed, dir, timeout, slowDownInches, 0, stopAfter, func, startUpInches);
-
-}
-
-void Robot::driveCurved(float distInches, float speed, directionType dir, float timeout, 
-float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void)> func, float startUpInches) {
-
-  smartDrive(distInches, speed, dir, dir, timeout, slowDownInches, turnPercent, stopAfter, func, startUpInches);
-
-}
-
-void Robot::driveTurn(float degrees, float speed, bool isClockwise, float timeout, float slowDownInches, 
-bool stopAfter, std::function<bool(void)> func) {
-
-  smartDrive(degrees, speed, isClockwise ? forward : reverse, isClockwise ? reverse: forward,
-  timeout, slowDownInches, 0, stopAfter, func);
-
-}
-
-// distInches is positive distance in inches to destination. -1 means indefinite (until timeout)
-// speed is percent 1-100
-// direction is for left motor, right depends if turning
-// timeout (optional parameter defaults to -1 -> none) in ms, terminates once reached
-// slowDownInches representing from what distance to destination the robot starts slowing down with proportional speed
-//  control in relation to distInches. Set by default to 10. 0 means attempt instant stop.
-//  a higher value is more controlled/consistent, a lower value is faster/more variable
-// turnPercent (from 0-1) is percent of speed to curve (so curvature now independent from speed). optional, default to 0
-// stopAfter whether to stop motors after function call.
-// func is an optional nonblocking function you can use to run as the same time as this method. It returns true when nonblocking function is gone
-void Robot::smartDrive(float distInches, float speed, directionType left, directionType right, float timeout, 
-float slowDownInches, float turnPercent, bool stopAfter, std::function<bool(void)> func, float startUpInches) {
-
-  if (slowDownInches > distInches) slowDownInches = distInches;
-
-  float finalDist = distInches == 0? -1 : distanceToDegrees(distInches);
-  float slowDown = distanceToDegrees(slowDownInches);
-  float startUp = distanceToDegrees(startUpInches);
-
-  int startTime = vex::timer::system();
-  leftMotorA.resetPosition();
-  rightMotorA.resetPosition();
-
-  // finalDist is 0 if we want driveTimed instead of drive some distance
-  float currentDist = 0;
-  while (Competition.isAutonomous() && (finalDist == -1 || currentDist < finalDist) && (timeout == -1 || vex::timer::system() < startTime + timeout*1000)) {
-
-    // if there is a concurrent function to run, run it
-    if (func) {
-      if (func()) {
-        // if func is done, make it empty
-        func = {};
-      }
-    }
-
-    currentDist = (fabs(leftMotorA.position(degrees)) + fabs(rightMotorA.position(degrees))) / 2;
-
-     // from 0 to 1 indicating proportion of velocity. Starts out constant at 1 until it hits the slowDown interval,
-     // where then it linearly decreases to 0
-    float proportion = slowDown == 0 ? 1 : fmin(1, 1 - (currentDist - (finalDist - slowDown)) / slowDown);
-    if (currentDist < startUp && startUp != 0) proportion = currentDist / startUp;
-    float baseSpeed = FORWARD_MIN_SPEED + (speed-FORWARD_MIN_SPEED) * proportion;
-
-    
-
-    // reduce baseSpeed so that the faster motor always capped at max speed
-    baseSpeed = fmin(baseSpeed, 100 - baseSpeed*turnPercent);
-
-    log("%f %f", degreesToDistance(leftMotorA.position(degrees)), degreesToDistance(rightMotorA.position(degrees)));
-
-    setLeftVelocity(left, baseSpeed*(1 + turnPercent));
-    setRightVelocity(right, baseSpeed*(1 - turnPercent));
-    
-    task::sleep(20);
-
-  }
-
-  if (stopAfter) {
-    stopLeft();
-    stopRight();
-  }
-
-  log("done");
-
-}
 
 // Detect whether the robot is fighting another robot based on measuring current.
 // If current is always above the threshold, never stop backing up or releasing claw (because fighting other robot in mid)
@@ -488,7 +414,7 @@ void Robot::driveStraightFighting(float distInches, float speed, directionType d
   rightMotorA.resetRotation();
 
   // Keep running while distance is not reached or the current has not dipped below threshold for a significant period of time
-  while (Competition.isAutonomous() && (currentDist < finalDist || numCurrentReached < NUM_CURRENT_NEEDED)) {
+  while ((currentDist < finalDist || numCurrentReached < NUM_CURRENT_NEEDED)) {
 
     float c = (leftMotorA.current() + rightMotorA.current()) / 2.0;
 
@@ -497,310 +423,85 @@ void Robot::driveStraightFighting(float distInches, float speed, directionType d
     } else numCurrentReached = 0;
     logController("%d %f", numCurrentReached, c);
 
-    currentDist = fabs(leftMotorA.rotation(degrees) + rightMotorA.rotation(degrees)) / 2;
+    currentDist = fabs(getEncoderDistance());
     setLeftVelocity(dir, speed);
     setRightVelocity(dir, speed);
 
     wait(20, msec);
   }
 
-  if (!Competition.isAutonomous()) {
+  // take four inches to slow down to not break motors
+  Trapezoid trap(4, speed, 0, 0, 4);
+  while (!trap.isCompleted()) {
+
+    float speed = trap.tick(getEncoderDistance());
+
+    setLeftVelocity(dir, speed);
+    setRightVelocity(dir, speed);
+
+    wait(20, msec);
+  }
+  stopLeft();
+  stopRight();
+}
+
+
+void Robot::updateCamera(Goal goal) {
+  camera = vision(PORT5, goal.bright, goal.sig);
+}
+
+// Go forward until the maximum distance is hit or the timeout is reached
+// for indefinite timeout, set to -1
+void Robot::goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
+
+  Trapezoid trapDist(distInches, speed, 2, rampUpInches, slowDownInches);
+  PID pidTurn(1, 0, 0);
+
+  updateCamera(goal);
+
+  int startTime = vex::timer::system();
+  leftMotorA.resetPosition();
+  rightMotorA.resetPosition();
+
+  // forward until the maximum distance is hit, the timeout is reached, or limitSwitch is turned on
+  while (!trapDist.isCompleted() && !isTimeout(startTime, timeout)) {
+
+    camera.takeSnapshot(goal.sig);
+    
+    float correction = camera.largestObject.exists ? pidTurn.tick((VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X) : 0;
+    float speed = trapDist.tick(getEncoderDistance());
+
+    setLeftVelocity(forward, speed - correction);
+    setRightVelocity(forward, speed + correction);
+
+    wait(20, msec);
+  }
+  if (stopAfter) {
     stopLeft();
     stopRight();
   }
-
-}
-
-// Move forward/backward with proportional gyro feedback.
-// finalDegrees is the delta yaw angle at the end of the curve
-void Robot::driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, 
-bool resetEncoder, std::function<bool(void)> func, float startUpInches) {
-
-  if (slowDownInches > distInches) slowDownInches = distInches;
-
-  float finalDist = distanceToDegrees(distInches);
-  float slowDown = distanceToDegrees(slowDownInches);
-  float startUp = distanceToDegrees(startUpInches);
-
-
-  int startTime = vex::timer::system();
-  leftMotorA.resetPosition();
-  rightMotorA.resetPosition();
-  if (resetEncoder) gyroSensor.resetRotation();
-
-  const float GYRO_CONSTANT = 0.008;
-  bool hasSetToDone = false;
-
-  // finalDist is 0 if we want driveTimed instead of drive some distance
-  float currentDist = 0;
-  while ((finalDist == 0 || currentDist < finalDist) && !isTimeout(startTime, timeout)) {
-
-    // if there is a concurrent function to run, run it
-    if (func) {
-      bool done = func();
-      log("running concurrent %d %d", done ? 1 : 0, hasSetToDone ? 1 : 0);
-      if (done) {
-        // if func is done, make it empty
-        func = {};
-        hasSetToDone = true;
-      }
-    }
-
-    currentDist = (fabs(leftMotorA.position(degrees)) + fabs(rightMotorA.position(degrees))) / 2;
-
-     // from 0 to 1 indicating proportion of velocity. Starts out constant at 1 until it hits the slowDown interval,
-     // where then it linearly decreases to 0
-    float proportion = slowDown == 0 ? 1 : fmin(1, 1 - (currentDist - (finalDist - slowDown)) / slowDown);
-    if (currentDist < startUp && startUp != 0) proportion = currentDist / startUp;
-    float baseSpeed = FORWARD_MIN_SPEED + (speed-FORWARD_MIN_SPEED) * proportion;
-
-    float gyroCorrection = gyroSensor.rotation() * GYRO_CONSTANT;
-
-
-    // reduce baseSpeed so that the faster motor always capped at max speed
-    baseSpeed = fmin(baseSpeed, 100 - baseSpeed*gyroCorrection);
-
-    float left = baseSpeed*(1 - gyroCorrection);
-    float right = baseSpeed*(1 + gyroCorrection);
-    setLeftVelocity(dir, left);
-    setRightVelocity(dir, right);
-    //log("%f %f %f", gyroCorrection, left, right);
-    
-    wait(20, msec);
-  }
-
-  stopLeft();
-  stopRight();
-
-  
   
 }
-// drive straight in a specific direction (0-360)
-void Robot::driveStraightGyroHeading(float distInches, float speed, float head, directionType dir, float timeout, float slowDownInches, 
-std::function<bool(void)> func, float startUpInches) {
 
-  float correction = gyroSensor.heading() - head;
-  if (correction > 180) correction -= 360;
-  else if (correction < -180) correction += 360;
-  logController("correction: %f", correction);
-  gyroSensor.setRotation(correction, degrees);
-
-  driveStraightGyro(distInches, speed, dir, timeout, slowDownInches, false, func, startUpInches);
-
-}
-
-
-// void Robot::dumbGyroTurn(bool clockwise, float angleDegrees, float speed, int timeout) {
-
-//   turnToAngleGyro(clockwise, angleDegrees, speed, 180, timeout);
-
-//   /*
-
-//   int startTime = vex::timer::system();
-//   leftMotorA.resetPosition();
-//   rightMotorA.resetPosition();
-//   gyroSensor.resetRotation();
-
-//   while (fabs(gyroSensor.rotation()) < angleDegrees && !isTimeout(startTime, timeout)) {
-//     setLeftVelocity(clockwise ? forward : reverse, speed);
-//     setRightVelocity(clockwise ? reverse : forward, speed);
-//     wait(20, msec);
-//   }
-//   stopLeft();
-//   stopRight();
-
-//   */
-
-// }
-
-// BOTH angleDegrees AND startSlowDownDegrees SHOULD BE POSITIVE
-// angleDegrees indicates the angle to turn to.
-// startSlowDownDegrees is some absolute angle less than angleDegrees, where gyro proportional control starts
-// maxSpeed is the starting speed of the turn. Will slow down once past startSlowDownDegrees theshhold
-void Robot::gyroTurn(bool clockwise, float angleDegrees) {
-
-  float K_PROPORTIONAL = 0.42;
-  float K_DERIVATIVE = 0.003;
-  float tolerance = 4.5;
-
-  float timeout = 3;
-  if (angleDegrees < 25){
-    timeout = 2;
-  }
-
-  float speed;
-
-  log("initing");
-  int startTime = vex::timer::system();
-  leftMotorA.resetPosition();
-  rightMotorA.resetPosition();
-  gyroSensor.resetRotation();
-  log("about to loop");
-
-  float currDegrees = 0; // always positive with abs
-  float delta = 0;
-  float delta_prev = 0;
-  float delta_dir = 0;
-
-  int NUM_VALID_THRESHOLD = 8;
-  int numValid = 0;
-
-  while (numValid < NUM_VALID_THRESHOLD && !isTimeout(startTime, timeout) && Competition.isAutonomous()) {
-
-    currDegrees = fabs(gyroSensor.rotation());
-
-    delta = angleDegrees - currDegrees;
-    delta_dir = (delta - delta_prev)/0.02;
-
-    speed = delta * K_PROPORTIONAL + delta_dir * K_DERIVATIVE;
-    
-
-    //logController("%d %f %f", clockwise? 1:0, speed, delta);
-    logController("%f %f", delta*K_PROPORTIONAL, delta_dir*K_DERIVATIVE);
-    setLeftVelocity(clockwise ? forward : reverse, speed);
-    setRightVelocity(clockwise ? reverse : forward, speed);
-
-    delta_prev = delta;
-
-    wait(20, msec);
-    if (fabs(currDegrees - angleDegrees) < tolerance) numValid++;
-    else numValid = 0;
-    //logController("%d %f", numValid, delta);
-  }
-
-  stopLeft();
-  stopRight();
-}
-
-void Robot::gyroTurnU(float universalAngleDegrees) {
-  float universalHeading = gyroSensor.heading(degrees);
-  float turnAngle = fabs(universalHeading-universalAngleDegrees);
-  bool clockwise = universalHeading < universalAngleDegrees;
-  if (turnAngle > 180) {
-    clockwise = !clockwise;
-    turnAngle = 360 - turnAngle;
-  }
-  gyroTurn(clockwise, turnAngle);
-}
-
-// void Robot::dumbUniversalGyroTurn(float universalAngleDegrees, float maxSpeed, int timeout) {
-
-//   turnToUniversalAngleGyro(universalAngleDegrees, maxSpeed, 180, timeout);
-
-//   /*
-//   float universalHeading = gyroSensor.heading(degrees);
-//   float turnAngle = fabs(universalHeading-universalAngleDegrees);
-//   bool clockwise = universalHeading < universalAngleDegrees;
-//   if (turnAngle > 180) {
-//     clockwise = !clockwise;
-//     turnAngle = 360 - turnAngle;
-//   }
-//   dumbGyroTurn(clockwise, turnAngle, maxSpeed, timeout);
-//   */
-// }
-
-void Robot::updateCamera(Goal goal) {
-  frontCamera = vision(PORT5, goal.bright, goal.sig);
-}
-
-// Go forward until the maximum distance is hit, the timeout is reached, or limitSwitch is turned on (collision with goal)
-// for indefinite timeout, set to -1
-void Robot::goForwardVision(Goal goal, float speed, directionType dir, float maxDistanceInches, int timeout, 
-digital_in* limitSwitch, std::function<bool(void)> func) {
-
-  // The proportion to turn in relation to how offset the goal is. Is consistent through all speeds
-  const float PMOD_MULTIPLIER = 0.3;
-
-  int pMod = speed * PMOD_MULTIPLIER;
-  float baseSpeed = fmin(speed, 100 - pMod);
-
-  float totalDist = distanceToDegrees(maxDistanceInches);
-  float dist = 0;
+// Align to the goal of specified color with PID
+void Robot::goAlignVision(Goal goal, float timeout) {
 
   updateCamera(goal);
 
-  vision *camera = &frontCamera;
-
   int startTime = vex::timer::system();
-  leftMotorA.resetPosition();
-  rightMotorA.resetPosition();
+  float speed = 0;
 
-  int sign = (dir == forward) ? 1 : -1;
+  PID vTurnPID(10, 0, 0, 0.05, 3, 2);
 
-  // forward until the maximum distance is hit, the timeout is reached, or limitSwitch is turned on
-  while (dist < totalDist && !isTimeout(startTime, timeout) && (limitSwitch == nullptr || !limitSwitch->value())) {
-    // log("Start of loop");
-    // if there is a concurrent function to run, run it
-    if (func) {
-      if (func()) {
-        // if func is done, make it empty
-        func = {};
-      }
-    }
+  while (!vTurnPID.isCompleted() && !isTimeout(startTime, timeout)) {
 
-    // log("Before snapshot");
-    camera->takeSnapshot(goal.sig);
-    
-    if(camera->largestObject.exists) {
-      log("%d", camera->largestObject.centerX);
-      float mod = pMod * (VISION_CENTER_X-camera->largestObject.centerX) / VISION_CENTER_X;
-      setLeftVelocity(dir, baseSpeed - mod*sign);
-      setRightVelocity(dir, baseSpeed + mod*sign);
-    }
+    camera.takeSnapshot(goal.sig);
 
-    wait(20, msec);
-    dist = fabs((leftMotorA.position(degrees) + rightMotorA.position(degrees)) / 2.0);
-  }
-
-  stopLeft();
-  stopRight();
-  
-}
-
-void Robot::alignToGoalVision(Goal goal, bool clockwise, directionType cameraDirection, int timeout) {
-
-  // spin speed is proportional to distance from center, but must be bounded between MIN_SPEED and MAX_SPEED
-  const float MAX_SPEED = 10;
-
-  updateCamera(goal);
-  vision *camera = &frontCamera;
-
-  int startTime = vex::timer::system();
-  leftMotorA.resetPosition();
-  rightMotorA.resetPosition();
-
-  // // At the initial snapshot we check where goal is seen. If so, we set our direction to be towards the goal and stop when we pass the center.
-  // // Otherwise, the spin will default to the direction specified by the 'clockwise' parameter
-  // camera->takeSnapshot(goal.sig);
-  // if (camera->largestObject.exists) {
-  //   clockwise = (camera->largestObject.centerX / VISION_CENTER_X) > VISION_CENTER_X;
-  // }
-
-  int spinSign = clockwise ? -1 : 1;
-
-  while (!isTimeout(startTime, timeout)) {
-
-    camera->takeSnapshot(goal.sig);
-
-    float mod;
-    if (camera->largestObject.exists) {
-      // log("%d", camera->largestObject.centerX);
-      mod = (VISION_CENTER_X-camera->largestObject.centerX) / VISION_CENTER_X;
-
-      // If goal is [left side of screen if clockwise, right side of scree if counterclockwise], that means it's arrived at center and is aligned
-      if (fabs(mod) <= 0.05) {
-        break;
-      }
-
-    } else {
-      // If largest object not detected, then spin in the specified direction
-      mod = spinSign;
-    }
-
-    float speed = (mod > 0 ? 1 : -1) * TURN_MIN_SPEED + mod * (MAX_SPEED - TURN_MIN_SPEED);
+    if (camera.largestObject.exists) speed = vTurnPID.tick((VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X);
 
     setLeftVelocity(reverse, speed);
     setRightVelocity(forward, speed);
+
     wait(20, msec);
   }
 
@@ -810,17 +511,25 @@ void Robot::alignToGoalVision(Goal goal, bool clockwise, directionType cameraDir
 
 
 void Robot::setLeftVelocity(directionType d, double percent) {
-  leftMotorA.spin(d, percent, pct);
-  leftMotorB.spin(d, percent, pct);
-  leftMotorC.spin(d, percent, pct);
-  leftMotorD.spin(d, percent, pct);
+  if (percent < 0) {
+    d = (d == forward) ? reverse : forward;
+    percent = -percent;
+  }
+  leftMotorA.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
+  leftMotorB.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
+  leftMotorC.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
+  leftMotorD.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
 }
 
 void Robot::setRightVelocity(directionType d, double percent) {
-  rightMotorA.spin(d, percent, pct);
-  rightMotorB.spin(d, percent, pct);
-  rightMotorC.spin(d, percent, pct);
-  rightMotorD.spin(d, percent, pct);
+  if (percent < 0) {
+    d = (d == forward) ? reverse : forward;
+    percent = -percent;
+  }
+  rightMotorA.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
+  rightMotorB.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
+  rightMotorC.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
+  rightMotorD.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
 }
 
 void Robot::stopLeft() {

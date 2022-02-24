@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include "Buttons.cpp"
 #include "PIDController.cpp"
+#include "TrapezoidController.cpp"
 #include <constants.h>
 
 using namespace vex;
@@ -45,7 +46,7 @@ class Robot {
     motor backLiftR;
 
 
-    vision frontCamera;
+    vision camera;
 
 
     digital_out frontClaw = digital_out(Brain.ThreeWirePort.A);
@@ -67,21 +68,31 @@ class Robot {
 
     void setControllerMapping(ControllerMapping mapping);
 
+    float getEncoderDistance();
+
     void setBackLift(Buttons::Button b, bool blocking);
     void backLiftTeleop();
 
     void clawUp();
     void clawDown();
 
-    void goTurn(float angleDegrees, bool fastButInccurate = false, std::function<bool(void)> func = {});
-    void goTurnU(float universalAngleDegrees, bool fastButInaccurate = false, std::function<bool(void)> func);
+    void goTurn(float angleDegrees, bool fastButInccurate = false);
+    void goTurnU(float universalAngleDegrees, bool fastButInaccurate = false);
+
+    void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float timeout);
 
     void waitForGPS();
     void goPointGPS(float gx, float gy, float maxSpeed, float tolerance = 0.5, bool stopAfter = true);
 
+    void goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
+    void goAlignVision(Goal goal, float timeout);
+
     void moveArmTo(double degr, double speed, bool blocking = true);
 
     void driveStraightFighting(float distInches, float speed, directionType dir);
+
+
+    // --- OLD FUNCTIONS ---
 
     void smartDrive(float distInches, float speed, directionType left, directionType right, float timeout, float slowDownInches, 
                     float turnPercent, bool stopAfter, std::function<bool(void)> func, float startUpInches = 0);
@@ -93,9 +104,9 @@ class Robot {
                       float slowDownInches, bool stopAfter = true, std::function<bool(void)> func = {}, float startUpInches = 0);
     void driveStraightTimed(float speed, directionType dir, float timeMs, bool stopAfter = true, std::function<bool(void)> func = {});
 
-    void goForwardVision(Goal goal, float speed, directionType dir, float maximumDistance, int timeout, 
+    void goForwardVision(Goal goal, float speed, directionType dir, float maximumDistance, float timeout, 
                         digital_in* limitSwitch = nullptr, std::function<bool(void)> func = {});
-    void alignToGoalVision(Goal goal, bool clockwise, directionType cameraDirection, int timeout);
+    void alignToGoalVision(Goal goal, bool clockwise, directionType cameraDirection, float timeout);
     void updateCamera(Goal goal);
 
     void driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, bool resetEncoder = true,
@@ -106,8 +117,8 @@ std::function<bool(void)> func = {}, float startUpInches = 0);
     void gyroTurn(bool clockwise, float angleDegrees);
     void gyroTurnU(float universalAngleDegrees);
 
-    void dumbGyroTurn(bool clockwise, float angleDegrees, float speed, int timeout);
-    void dumbUniversalGyroTurn(float universalAngleDegrees, float maxSpeed, int timeout);
+    void dumbGyroTurn(bool clockwise, float angleDegrees, float speed, float timeout);
+    void dumbUniversalGyroTurn(float universalAngleDegrees, float maxSpeed, float timeout);
 
     float normalize(float axis);
 
