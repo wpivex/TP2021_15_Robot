@@ -294,9 +294,10 @@ void Robot::goTurn(float angleDegrees) {
 
   while (!anglePID.isCompleted() && !isTimeout(startTime, timeout)) {
 
-    speed = anglePID.tick(angleDegrees - gyroSensor.rotation());
+    float ang = angleDegrees - getAngle();
+    speed = anglePID.tick(ang);
 
-    //logController("wtf %f", speed);
+    log("%f \n %f \n %f \n %f \n %f", angleDegrees, ang, speed, GPS11.heading(), gyroSensor.heading());
 
     setLeftVelocity(forward, speed);
     setRightVelocity(reverse, speed);
@@ -330,6 +331,9 @@ void Robot::goPointGPS(float x, float y, float maxSpeed, float rampUpInches, flo
   // Point turn to orient towards target
   float angleU = 90 - (180 / PI * atan2(proj_y, proj_x));
   goTurnU(angleU);
+
+  log("done");
+  wait(2000, msec);
 
   // Go forwards to target
   goForwardU(distFinal, maxSpeed, angleU, rampUpInches, slowDownInches, stopAfter, timeout);

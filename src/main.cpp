@@ -264,7 +264,7 @@ int testTurn3() {
 }
 
 int testGPS() {
-  fifteen.goPointGPS(28, 48, 60);
+  fifteen.goPointGPS(0,0, 50, 3, 5);
   return 0;
 }
 
@@ -278,6 +278,8 @@ int main() {
 
   wait(500, msec);
   fifteen.gyroSensor.calibrate();
+  fifteen.waitForGPS();
+  fifteen.gyroSensor.setHeading(GPS11.heading(), rotationUnits::deg);
   //fifteen.waitGyroCallibrate();
 
   Competition.bStopAllTasksBetweenModes = true;
