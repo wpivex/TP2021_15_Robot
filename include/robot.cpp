@@ -224,20 +224,30 @@ float Robot::getAngle() {
   return (GPS11.quality() > 90) ? GPS11.heading(degrees) : gyroSensor.heading();
 }
 
+// Go forward a number of inches.
+// If angleCorrection = true, use gps/gyro for angle correction to given universal heading
+// If useGpsDistance = true, use gps to find distance from startX and startY instead of encoder values
 void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter, float timeout, bool angleCorrection) {
+bool stopAfter, float timeout, bool angleCorrection, bool useGpsDistance, float startX, float startY) {
 
   Trapezoid trap(distInches, maxSpeed, 0, rampUpInches, slowDownInches);
   PID turnPID(0.42, 0.00, 0);
 
   float correction = 0;
+  float currDist;
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();
   rightMotorA.resetPosition();
 
   while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
 
-    float speed = trap.tick(getEncoderDistance());
+    if (useGpsDistance) {
+      currDist = distanceFormula(GPS11.xPosition(inches) - startX, GPS11.yPosition(inches) - startY);
+    } else {
+      currDist = getEncoderDistance();
+    }
+
+    float speed = trap.tick(currDist);
     
     if (angleCorrection) correction = turnPID.tick(getAngleDiff(universalAngle, getAngle()));
 
@@ -256,6 +266,13 @@ bool stopAfter, float timeout, bool angleCorrection) {
   }
 }
 
+// call goForwardU wtih all the distance and angle gps enhancements
+void Robot::goForwardGPS(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
+float startX, float startY, bool stopAfter, float timeout) {
+  goForwardU(distInches, maxSpeed, universalAngle, rampUpInches, slowDownInches, stopAfter, timeout, true, true, startX, startY);
+}
+
+// Go forward with standard internal encoder wheels for distance, and no angle correction
 void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
   goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, timeout, false);
 }
