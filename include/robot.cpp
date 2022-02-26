@@ -6,29 +6,25 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);
-  leftMotorC = motor(PORT9, ratio6_1, true);
-  leftMotorD = motor(PORT12, ratio6_1, true);
+  leftMotorC = motor(PORT12, ratio6_1, true);
+  leftMotorD = motor(PORT9, ratio6_1, true);
   leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
 
-  // 3L 11L 12L 14L left
-  // 16r 18r 19r 20r right
 
   rightMotorA = motor(PORT4, ratio6_1, false);
-  rightMotorB = motor(PORT19, ratio6_1, false);
+  rightMotorB = motor(PORT18, ratio6_1, false);
   rightMotorC = motor(PORT20, ratio6_1, false);
   rightMotorD = motor(PORT21, ratio6_1, false);
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
   // forward is UP, reverse is DOWN
-  frontArmL = motor(PORT14, ratio36_1, true);
+  frontArmL = motor(PORT19, ratio36_1, true);
   frontArmR = motor(PORT3, ratio36_1, false);
 
-  backLiftL = motor(PORT5, ratio36_1, true);
-  backLiftR = motor(PORT13, ratio36_1, true);
+  backLiftL = motor(PORT6, ratio36_1, true);
+  backLiftR = motor(PORT15, ratio36_1, true);
 
-  intake = motor(PORT8, ratio18_1, false);
-
-  // 8 and 13??
+  intake = motor(PORT7, ratio18_1, false);
   
   robotController = c; 
 
