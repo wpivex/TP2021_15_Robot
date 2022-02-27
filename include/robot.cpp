@@ -209,8 +209,9 @@ void Robot::waitForGPS() {
   }
 }
 
+// return in inches
 float Robot::getEncoderDistance() {
-  return (leftMotorA.rotation(deg) + rightMotorA.rotation(deg)) / 2;
+  return degreesToDistance((leftMotorA.rotation(deg) + rightMotorA.rotation(deg)) / 2);
 }
 
 float Robot::getAngle() {
@@ -231,14 +232,16 @@ float Robot::getY() {
 void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
 bool stopAfter, float timeout, bool angleCorrection, bool useGpsDistance, float startX, float startY) {
 
-  Trapezoid trap(distInches, maxSpeed, 0, rampUpInches, slowDownInches);
-  PID turnPID(0.42, 0.00, 0);
+  Trapezoid trap(distInches, maxSpeed, 4, rampUpInches, slowDownInches, 20);
+  PID turnPID(0.7, 0.00, 0);
 
   float correction = 0;
   float currDist;
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();
   rightMotorA.resetPosition();
+
+  log("start forward %f %d %d", distInches, isTimeout(startTime, timeout) ? 1 : 0, trap.isCompleted() ? 1 : 0);
 
   while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
 
@@ -247,17 +250,21 @@ bool stopAfter, float timeout, bool angleCorrection, bool useGpsDistance, float 
     } else {
       currDist = getEncoderDistance();
     }
+    log("a");
 
     float speed = trap.tick(currDist);
-    
-    if (angleCorrection) correction = turnPID.tick(getAngleDiff(universalAngle, getAngle()));
+    float ang = getAngleDiff(universalAngle, getAngle());
+    if (angleCorrection) correction = turnPID.tick(ang);
+    log("b");
 
     // reduce speed if turn causes speed to exceed max
     if (speed + correction > 100) speed = 100 - correction;
     if (speed - correction < -100) speed = -100 + correction;
+
+    log("Forward \nCurrDist: %f \nAngle: %f \nSpeed: %f \nCorrection: %f", currDist, ang, speed, correction);
  
-    setLeftVelocity(forward, speed - correction);
-    setRightVelocity(forward, speed + correction);
+    setLeftVelocity(forward, speed + correction);
+    setRightVelocity(forward, speed - correction);
 
     wait(20, msec);
   }
@@ -265,6 +272,7 @@ bool stopAfter, float timeout, bool angleCorrection, bool useGpsDistance, float 
     stopLeft();
     stopRight();
   }
+  //log("straight done");
 }
 
 // call goForwardU wtih all the distance and angle gps enhancements
@@ -289,8 +297,6 @@ void Robot::goTurnU(float universalAngleDegrees) {
 
   log("initing");
   int startTime = vex::timer::system();
-  leftMotorA.resetPosition();
-  rightMotorA.resetPosition();
   log("about to loop");
 
   while (!anglePID.isCompleted() && !isTimeout(startTime, timeout)) {
@@ -298,7 +304,7 @@ void Robot::goTurnU(float universalAngleDegrees) {
     float ang = getAngleDiff(universalAngleDegrees, getAngle());
     speed = anglePID.tick(ang);
 
-    log("Target: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
+    log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
     //log("heading: %f", GPS11.heading());
 
     setLeftVelocity(forward, speed);
@@ -306,14 +312,9 @@ void Robot::goTurnU(float universalAngleDegrees) {
 
     wait(20, msec);
   }
-  //log("wtf done");
-
+  log("wtf done");
   stopLeft();
   stopRight();
-  while (true) {
-  log("%f\n%f", getX(), getY());
-  wait(20, msec);
-}
 }
 
 
@@ -327,17 +328,15 @@ void Robot::goPointGPS(float x, float y, float maxSpeed, float rampUpInches, flo
   float sy = getY();
 
   float proj_x = x - sx;
-  float proj_y = x - sy;
+  float proj_y = y - sy;
   float distFinal = distanceFormula(proj_x, proj_y);
 
   // Point turn to orient towards target
   float angleU = 90 - (180 / PI * atan2(proj_y, proj_x));
   goTurnU(angleU);
 
-  logController("done");
-
   // Go forwards to target
-  //goForwardU(distFinal, maxSpeed, angleU, rampUpInches, slowDownInches, stopAfter, timeout);
+  goForwardGPS(distFinal, maxSpeed, angleU, rampUpInches, slowDownInches, sx, sy, stopAfter, timeout);
 
 }
 

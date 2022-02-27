@@ -260,8 +260,7 @@ int testTurn3() {
 }
 
 int testGPS() {
-  //fifteen.goPointGPS(0,0, 50, 3, 5);
-  fifteen.goForwardU(50, 50, 270, 5, 5);
+  fifteen.goPointGPS(-21, 24, 75, 3, 5);
   return 0;
 }
 
