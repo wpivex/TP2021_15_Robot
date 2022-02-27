@@ -190,9 +190,6 @@ void Robot::teleop() {
     leftMotorA.resetRotation();
     rightMotorA.resetRotation();
   }
-
-  float left = degreesToDistance(leftMotorA.rotation(degrees));
-  float right = degreesToDistance(rightMotorA.rotation(degrees));
   
   driveTeleop();
   armTeleop();
@@ -226,13 +223,12 @@ float Robot::getY() {
   return GPS11.yPosition(inches);
 }
 
+// Essentially return theta for vector [dx, dy]
 float angleToPointU(float dx, float dy) {
   return 90 - (180 / PI * atan2(dy, dx));
 }
 
-// Go forward a number of inches.
-// If angleCorrection = true, use gps/gyro for angle correction to given universal heading
-// If useGpsDistance = true, use gps to find distance from startX and startY instead of encoder values
+// Go forward a number of inches, maintaining a specific heading if angleCorrection = true
 void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
 bool stopAfter, float timeout, bool angleCorrection) {
 
@@ -272,7 +268,8 @@ void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, floa
   goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, timeout, false);
 }
 
-// Go forward towards point. Stop angle correction 15 inches before hitting target
+// Go forward towards point, making corrections to target. Stop angle correction 15 inches before hitting target
+// Uses trapezoidal motion profile for distance and PID for angle corrections
 void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches) {
 
   float sx = getX();
@@ -307,7 +304,7 @@ void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, f
   stopRight();
 }
 
-// Turn to some universal angle based on starting point. Turn direction is determined by smallest angle
+// Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
 void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, bool faster) {
 
   PID anglePID(1.5, 0.00, 0.01, 1, 5, 12, 75);
@@ -344,7 +341,9 @@ void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, bool faster) {
 }
 
 
-// go to (x,y) in inches
+// go to (x,y) in inches. First, make a fast point turn, which need not be perfectly accurate
+// Then, it drives aiming at the target, making realtime corrections to any initial error
+// It is more deliberate at close speeds and more aggressive at faster speeds
 void Robot::goPointGPS(float x, float y) {
 
   waitForGPS();
@@ -368,7 +367,6 @@ void Robot::goPointGPS(float x, float y) {
     goForwardGPS(x, y, 90, 5, 12);
   }
 }
-
 
 // Detect whether the robot is fighting another robot based on measuring current.
 // If current is always above the threshold, never stop backing up or releasing claw (because fighting other robot in mid)
