@@ -7,7 +7,7 @@ class PID {
 
   public:
 
-  PID(float kp, float ki, float kd, float TOLERANCE = -1, int REPEATED = -1, float minimum = 0);
+  PID(float kp, float ki, float kd, float TOLERANCE = -1, int REPEATED = -1, float minimum = 0, float maximum = -1);
   float tick(float error, float bound = UNBOUNDED);
   bool isCompleted();
 
@@ -21,5 +21,6 @@ class PID {
   int REPEATED_THRESHOLD;
   int repeated = 0;
   float min = 0;
+  float max = 0;
 
 };

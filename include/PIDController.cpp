@@ -1,7 +1,7 @@
 #include "PIDController.h"
 #include "constants.h"
 
-PID::PID(float kp, float ki, float kd, float TOLERANCE, int REPEATED, float minimum) {
+PID::PID(float kp, float ki, float kd, float TOLERANCE, int REPEATED, float minimum, float maximum) {
 
   TOLERANCE_THRESHOLD = TOLERANCE; // the error threshold to be considered "done"
   REPEATED_THRESHOLD = REPEATED; // the number of times the threshold must be reached in a row to be considered "done"
@@ -11,6 +11,7 @@ PID::PID(float kp, float ki, float kd, float TOLERANCE, int REPEATED, float mini
   K_i = ki;
   K_d = kd;
   min = minimum;
+  max = maximum;
 }
 
 
@@ -36,6 +37,8 @@ float PID::tick(float error, float bound) {
   } else {
     output = fmin(-min, output);
   }
+
+  if (max != -1) output = fmax(-max, fmin(max, output));
 
   //logController("%f | %d | %d %d %d | %d", (float) error, (int) output, (int) (K_p * error), (int) (K_i * integral), (int) (K_d * derivative), repeated);
   return output;

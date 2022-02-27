@@ -6,7 +6,7 @@
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
 vex::competition Competition;
-vex::gps GPS11 = vex::gps(vex::PORT16, 2.8, 2.9, vex::inches, 90);
+vex::gps GPS11 = vex::gps(vex::PORT17, 2.8, 2.9, vex::inches, 90);
 
 typedef struct Point {
   float x;
@@ -73,36 +73,37 @@ static inline bool isTimeout(int startTime, float timeout) {
 template <class ... Args>
 static inline void logController(const char *f, Args ... args) {
 
-  char *format = (char*)f;
-
   Controller1.Screen.clearScreen();
   int row = 1;
 
-  char* pch = strtok (format,"\n");
+  char buffer[strlen(f)];
+  sprintf(buffer, f, args...);
+
+  char* pch = strtok (buffer,"\n");
   while (pch != NULL)
   {
     Controller1.Screen.setCursor(row, 1);
-    Controller1.Screen.print(pch, args...);
+    Controller1.Screen.print(pch);
     pch = strtok (NULL, "\n");
     row++;
   }
-
 }
 
 // log output to brain display the way you would with printf
 template <class ... Args>
 static inline void log(const char *f, Args ... args) {
 
-  char *format = (char*)f;
-
   Brain.Screen.clearScreen();
   int row = 1;
 
-  char* pch = strtok (format,"\n");
+  char buffer[strlen(f)];
+  sprintf(buffer, f, args...);
+
+  char* pch = strtok (buffer,"\n");
   while (pch != NULL)
   {
     Brain.Screen.setCursor(row, 1);
-    Brain.Screen.print(pch, args...);
+    Brain.Screen.print(pch);
     pch = strtok (NULL, "\n");
     row++;
   }

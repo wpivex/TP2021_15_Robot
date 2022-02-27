@@ -53,9 +53,6 @@ class Robot {
 
     controller* robotController;
 
-    inertial gyroSensor;
-
-
     Buttons buttons;
 
     enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };
@@ -70,6 +67,8 @@ class Robot {
 
     float getEncoderDistance();
     float getAngle();
+    float getX();
+    float getY();
 
     void setBackLift(Buttons::Button b, bool blocking);
     void backLiftTeleop();
@@ -77,11 +76,10 @@ class Robot {
     void clawUp();
     void clawDown();
 
-    void goTurn(float angleDegrees);
     void goTurnU(float universalAngleDegrees);
 
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter, float timeout, bool angleCorrection = true, bool useGpsDistance = false, float startX = -1, float startY = -1);
+bool stopAfter = true, float timeout = 10, bool angleCorrection = true, bool useGpsDistance = false, float startX = -1, float startY = -1);
     void goForwardGPS(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
 float startX, float startY, bool stopAfter = true, float timeout = 5);
     void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);

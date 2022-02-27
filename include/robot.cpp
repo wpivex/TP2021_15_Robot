@@ -2,7 +2,7 @@
 
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), gyroSensor(PORT4), buttons(c) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c) {
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);
@@ -189,13 +189,10 @@ void Robot::teleop() {
   if (buttons.pressed(Buttons::A)) {
     leftMotorA.resetRotation();
     rightMotorA.resetRotation();
-    gyroSensor.resetRotation();
   }
 
   float left = degreesToDistance(leftMotorA.rotation(degrees));
   float right = degreesToDistance(rightMotorA.rotation(degrees));
-  log("%f %f %f", left, right, gyroSensor.rotation());
-  logController("%f %f %f", left, right, gyroSensor.rotation());
   
   driveTeleop();
   armTeleop();
@@ -217,7 +214,15 @@ float Robot::getEncoderDistance() {
 }
 
 float Robot::getAngle() {
-  return (GPS11.quality() > 90) ? GPS11.heading(degrees) : gyroSensor.heading();
+  return GPS11.heading(degrees);
+}
+
+float Robot::getX() {
+  return GPS11.xPosition(inches);
+}
+
+float Robot::getY() {
+  return GPS11.yPosition(inches);
 }
 
 // Go forward a number of inches.
@@ -238,7 +243,7 @@ bool stopAfter, float timeout, bool angleCorrection, bool useGpsDistance, float 
   while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
 
     if (useGpsDistance) {
-      currDist = distanceFormula(GPS11.xPosition(inches) - startX, GPS11.yPosition(inches) - startY);
+      currDist = distanceFormula(getX() - startX, getY() - startY);
     } else {
       currDist = getEncoderDistance();
     }
@@ -273,10 +278,11 @@ void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, floa
   goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, timeout, false);
 }
 
-// angleDegrees is positive if clockwise, negative if counterclockwise
-void Robot::goTurn(float angleDegrees) {
 
-  PID anglePID(0.42, 0.00, 0.05, 3, 3);
+// Turn to some universal angle based on starting point. Turn direction is determined by smallest angle
+void Robot::goTurnU(float universalAngleDegrees) {
+
+  PID anglePID(1, 0.00, 0.01, 1.5, 5, 12, 75);
 
   float timeout = 5;
   float speed;
@@ -285,31 +291,31 @@ void Robot::goTurn(float angleDegrees) {
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();
   rightMotorA.resetPosition();
-  gyroSensor.resetRotation();
   log("about to loop");
 
   while (!anglePID.isCompleted() && !isTimeout(startTime, timeout)) {
 
-    float ang = angleDegrees - getAngle();
+    float ang = getAngleDiff(universalAngleDegrees, getAngle());
     speed = anglePID.tick(ang);
 
-    log("%f \n %f \n %f \n %f \n %f", angleDegrees, ang, speed, GPS11.heading(), gyroSensor.heading());
+    log("Target: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
+    //log("heading: %f", GPS11.heading());
 
     setLeftVelocity(forward, speed);
     setRightVelocity(reverse, speed);
 
     wait(20, msec);
   }
-  logController("wtf done");
+  //log("wtf done");
 
   stopLeft();
   stopRight();
+  while (true) {
+  log("%f\n%f", getX(), getY());
+  wait(20, msec);
+}
 }
 
-// Turn to some universal angle based on starting point. Turn direction is determined by smallest angle
-void Robot::goTurnU(float universalAngleDegrees) {
-  goTurn(getAngleDiff(universalAngleDegrees, getAngle()));
-}
 
 
 // go to (x,y) in inches
@@ -317,8 +323,8 @@ void Robot::goPointGPS(float x, float y, float maxSpeed, float rampUpInches, flo
 
   waitForGPS();
 
-  float sx = GPS11.xPosition(inches);
-  float sy = GPS11.yPosition(inches);
+  float sx = getX();
+  float sy = getY();
 
   float proj_x = x - sx;
   float proj_y = x - sy;
@@ -328,30 +334,13 @@ void Robot::goPointGPS(float x, float y, float maxSpeed, float rampUpInches, flo
   float angleU = 90 - (180 / PI * atan2(proj_y, proj_x));
   goTurnU(angleU);
 
-  log("done");
-  wait(2000, msec);
+  logController("done");
 
   // Go forwards to target
-  goForwardU(distFinal, maxSpeed, angleU, rampUpInches, slowDownInches, stopAfter, timeout);
+  //goForwardU(distFinal, maxSpeed, angleU, rampUpInches, slowDownInches, stopAfter, timeout);
 
 }
 
-void Robot::waitGyroCallibrate() {
-  if (gyroSensor.isCalibrating()) {
-    int i = 0;
-    while (gyroSensor.isCalibrating()) {
-      wait(20, msec);
-      i++;
-    }
-    gyroSensor.resetRotation();
-    wait(1000, msec);
-  }
-  
-  wait(500, msec);
-  Brain.Screen.setFillColor(green);
-  Brain.Screen.drawRectangle(0, 0, 250, 250);
-  Brain.Screen.render();
-}
 
 
 // Detect whether the robot is fighting another robot based on measuring current.

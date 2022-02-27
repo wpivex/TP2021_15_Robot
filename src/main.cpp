@@ -48,7 +48,6 @@ int mainAuto() {
   task a(armStartup);
   
   fifteen.clawUp();
-  fifteen.gyroSensor.setHeading(5, degrees);
 
   fifteen.driveStraight(45.5, 100, forward, 5, 10, true, {}, 5);
   fifteen.clawDown();
@@ -84,7 +83,7 @@ int mainAuto() {
 
 }
 
-
+/*
 int vcat300Skills() {
 
   task a(armStartup);
@@ -202,25 +201,23 @@ int vcat300Skills() {
   return 0;
 
 }
+*/
 
 int logDistance() {
 
   fifteen.leftMotorA.resetRotation();
   fifteen.rightMotorA.resetRotation();
-  fifteen.gyroSensor.resetRotation();
 
   while (true) {
 
     if (fifteen.buttons.pressed(Buttons::A)) {
       fifteen.leftMotorA.resetRotation();
       fifteen.rightMotorA.resetRotation();
-      fifteen.gyroSensor.resetRotation();
     }
 
     float left = degreesToDistance(fifteen.leftMotorA.rotation(degrees));
     float right = degreesToDistance(fifteen.rightMotorA.rotation(degrees));
-    log("%f %f %f", left, right, fifteen.gyroSensor.rotation());
-    log("%f %f %f", left, right, fifteen.gyroSensor.rotation());
+    log("%f %f %f", left, right, fifteen.getAngle());
     wait(20, msec);
   }
 
@@ -250,7 +247,6 @@ int testTurn3() {
   fifteen.waitGyroCallibrate();
   fifteen.backLiftL.resetRotation();
   fifteen.backLiftR.resetRotation();
-  fifteen.gyroSensor.resetRotation();
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
   wait(1000, msec);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
@@ -264,7 +260,8 @@ int testTurn3() {
 }
 
 int testGPS() {
-  fifteen.goPointGPS(0,0, 50, 3, 5);
+  //fifteen.goPointGPS(0,0, 50, 3, 5);
+  fifteen.goForwardU(50, 50, 270, 5, 5);
   return 0;
 }
 
@@ -277,9 +274,7 @@ void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTele
 int main() {
 
   wait(500, msec);
-  fifteen.gyroSensor.calibrate();
   fifteen.waitForGPS();
-  fifteen.gyroSensor.setHeading(GPS11.heading(), rotationUnits::deg);
   //fifteen.waitGyroCallibrate();
 
   Competition.bStopAllTasksBetweenModes = true;
@@ -288,7 +283,6 @@ int main() {
   
   fifteen.leftMotorA.resetRotation();
   fifteen.rightMotorA.resetRotation();
-  fifteen.gyroSensor.resetRotation();
   fifteen.backLiftL.resetRotation();
   fifteen.backLiftR.resetRotation();
   
