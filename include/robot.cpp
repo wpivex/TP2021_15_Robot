@@ -226,14 +226,18 @@ float Robot::getY() {
   return GPS11.yPosition(inches);
 }
 
+float angleToPointU(float dx, float dy) {
+  return 90 - (180 / PI * atan2(dy, dx));
+}
+
 // Go forward a number of inches.
 // If angleCorrection = true, use gps/gyro for angle correction to given universal heading
 // If useGpsDistance = true, use gps to find distance from startX and startY instead of encoder values
 void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter, float timeout, bool angleCorrection, bool useGpsDistance, float startX, float startY) {
+bool stopAfter, float timeout, bool angleCorrection) {
 
   Trapezoid trap(distInches, maxSpeed, 4, rampUpInches, slowDownInches, 20);
-  PID turnPID(0.7, 0.00, 0);
+  PID turnPID(1, 0.00, 0);
 
   float correction = 0;
   float currDist;
@@ -241,27 +245,15 @@ bool stopAfter, float timeout, bool angleCorrection, bool useGpsDistance, float 
   leftMotorA.resetPosition();
   rightMotorA.resetPosition();
 
-  log("start forward %f %d %d", distInches, isTimeout(startTime, timeout) ? 1 : 0, trap.isCompleted() ? 1 : 0);
+  //log("start forward %f %f %f", distInches, startX, startY);
 
   while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
 
-    if (useGpsDistance) {
-      currDist = distanceFormula(getX() - startX, getY() - startY);
-    } else {
-      currDist = getEncoderDistance();
-    }
-    log("a");
-
+    currDist = getEncoderDistance();
+    
     float speed = trap.tick(currDist);
     float ang = getAngleDiff(universalAngle, getAngle());
     if (angleCorrection) correction = turnPID.tick(ang);
-    log("b");
-
-    // reduce speed if turn causes speed to exceed max
-    if (speed + correction > 100) speed = 100 - correction;
-    if (speed - correction < -100) speed = -100 + correction;
-
-    log("Forward \nCurrDist: %f \nAngle: %f \nSpeed: %f \nCorrection: %f", currDist, ang, speed, correction);
  
     setLeftVelocity(forward, speed + correction);
     setRightVelocity(forward, speed - correction);
@@ -272,13 +264,7 @@ bool stopAfter, float timeout, bool angleCorrection, bool useGpsDistance, float 
     stopLeft();
     stopRight();
   }
-  //log("straight done");
-}
-
-// call goForwardU wtih all the distance and angle gps enhancements
-void Robot::goForwardGPS(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-float startX, float startY, bool stopAfter, float timeout) {
-  goForwardU(distInches, maxSpeed, universalAngle, rampUpInches, slowDownInches, stopAfter, timeout, true, true, startX, startY);
+  log("straight done");
 }
 
 // Go forward with standard internal encoder wheels for distance, and no angle correction
@@ -286,11 +272,48 @@ void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, floa
   goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, timeout, false);
 }
 
+// Go forward towards point. Stop angle correction 15 inches before hitting target
+void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches) {
+
+  float sx = getX();
+  float sy = getY();
+
+  float distInches = distanceFormula(x - sx, y - sy);
+  
+  Trapezoid trap(distInches, maxSpeed, 4, rampUpInches, slowDownInches, 20);
+  PID turnPID(1.2, 0.00, 0);
+
+  float correction = 0;
+  int startTime = vex::timer::system();
+
+  while (!trap.isCompleted() && !isTimeout(startTime, 10)) {
+
+    float cx = getX();
+    float cy = getY();
+
+    float currDist = distanceFormula(cx - sx, cy - sy);
+    
+    float speed = trap.tick(currDist);
+    float ang = getAngleDiff(angleToPointU(x - cx, y - cy), getAngle());
+    if (distInches - currDist > 15) correction = turnPID.tick(ang); // adjust heading towards target if over 15 inches away
+ 
+    setLeftVelocity(forward, speed + correction);
+    setRightVelocity(forward, speed - correction);
+
+    wait(20, msec);
+  }
+
+  stopLeft();
+  stopRight();
+}
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle
-void Robot::goTurnU(float universalAngleDegrees) {
+void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, bool faster) {
 
-  PID anglePID(1, 0.00, 0.01, 1.5, 5, 12, 75);
+  PID anglePID(1.5, 0.00, 0.01, 1, 5, 12, 75);
+  if (faster) {
+    anglePID = PID(1.5, 0.00, 0.01, 2, 3, 12, 75);
+  }
 
   float timeout = 5;
   float speed;
@@ -313,14 +336,16 @@ void Robot::goTurnU(float universalAngleDegrees) {
     wait(20, msec);
   }
   log("wtf done");
-  stopLeft();
-  stopRight();
+
+  if (stopAfter) {
+    stopLeft();
+    stopRight();
+  }  
 }
 
 
-
 // go to (x,y) in inches
-void Robot::goPointGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
+void Robot::goPointGPS(float x, float y) {
 
   waitForGPS();
 
@@ -332,14 +357,17 @@ void Robot::goPointGPS(float x, float y, float maxSpeed, float rampUpInches, flo
   float distFinal = distanceFormula(proj_x, proj_y);
 
   // Point turn to orient towards target
-  float angleU = 90 - (180 / PI * atan2(proj_y, proj_x));
-  goTurnU(angleU);
+  float angleU = angleToPointU(proj_x, proj_y);
 
-  // Go forwards to target
-  goForwardGPS(distFinal, maxSpeed, angleU, rampUpInches, slowDownInches, sx, sy, stopAfter, timeout);
-
+  if (distFinal < 20) { // For closer distances, have a more accurate initial turn and slower approach speed
+    goTurnU(angleU, false, false);
+    goForwardGPS(x, y, 40, 1, 4);
+  }
+  else { // For longer distances, have a faster initial turn and approach speed
+    goTurnU(angleU, false, true);
+    goForwardGPS(x, y, 90, 5, 12);
+  }
 }
-
 
 
 // Detect whether the robot is fighting another robot based on measuring current.

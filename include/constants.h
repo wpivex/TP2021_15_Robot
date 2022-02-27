@@ -76,7 +76,7 @@ static inline void logController(const char *f, Args ... args) {
   Controller1.Screen.clearScreen();
   int row = 1;
 
-  char buffer[strlen(f)];
+  char buffer[200];
   sprintf(buffer, f, args...);
 
   char* pch = strtok (buffer,"\n");
@@ -96,7 +96,7 @@ static inline void log(const char *f, Args ... args) {
   Brain.Screen.clearScreen();
   int row = 1;
 
-  char buffer[strlen(f)];
+  char buffer[200];
   sprintf(buffer, f, args...);
 
   char* pch = strtok (buffer,"\n");

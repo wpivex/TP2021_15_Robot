@@ -76,16 +76,16 @@ class Robot {
     void clawUp();
     void clawDown();
 
-    void goTurnU(float universalAngleDegrees);
+    void goTurnU(float universalAngleDegrees, bool stopAfter = true, bool faster = false);
 
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter = true, float timeout = 10, bool angleCorrection = true, bool useGpsDistance = false, float startX = -1, float startY = -1);
-    void goForwardGPS(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-float startX, float startY, bool stopAfter = true, float timeout = 5);
+bool stopAfter = true, float timeout = 10, bool angleCorrection = true);
     void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
 
+    void goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches); 
+
     void waitForGPS();
-    void goPointGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 10);
+    void goPointGPS(float x, float y);
 
     void goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
     void goAlignVision(Goal goal, float timeout);

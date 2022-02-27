@@ -10,7 +10,6 @@ Trapezoid::Trapezoid(float distInches, float maxSpeedP, float minSpeedP, float r
   rampUp = rampUpInches;
   slowDown = slowDownInches;
 
-  slowDown = fmin(slowDown, finalDist);
   rampUp = fmin(rampUp, finalDist);
   maxSpeed = fmax(minSpeed, maxSpeed);
   
@@ -23,6 +22,7 @@ float Trapezoid::tick(float currDistance) {
 
   dist = fabs(currDistance);
   float delta, speed;
+
 
   if (dist < rampUp) speed = rampMinSpeed + (maxSpeed - rampMinSpeed) * dist / rampUp;
   else {
