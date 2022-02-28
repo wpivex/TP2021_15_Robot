@@ -61,7 +61,7 @@ class Robot {
     enum ControllerMapping {DEFAULT_MAPPING, BRIAN_MAPPING};
     ControllerMapping cMapping;
     Buttons::Button FRONT_ARM_UP, FRONT_ARM_DOWN, FRONT_CLAW_ON, FRONT_CLAW_OFF, CLAW_UP, CLAW_DOWN;
-    Buttons::Button BACK_LIFT_UP, BACK_LIFT_MID, BACK_LIFT_DOWN, BACK_LIFT_UPPING, BACK_LIFT_DOWNING, INTAKE_TOGGLE, INTAKE_TOGGLE_REV;
+    Buttons::Button BACK_LIFT_UP, BACK_LIFT_MID, BACK_LIFT_SLIGHT, BACK_LIFT_DOWN, BACK_LIFT_UPPING, BACK_LIFT_DOWNING, INTAKE_TOGGLE, INTAKE_TOGGLE_REV;
 
     void setControllerMapping(ControllerMapping mapping);
 
@@ -76,16 +76,21 @@ class Robot {
     void clawUp();
     void clawDown();
 
+    void goForwardTimed(float duration, float speed);
+
+    void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter = true, float rampMinSpeed = 20);
+
     void goTurnU(float universalAngleDegrees, bool stopAfter = true, bool faster = false);
 
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter = true, float rampMinSpeed = 20, float timeout = 10, bool angleCorrection = true);
-    void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, float rampMinSpeed = 20, float timeout = 5);
+bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 4, float timeout = 10, bool angleCorrection = true);
+    void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, 
+    float rampMinSpeed = 20, float slowDownMinSpeed = 4, float timeout = 5);
 
-    void goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches); 
+    void goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, directionType dir = forward); 
 
     void waitForGPS();
-    void goPointGPS(float x, float y);
+    void goPointGPS(float x, float y, directionType dir = forward);
 
     void goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
     void goAlignVision(Goal goal, float timeout);
@@ -105,6 +110,8 @@ bool stopAfter = true, float rampMinSpeed = 20, float timeout = 10, bool angleCo
     void intakeTeleop();
     void setLeftVelocity(directionType d, double percent);
     void setRightVelocity(directionType d, double percent);
+    void startIntake(directionType dir = forward);
+    void stopIntake();
     void stopLeft();
     void stopRight();
     void waitGpsCallibrate();

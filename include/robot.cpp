@@ -64,9 +64,7 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 void Robot::waitGpsCallibrate() {
   GPS11.calibrate();
   while (GPS11.isCalibrating()) wait(20, msec);
-  Brain.Screen.setFillColor(green);
-  Brain.Screen.drawRectangle(0, 0, 250, 250);
-  Brain.Screen.render();
+  log("calibrated");
 }
 
 
@@ -101,6 +99,9 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
     log("down");
     backLiftL.rotateTo(350, degrees, SPEED, velocityUnits::pct, false);
     backLiftR.rotateTo(350, degrees, SPEED, velocityUnits::pct, blocking);
+  } else if (b == BACK_LIFT_SLIGHT) {
+    backLiftL.rotateTo(300, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(300, degrees, SPEED, velocityUnits::pct, blocking);
   }
 
 }
@@ -209,10 +210,10 @@ void Robot::teleop() {
 
 void Robot::waitForGPS() {
   while (GPS11.quality() < 90) {
-    logController("Quality: %f", GPS11.quality());
+    logController("Quality: %d", GPS11.quality());
     wait(20, msec);
   }
-  logController("Quality: %f", GPS11.quality());
+  logController("Quality: %d", GPS11.quality());
 }
 
 // return in inches
@@ -237,11 +238,62 @@ float angleToPointU(float dx, float dy) {
   return 90 - (180 / PI * atan2(dy, dx));
 }
 
-// Go forward a number of inches, maintaining a specific heading if angleCorrection = true
-void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter, float rampMinSpeed, float timeout, bool angleCorrection) {
+void Robot::goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed) {
+  float timeout = 5;
 
   Trapezoid trap(distInches, maxSpeed, 4, rampUpInches, slowDownInches, rampMinSpeed);
+
+  int startTime = vex::timer::system();
+  leftMotorA.resetPosition();
+  rightMotorA.resetPosition();
+  directionType dir = distInches > 0 ? forward : reverse;
+
+  while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
+  
+    float speed = trap.tick(fabs(getEncoderDistance()));
+
+    // turnPercent bounded between -1 (counterclockwise point turn) and 1 (clockwise point turn)
+    float lspeed, rspeed;
+    if (turnPercent >= 0) {
+      lspeed = 1;
+      rspeed = 1 - 2*turnPercent;
+    } else {
+      rspeed = 1;
+      lspeed = 1 + 2*turnPercent;
+    }
+
+    setLeftVelocity(dir, lspeed * speed);
+    setRightVelocity(dir, rspeed * speed);
+
+    wait(20, msec);
+  }
+
+  if (stopAfter) {
+    stopLeft();
+    stopRight();
+  }
+
+}
+
+void Robot::goForwardTimed(float duration, float speed) {
+
+  int startTime = vex::timer::system();
+
+  while (!isTimeout(startTime, duration)) {
+    setLeftVelocity(forward, speed);
+    setRightVelocity(forward, speed);
+    wait(20, msec);
+  }
+  stopLeft();
+  stopRight();
+
+}
+
+// Go forward a number of inches, maintaining a specific heading if angleCorrection = true
+void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
+bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout, bool angleCorrection) {
+
+  Trapezoid trap(distInches, maxSpeed, slowDownMinSpeed, rampUpInches, slowDownInches, rampMinSpeed);
   PID turnPID(1, 0.00, 0);
 
   float correction = 0;
@@ -273,13 +325,14 @@ bool stopAfter, float rampMinSpeed, float timeout, bool angleCorrection) {
 }
 
 // Go forward with standard internal encoder wheels for distance, and no angle correction
-void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed, float timeout) {
-  goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, timeout, false);
+void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed, 
+float slowDownMinSpeed, float timeout) {
+  goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout, false);
 }
 
 // Go forward towards point, making corrections to target. Stop angle correction 15 inches before hitting target
 // Uses trapezoidal motion profile for distance and PID for angle corrections
-void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches) {
+void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, directionType dir) {
 
   float sx = getX();
   float sy = getY();
@@ -299,7 +352,7 @@ void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, f
 
     float currDist = distanceFormula(cx - sx, cy - sy);
     
-    float speed = trap.tick(currDist);
+    float speed = trap.tick(currDist) * (dir == forward ? 1 : -1);
     float ang = getAngleDiff(angleToPointU(x - cx, y - cy), getAngle());
     if (distInches - currDist > 5) correction = turnPID.tick(ang); // adjust heading towards target if over 15 inches away
 
@@ -358,7 +411,7 @@ void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, bool faster) {
 // go to (x,y) in inches. First, make a fast point turn, which need not be perfectly accurate
 // Then, it drives aiming at the target, making realtime corrections to any initial error
 // It is more deliberate at close speeds and more aggressive at faster speeds
-void Robot::goPointGPS(float x, float y) {
+void Robot::goPointGPS(float x, float y, directionType dir) {
 
   waitForGPS();
 
@@ -371,14 +424,15 @@ void Robot::goPointGPS(float x, float y) {
 
   // Point turn to orient towards target
   float angleU = angleToPointU(proj_x, proj_y);
+  if (dir == reverse) angleU = fmod((angleU + 180), 360);
 
   if (distFinal < 25) { // For closer distances, have a more accurate initial turn and slower approach speed
     goTurnU(angleU, false, false);
-    goForwardGPS(x, y, 40, 1, 4);
+    goForwardGPS(x, y, 40, 1, 4, dir);
   }
   else { // For longer distances, have a faster initial turn and approach speed
     goTurnU(angleU, false, true);
-    goForwardGPS(x, y, 80, 6, 15);
+    goForwardGPS(x, y, 80, 6, 15, dir);
   }
 }
 
@@ -514,6 +568,14 @@ void Robot::setRightVelocity(directionType d, double percent) {
   rightMotorB.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
   rightMotorC.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
   rightMotorD.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
+}
+
+void Robot::startIntake(directionType dir) {
+  intake.spin(dir, 100, pct);
+}
+
+void Robot::stopIntake() {
+  intake.stop();
 }
 
 void Robot::stopLeft() {
