@@ -239,9 +239,9 @@ float angleToPointU(float dx, float dy) {
 
 // Go forward a number of inches, maintaining a specific heading if angleCorrection = true
 void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter, float timeout, bool angleCorrection) {
+bool stopAfter, float rampMinSpeed, float timeout, bool angleCorrection) {
 
-  Trapezoid trap(distInches, maxSpeed, 4, rampUpInches, slowDownInches, 20);
+  Trapezoid trap(distInches, maxSpeed, 4, rampUpInches, slowDownInches, rampMinSpeed);
   PID turnPID(1, 0.00, 0);
 
   float correction = 0;
@@ -273,8 +273,8 @@ bool stopAfter, float timeout, bool angleCorrection) {
 }
 
 // Go forward with standard internal encoder wheels for distance, and no angle correction
-void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
-  goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, timeout, false);
+void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed, float timeout) {
+  goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, timeout, false);
 }
 
 // Go forward towards point, making corrections to target. Stop angle correction 15 inches before hitting target

@@ -68,6 +68,7 @@ int testGPS() {
 int ringSkills() {
 
   const float INTAKE_RING = 200;
+  const float LOW_ARM = 0;
 
   fifteen.frontArmL.resetRotation();
   fifteen.frontArmR.resetRotation();
@@ -90,11 +91,25 @@ int ringSkills() {
   fifteen.intake.spin(forward, 100, pct);
   fifteen.goForward(20, 40, 1, 2);
   fifteen.goForward(-18, 60, 2, 4);
-  fifteen.goForward(18, 40, 1, 2);
+  fifteen.goForward(18, 40, 1, 0, false);
 
   // Head to left yellow goal
   fifteen.goPointGPS(-23, 36);
+  fifteen.moveArmTo(LOW_ARM, 100, false);
+  fifteen.intake.stop();
   fifteen.goTurnU(90);
+  fifteen.goForward(10, 50, 2, 0, false); // go forward and pick up at same time without stopping
+
+  // Drop yellow goal on blue side
+  fifteen.clawDown();
+  fifteen.moveArmTo(300, 100, false);
+  fifteen.goForwardU(50, 100, 90, 5, 10, true, 50);
+  fifteen.clawUp(); // drop yellow goal
+
+  // Drop blue goal from back
+  fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
+  fifteen.goForward(-10, 40, 1, 1);
+  
 
 
 

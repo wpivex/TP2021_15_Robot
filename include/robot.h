@@ -79,8 +79,8 @@ class Robot {
     void goTurnU(float universalAngleDegrees, bool stopAfter = true, bool faster = false);
 
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter = true, float timeout = 10, bool angleCorrection = true);
-    void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
+bool stopAfter = true, float rampMinSpeed = 20, float timeout = 10, bool angleCorrection = true);
+    void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, float rampMinSpeed = 20, float timeout = 5);
 
     void goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches); 
 
@@ -96,6 +96,7 @@ bool stopAfter = true, float timeout = 10, bool angleCorrection = true);
 
 
     float normalize(float axis);
+    void updateCamera(Goal goal);
 
     void userControl( void );
     void teleop( void );
