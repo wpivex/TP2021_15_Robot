@@ -60,7 +60,7 @@ int logDistance() {
 
 
 int testGPS() {
-  fifteen.goPointGPS(-26, -54);
+  fifteen.goPointGPS(-23, 36);
 
   return 0;
 }
@@ -84,14 +84,14 @@ int ringSkills() {
 
   // Grab home goal
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
-  fifteen.goForward(10, 40, 1, 2);
+  fifteen.goForward(-10, 40, 1, 2);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
 
   // Grab match rings
   fifteen.startIntake();
   fifteen.goForward(20, 40, 1, 2);
-  fifteen.goForward(-18, 60, 2, 4);
-  fifteen.goForward(18, 40, 1, 0, false);
+  fifteen.goForward(-17, 60, 2, 4);
+  fifteen.goForward(17, 40, 1, 0, false);
 
   // Head to left yellow goal
   fifteen.goPointGPS(-23, 36);
@@ -175,11 +175,6 @@ int ringSkills() {
   
   
 
-  
-
-
-
-
 
   return 0;
 
@@ -193,7 +188,7 @@ int logGPS() {
   return 0;
 }
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(logGPS); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(ringSkills); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }

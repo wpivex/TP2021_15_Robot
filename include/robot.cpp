@@ -97,11 +97,11 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
     backLiftR.rotateTo(130, degrees, SPEED, velocityUnits::pct, blocking);
   } else if (b == BACK_LIFT_DOWN) {
     log("down");
-    backLiftL.rotateTo(350, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(350, degrees, SPEED, velocityUnits::pct, blocking);
+    backLiftL.rotateTo(330, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(330, degrees, SPEED, velocityUnits::pct, blocking);
   } else if (b == BACK_LIFT_SLIGHT) {
-    backLiftL.rotateTo(300, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(300, degrees, SPEED, velocityUnits::pct, blocking);
+    backLiftL.rotateTo(290, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(290, degrees, SPEED, velocityUnits::pct, blocking);
   }
 
 }
@@ -427,11 +427,11 @@ void Robot::goPointGPS(float x, float y, directionType dir) {
   if (dir == reverse) angleU = fmod((angleU + 180), 360);
 
   if (distFinal < 25) { // For closer distances, have a more accurate initial turn and slower approach speed
-    goTurnU(angleU, false, false);
+    goTurnU(angleU, true, false);
     goForwardGPS(x, y, 40, 1, 4, dir);
   }
   else { // For longer distances, have a faster initial turn and approach speed
-    goTurnU(angleU, false, true);
+    goTurnU(angleU, true, true);
     goForwardGPS(x, y, 80, 6, 15, dir);
   }
 }
