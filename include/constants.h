@@ -6,7 +6,7 @@
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
 vex::competition Competition;
-vex::gps GPS11 = vex::gps(vex::PORT17, 2.8, 2.9, vex::inches, 90);
+vex::gps GPS11 = vex::gps(vex::PORT17, 4.5, -0.4, vex::inches, 90);
 
 typedef struct Point {
   float x;

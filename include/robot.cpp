@@ -61,6 +61,14 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 
 }
 
+void Robot::waitGpsCallibrate() {
+  GPS11.calibrate();
+  while (GPS11.isCalibrating()) wait(20, msec);
+  Brain.Screen.setFillColor(green);
+  Brain.Screen.drawRectangle(0, 0, 250, 250);
+  Brain.Screen.render();
+}
+
 
 void Robot::driveTeleop() {
 
@@ -69,7 +77,7 @@ void Robot::driveTeleop() {
     setLeftVelocity(forward,buttons.axis(Buttons::LEFT_VERTICAL));
     setRightVelocity(forward,buttons.axis(Buttons::RIGHT_VERTICAL));
   } else {
-    float drive = driveType == ONE_STICK_ARCADE ? buttons.axis(Buttons::RIGHT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
+    float drive = driveType == ONE_STICK_ARCADE ? buttons.axis(Buttons::LEFT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
     float turn = buttons.axis(Buttons::RIGHT_HORIZONTAL) / 2.0;
     float max = std::max(1.0, std::max(fabs(drive+turn), fabs(drive-turn)));
     setLeftVelocity(forward,100 * (drive+turn)/max);
@@ -200,10 +208,11 @@ void Robot::teleop() {
 }
 
 void Robot::waitForGPS() {
-  while (GPS11.quality() < 80) {
+  while (GPS11.quality() < 90) {
     logController("Quality: %f", GPS11.quality());
     wait(20, msec);
   }
+  logController("Quality: %f", GPS11.quality());
 }
 
 // return in inches
@@ -292,8 +301,11 @@ void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, f
     
     float speed = trap.tick(currDist);
     float ang = getAngleDiff(angleToPointU(x - cx, y - cy), getAngle());
-    if (distInches - currDist > 15) correction = turnPID.tick(ang); // adjust heading towards target if over 15 inches away
- 
+    if (distInches - currDist > 5) correction = turnPID.tick(ang); // adjust heading towards target if over 15 inches away
+
+    //log("Error: %f \n CurrDist: %f \n Speed: %f \n Angle: %f \n Correction: %f", distanceFormula(x-cx,y-cy), currDist, speed, ang, correction);
+    //log("Quality: %d", GPS11.quality());
+
     setLeftVelocity(forward, speed + correction);
     setRightVelocity(forward, speed - correction);
 
@@ -302,14 +314,15 @@ void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, f
 
   stopLeft();
   stopRight();
+  log("done");
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
 void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, bool faster) {
 
-  PID anglePID(1.5, 0.00, 0.01, 1, 5, 12, 75);
+  PID anglePID(2, 0.00, 0.02, 1, 5, 10, 75);
   if (faster) {
-    anglePID = PID(1.5, 0.00, 0.01, 2, 3, 12, 75);
+    anglePID = PID(2, 0.00, 0.02, 3, 3, 12, 75);
   }
 
   float timeout = 5;
@@ -324,15 +337,16 @@ void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, bool faster) {
     float ang = getAngleDiff(universalAngleDegrees, getAngle());
     speed = anglePID.tick(ang);
 
-    log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
+    //log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
     //log("heading: %f", GPS11.heading());
+    log("Quality: %d \n Current: %f \n Target: %f", GPS11.quality(), getAngle(), universalAngleDegrees);
 
     setLeftVelocity(forward, speed);
     setRightVelocity(reverse, speed);
 
     wait(20, msec);
   }
-  log("wtf done");
+  //log("wtf done");
 
   if (stopAfter) {
     stopLeft();
@@ -358,13 +372,13 @@ void Robot::goPointGPS(float x, float y) {
   // Point turn to orient towards target
   float angleU = angleToPointU(proj_x, proj_y);
 
-  if (distFinal < 20) { // For closer distances, have a more accurate initial turn and slower approach speed
+  if (distFinal < 25) { // For closer distances, have a more accurate initial turn and slower approach speed
     goTurnU(angleU, false, false);
     goForwardGPS(x, y, 40, 1, 4);
   }
   else { // For longer distances, have a faster initial turn and approach speed
     goTurnU(angleU, false, true);
-    goForwardGPS(x, y, 90, 5, 12);
+    goForwardGPS(x, y, 80, 6, 15);
   }
 }
 

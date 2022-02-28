@@ -40,7 +40,7 @@ float PID::tick(float error, float bound) {
 
   if (max != -1) output = fmax(-max, fmin(max, output));
 
-  //logController("%f | %d | %d %d %d | %d", (float) error, (int) output, (int) (K_p * error), (int) (K_i * integral), (int) (K_d * derivative), repeated);
+  //logController("Error: %f \n Output: %f \n P: %f \n D: %f", error, output, (K_p * error), (K_d * derivative));
   return output;
 }
 

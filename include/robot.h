@@ -95,34 +95,6 @@ bool stopAfter = true, float timeout = 10, bool angleCorrection = true);
     void driveStraightFighting(float distInches, float speed, directionType dir);
 
 
-    // --- OLD FUNCTIONS ---
-
-    void smartDrive(float distInches, float speed, directionType left, directionType right, float timeout, float slowDownInches, 
-                    float turnPercent, bool stopAfter, std::function<bool(void)> func, float startUpInches = 0);
-    void driveTurn(float degrees, float speed, bool isClockwise, float timeout, float slowDownInches = 10, 
-                    bool stopAfter = true, std::function<bool(void)> func = {});
-    void driveCurved(float distInches, float speed, directionType dir, float timeout, 
-                      float slowDownInches, float turnPercent, bool stopAfter = true, std::function<bool(void)> func = {}, float startUpInches = 0);
-    void driveStraight(float distInches, float speed, directionType dir, float timeout, 
-                      float slowDownInches, bool stopAfter = true, std::function<bool(void)> func = {}, float startUpInches = 0);
-    void driveStraightTimed(float speed, directionType dir, float timeMs, bool stopAfter = true, std::function<bool(void)> func = {});
-
-    void goForwardVision(Goal goal, float speed, directionType dir, float maximumDistance, float timeout, 
-                        digital_in* limitSwitch = nullptr, std::function<bool(void)> func = {});
-    void alignToGoalVision(Goal goal, bool clockwise, directionType cameraDirection, float timeout);
-    void updateCamera(Goal goal);
-
-    void driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, bool resetEncoder = true,
-                            std::function<bool(void)> func = {}, float startUpInches = 0);
-    void driveStraightGyroHeading(float distInches, float speed, float head, directionType dir, float timeout, float slowDownInches, 
-std::function<bool(void)> func = {}, float startUpInches = 0);
-
-    void gyroTurn(bool clockwise, float angleDegrees);
-    void gyroTurnU(float universalAngleDegrees);
-
-    void dumbGyroTurn(bool clockwise, float angleDegrees, float speed, float timeout);
-    void dumbUniversalGyroTurn(float universalAngleDegrees, float maxSpeed, float timeout);
-
     float normalize(float axis);
 
     void userControl( void );
@@ -134,7 +106,7 @@ std::function<bool(void)> func = {}, float startUpInches = 0);
     void setRightVelocity(directionType d, double percent);
     void stopLeft();
     void stopRight();
-    void waitGyroCallibrate();
+    void waitGpsCallibrate();
     void setBrakeType(brakeType b);
 
   private:
