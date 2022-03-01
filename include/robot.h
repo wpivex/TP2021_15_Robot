@@ -49,7 +49,7 @@ class Robot {
     vision camera;
 
 
-    digital_out frontClaw = digital_out(Brain.ThreeWirePort.A);
+    digital_out frontClaw = digital_out(Brain.ThreeWirePort.G);
 
     controller* robotController;
 

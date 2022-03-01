@@ -60,8 +60,11 @@ int logDistance() {
 
 
 int testGPS() {
-  fifteen.goPointGPS(-23, 36);
-
+  fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
+  wait(2000, msec);
+  fifteen.goTurnU(112);
+  wait(2000, msec);
+  fifteen.goTurnU(140);
   return 0;
 }
 
@@ -89,37 +92,36 @@ int ringSkills() {
 
   // Grab match rings
   fifteen.startIntake();
-  fifteen.goForward(20, 40, 1, 2);
+  fifteen.goForward(20, 40, 2, 4);
   fifteen.goForward(-17, 60, 2, 4);
-  fifteen.goForward(17, 40, 1, 0, false);
+  fifteen.goForward(17, 40, 2, 4);
 
   // Head to left yellow goal
-  fifteen.goPointGPS(-23, 36);
-  fifteen.moveArmTo(LOW_ARM, 100, false);
-  fifteen.startIntake(reverse);
-  fifteen.goTurnU(90);
+  fifteen.goTurnU(112);
   fifteen.stopIntake();
-  fifteen.goForwardU(10, 50, 90, 2, 0, false); // go forward and pick up at same time without stopping
-  
-
-  // Drop yellow goal on blue side
+  fifteen.moveArmTo(LOW_ARM, 100, false);
+  fifteen.goForward(35, 70, 3, 4, false, 20, 30);
+  fifteen.goForward(15, 30, 0, 5);
   fifteen.clawDown();
   fifteen.moveArmTo(300, 100, false);
+
+  // Drop yellow goal on blue side
+  fifteen.goTurnU(90);
   fifteen.goForwardU(41 - fifteen.getX(), 100, 90, 5, 10, true, 50); // go x = 41
   fifteen.clawUp(); // drop yellow goal
 
   // Drop blue goal from back
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
-  fifteen.goForward(-10, 50, 1, 2);
+  fifteen.goForward(-15, 50, 1, 2);
 
   // Pick up red with 1dof
   fifteen.goForward(8, 50, 1, 2);
   fifteen.goTurnU(180);
-  fifteen.goForwardU(10, 50, 180, 1, 2);
+  fifteen.goForwardU(-10, 50, 180, 1, 2);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
 
   // Pick up blue goal in front
-  fifteen.goForwardU(-10, 50, 180, 1, 2);
+  fifteen.goForwardU(10, 50, 180, 1, 2);
   fifteen.goTurnU(270);
   fifteen.goForward(8, 50, 1, 2);
   fifteen.clawDown();
@@ -188,7 +190,7 @@ int logGPS() {
   return 0;
 }
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(ringSkills); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(testGPS); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
