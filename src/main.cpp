@@ -92,15 +92,16 @@ int ringSkills() {
 
   // Grab match rings
   fifteen.startIntake();
-  fifteen.goForward(20, 40, 2, 4);
-  fifteen.goForward(-17, 60, 2, 4);
-  fifteen.goForward(17, 40, 2, 4);
+  fifteen.goForward(19, 30, 2, 4);
+  fifteen.goForward(-15, 60, 2, 4);
+  fifteen.goForward(15, 30, 2, 4);
 
   // Head to left yellow goal
   fifteen.goTurnU(112);
   fifteen.stopIntake();
   fifteen.moveArmTo(LOW_ARM, 100, false);
-  fifteen.goForward(35, 70, 3, 4, false, 20, 30);
+  fifteen.goForward(45, 70, 3, 4, true, 20, 30);
+  wait(1000, msec);
   fifteen.goForward(15, 30, 0, 5);
   fifteen.clawDown();
   fifteen.moveArmTo(300, 100, false);
@@ -190,7 +191,7 @@ int logGPS() {
   return 0;
 }
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(testGPS); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(ringSkills); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }

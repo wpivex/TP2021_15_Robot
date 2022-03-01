@@ -83,6 +83,7 @@ void Robot::driveTeleop() {
   }
 }
 
+// Not a truly blocking function, one second timeout if blocking
 void Robot::setBackLift(Buttons::Button b, bool blocking) {
 
   float SPEED = 100;
@@ -90,19 +91,21 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
   if (b == BACK_LIFT_UP) {
     log("up");
     backLiftL.rotateTo(0, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(0, degrees, SPEED, velocityUnits::pct, blocking);
+    backLiftR.rotateTo(0, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_MID) {
     log("mid");
     backLiftL.rotateTo(130, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(130, degrees, SPEED, velocityUnits::pct, blocking);
+    backLiftR.rotateTo(130, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_DOWN) {
     log("down");
     backLiftL.rotateTo(330, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(330, degrees, SPEED, velocityUnits::pct, blocking);
+    backLiftR.rotateTo(330, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_SLIGHT) {
     backLiftL.rotateTo(290, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(290, degrees, SPEED, velocityUnits::pct, blocking);
+    backLiftR.rotateTo(290, degrees, SPEED, velocityUnits::pct, false);
   }
+
+  if (blocking) wait(800, msec);
 
 }
 
@@ -330,6 +333,24 @@ float slowDownMinSpeed, float timeout) {
   goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout, false);
 }
 
+// Go at specified direction and approach given x position with PID motion profiling using GPS absolute positioning
+void Robot::goToAxis(axisType axis, float finalValue, float maxSpeed, float timeout) {
+
+  PID pid(1, 0, 0, 0.25, 5, 12, maxSpeed);
+  int startTime = vex::timer::system();
+
+  while (!pid.isCompleted() && !isTimeout(startTime, timeout)) {
+
+    float currDist = axis == axisType::xaxis ? getX() : getY();
+    float speed = pid.tick(finalValue - currDist);
+
+    setLeftVelocity(forward, speed);
+    setRightVelocity(forward, speed);
+  }
+  stopLeft();
+  stopRight();
+}
+
 // Go forward towards point, making corrections to target. Stop angle correction 15 inches before hitting target
 // Uses trapezoidal motion profile for distance and PID for angle corrections
 void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, directionType dir) {
@@ -354,7 +375,7 @@ void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, f
     
     float speed = trap.tick(currDist) * (dir == forward ? 1 : -1);
     float ang = getAngleDiff(angleToPointU(x - cx, y - cy), getAngle());
-    if (distInches - currDist > 5) correction = turnPID.tick(ang); // adjust heading towards target if over 15 inches away
+    if (distInches - currDist > 10) correction = turnPID.tick(ang); // adjust heading towards target if over 15 inches away
 
     //log("Error: %f \n CurrDist: %f \n Speed: %f \n Angle: %f \n Correction: %f", distanceFormula(x-cx,y-cy), currDist, speed, ang, correction);
     //log("Quality: %d", GPS11.quality());
