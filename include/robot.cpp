@@ -43,8 +43,10 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
   driveType = ONE_STICK_ARCADE;
 
   //Controls that don't change:
+  BACK_LIFT_UP = Buttons::A;
   BACK_LIFT_MID = Buttons::R1;
   BACK_LIFT_DOWN = Buttons::R2;
+  BACK_LIFT_SLIGHT = Buttons::INVALID;
   BACK_LIFT_UPPING = Buttons::RIGHT;
   BACK_LIFT_DOWNING = Buttons::LEFT;
 
@@ -56,7 +58,6 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 
   FRONT_ARM_UP = Buttons::INVALID; // brian uses left-stick controls
   FRONT_ARM_DOWN = Buttons::INVALID;
-  BACK_LIFT_UP = Buttons::A;
 
 
 }
@@ -197,11 +198,6 @@ void Robot::intakeTeleop() {
 
 // Run every tick
 void Robot::teleop() {
-
-  if (buttons.pressed(Buttons::A)) {
-    leftMotorA.resetRotation();
-    rightMotorA.resetRotation();
-  }
   
   driveTeleop();
   armTeleop();
@@ -228,11 +224,13 @@ float Robot::getAngle() {
   return GPS11.heading(degrees);
 }
 
-float Robot::getX() {
+// Number of samples in 20ms intervals to average and find more accurate x location with GPS
+float Robot::getX(int numSamples) {
   return GPS11.xPosition(inches);
 }
 
-float Robot::getY() {
+// Number of samples in 20ms intervals to average and find more accurate y location with GPS
+float Robot::getY(int numSamples) {
   return GPS11.yPosition(inches);
 }
 
@@ -337,15 +335,18 @@ float slowDownMinSpeed, float timeout) {
 void Robot::goToAxis(axisType axis, float finalValue, float maxSpeed, float timeout) {
 
   PID pid(1, 0, 0, 0.25, 5, 12, maxSpeed);
+  PID turnPID(1, 0, 0);
   int startTime = vex::timer::system();
+  float h = getAngle(); // maintain current heading
 
   while (!pid.isCompleted() && !isTimeout(startTime, timeout)) {
 
     float currDist = axis == axisType::xaxis ? getX() : getY();
     float speed = pid.tick(finalValue - currDist);
+    float correction = turnPID.tick(getAngleDiff(h, getAngle()));
 
-    setLeftVelocity(forward, speed);
-    setRightVelocity(forward, speed);
+    setLeftVelocity(forward, speed + correction);
+    setRightVelocity(forward, speed - correction);
   }
   stopLeft();
   stopRight();

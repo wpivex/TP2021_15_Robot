@@ -67,8 +67,8 @@ class Robot {
 
     float getEncoderDistance();
     float getAngle();
-    float getX();
-    float getY();
+    float getX(int numSamples = 1);
+    float getY(int numSamples = 1);
 
     void setBackLift(Buttons::Button b, bool blocking);
     void backLiftTeleop();
