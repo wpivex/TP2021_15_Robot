@@ -61,6 +61,8 @@ int logDistance() {
 
 int testGPS() {
   fifteen.goToAxis(xaxis, -25, 80);
+  fifteen.goTurnU(0);
+  fifteen.goToAxis(yaxis, 21, 80);
   //fifteen.goPointGPS(-20, 37);
   return 0;
 }
@@ -96,18 +98,17 @@ int ringSkills() {
   fifteen.goForward(15, 30, 2, 4);
 
   // Head to left yellow goal
-  fifteen.goTurnU(112);
+  fifteen.goTurnU(130);
   fifteen.stopIntake();
   fifteen.moveArmTo(LOW_ARM, 100, false);
-  fifteen.goForward(45, 70, 3, 4, true, 20, 30);
-  wait(1000, msec);
-  fifteen.goForward(15, 30, 0, 5);
+  fifteen.goToAxis(xaxis, -23, 80);
+  fifteen.goTurnU(90);
+  fifteen.goForwardU(20, 40, 90, 1, 0, false);
   fifteen.clawDown();
   fifteen.moveArmTo(300, 100, false);
 
-  // Drop yellow goal on blue side
-  fifteen.goTurnU(90);
-  fifteen.goForwardU(41 - fifteen.getX(), 100, 90, 5, 10, true, 50); // go x = 41
+  // Drop yellow goal off
+  fifteen.goForwardU(41 - fifteen.getX(), 100, 90, 5, 10, true, 50); // go x = 41 without gps at end
   fifteen.clawUp(); // drop yellow goal
 
   // Drop blue goal from back
