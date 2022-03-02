@@ -2,12 +2,12 @@
 
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c), gyroSensor(PORT14) {
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);
   leftMotorC = motor(PORT12, ratio6_1, true);
-  leftMotorD = motor(PORT9, ratio6_1, true);
+  leftMotorD = motor(PORT10, ratio6_1, true);
   leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
 
 
@@ -63,7 +63,6 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 }
 
 void Robot::waitGpsCallibrate() {
-  GPS11.calibrate();
   while (GPS11.isCalibrating()) wait(20, msec);
   log("calibrated");
 }
@@ -224,14 +223,21 @@ float Robot::getAngle() {
   return GPS11.heading(degrees);
 }
 
-// Number of samples in 20ms intervals to average and find more accurate x location with GPS
-float Robot::getX(int numSamples) {
-  return GPS11.xPosition(inches);
+// Number of samples in 20ms intervals to average and find more accurate x/y location with GPS
+float getCoordinate(axisType axis, int numSamples) {
+  float total = 0;
+  for (int i = 0; i < numSamples; i++) {
+    total += (axis == xaxis) ? GPS11.xPosition(inches) : GPS11.yPosition(inches);
+  }
+  return total / numSamples;
 }
 
-// Number of samples in 20ms intervals to average and find more accurate y location with GPS
+float Robot::getX(int numSamples) {
+  return getCoordinate(xaxis, numSamples);
+}
+
 float Robot::getY(int numSamples) {
-  return GPS11.yPosition(inches);
+  return getCoordinate(yaxis, numSamples);
 }
 
 // Essentially return theta for vector [dx, dy]
@@ -334,7 +340,7 @@ float slowDownMinSpeed, float timeout) {
 // Go at specified direction and approach given x position with PID motion profiling using GPS absolute positioning
 void Robot::goToAxis(axisType axis, float finalValue, float maxSpeed, float timeout) {
 
-  PID pid(1, 0, 0, 0.25, 5, 12, maxSpeed);
+  PID pid(10, 0, 0, 0.2, 5, 12, maxSpeed);
   PID turnPID(1, 0, 0);
   int startTime = vex::timer::system();
   float h = getAngle(); // maintain current heading
@@ -342,20 +348,22 @@ void Robot::goToAxis(axisType axis, float finalValue, float maxSpeed, float time
   while (!pid.isCompleted() && !isTimeout(startTime, timeout)) {
 
     float currDist = axis == axisType::xaxis ? getX() : getY();
-    float speed = pid.tick(finalValue - currDist);
+    float speed = pid.tick(currDist - finalValue);
     float correction = turnPID.tick(getAngleDiff(h, getAngle()));
 
     setLeftVelocity(forward, speed + correction);
     setRightVelocity(forward, speed - correction);
+
+    log("%f", speed);
+
+    wait(20, msec);
   }
   stopLeft();
   stopRight();
 }
-
 // Go forward towards point, making corrections to target. Stop angle correction 15 inches before hitting target
 // Uses trapezoidal motion profile for distance and PID for angle corrections
 void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, directionType dir) {
-
   float sx = getX();
   float sy = getY();
 

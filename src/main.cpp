@@ -60,15 +60,14 @@ int logDistance() {
 
 
 int testGPS() {
-  fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
-  wait(2000, msec);
-  fifteen.goTurnU(112);
-  wait(2000, msec);
-  fifteen.goTurnU(140);
+  fifteen.goToAxis(xaxis, -25, 80);
+  //fifteen.goPointGPS(-20, 37);
   return 0;
 }
 
 int ringSkills() {
+
+  fifteen.waitGpsCallibrate();
 
   const float INTAKE_RING = 200;
   const float LOW_ARM = 0;
@@ -191,7 +190,7 @@ int logGPS() {
   return 0;
 }
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(ringSkills); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(testGPS); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
@@ -201,7 +200,7 @@ void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTele
 int main() {
 
   wait(500, msec);
-  fifteen.waitGpsCallibrate();
+  GPS11.calibrate();
 
   Competition.bStopAllTasksBetweenModes = true;
   fifteen.clawDown();

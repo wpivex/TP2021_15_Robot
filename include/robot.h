@@ -45,7 +45,7 @@ class Robot {
     motor backLiftL;
     motor backLiftR;
 
-
+    inertial gyroSensor;
     vision camera;
 
 
