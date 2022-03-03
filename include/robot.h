@@ -87,7 +87,7 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 4, floa
     void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, 
     float rampMinSpeed = 20, float slowDownMinSpeed = 4, float timeout = 5);
 
-    void goToAxis(axisType axis, float finalValue, float maxSpeed, float timeout = 10);
+    void goToAxis(axisType axis, bool reverseDirection, float finalValue, float maxSpeed, float timeout = 10);
     void goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, directionType dir = forward); 
 
     void waitForGPS();

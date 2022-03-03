@@ -66,7 +66,7 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 }
 
 void Robot::waitGpsCallibrate() {
-  while (GPS11.isCalibrating()) wait(20, msec);
+  while (GPS11.isCalibrating() || gyroSensor.isCalibrating()) wait(20, msec);
   log("calibrated");
 }
 
@@ -223,7 +223,7 @@ float Robot::getEncoderDistance() {
 }
 
 float Robot::getAngle() {
-  return GPS11.heading(degrees);
+  return gyroSensor.heading();
 }
 
 // Number of samples in 20ms intervals to average and find more accurate x/y location with GPS
@@ -341,7 +341,7 @@ float slowDownMinSpeed, float timeout) {
 }
 
 // Go at specified direction and approach given x position with PID motion profiling using GPS absolute positioning
-void Robot::goToAxis(axisType axis, float finalValue, float maxSpeed, float timeout) {
+void Robot::goToAxis(axisType axis, bool reverseDirection, float finalValue, float maxSpeed, float timeout) {
 
   PID pid(7, 0, 0.2, 0.3, 5, 11, maxSpeed);
   PID turnPID(1, 0, 0);
@@ -350,8 +350,8 @@ void Robot::goToAxis(axisType axis, float finalValue, float maxSpeed, float time
 
   while (!pid.isCompleted() && !isTimeout(startTime, timeout)) {
 
-    float currDist = axis == axisType::xaxis ? getX() : -getY();
-    float speed = pid.tick(currDist - finalValue);
+    float currDist = axis == axisType::xaxis ? getX() : getY();
+    float speed = pid.tick(finalValue - currDist) * (reverseDirection ? -1 : 1);
     float correction = turnPID.tick(getAngleDiff(h, getAngle()));
 
     setLeftVelocity(forward, speed + correction);
