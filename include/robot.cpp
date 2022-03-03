@@ -53,12 +53,15 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
   INTAKE_TOGGLE = Buttons::UP;
   INTAKE_TOGGLE_REV = Buttons::DOWN;
 
-  CLAW_UP = Buttons::L1;
-  CLAW_DOWN = Buttons::L2;
+  CLAW_UP = Buttons::L2;
+  CLAW_DOWN = Buttons::L1;
 
   FRONT_ARM_UP = Buttons::INVALID; // brian uses left-stick controls
   FRONT_ARM_DOWN = Buttons::INVALID;
 
+  if (mapping == BRIAN_MAPPING) {
+    BACK_LIFT_UP = Buttons::X;
+  }
 
 }
 
@@ -75,7 +78,7 @@ void Robot::driveTeleop() {
     setLeftVelocity(forward,buttons.axis(Buttons::LEFT_VERTICAL));
     setRightVelocity(forward,buttons.axis(Buttons::RIGHT_VERTICAL));
   } else {
-    float drive = driveType == ONE_STICK_ARCADE ? buttons.axis(Buttons::LEFT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
+    float drive = driveType == ONE_STICK_ARCADE ? buttons.axis(Buttons::RIGHT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
     float turn = buttons.axis(Buttons::RIGHT_HORIZONTAL) / 2.0;
     float max = std::max(1.0, std::max(fabs(drive+turn), fabs(drive-turn)));
     setLeftVelocity(forward,100 * (drive+turn)/max);
@@ -146,7 +149,7 @@ void Robot::armTeleop() {
 
   //logController("%f", frontArmL.rotation(degrees));
   
-  float brianArm = buttons.axis(Buttons::RIGHT_VERTICAL); // Brian's weird shit
+  float brianArm = buttons.axis(Buttons::LEFT_VERTICAL); // Brian's weird shit
 
   if (buttons.pressing(FRONT_ARM_UP)) {
     frontArmL.spin(forward, MOTOR_SPEED, pct);
