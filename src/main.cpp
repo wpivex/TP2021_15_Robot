@@ -96,18 +96,18 @@ int vcat300Skills2() {
   fifteen.moveArmTo(lowArmAngle, 100, false);
   fifteen.clawUp();
   fifteen.goVision(40, 60, YELLOW, 2, 0, false);
-  fifteen.goForwardU(5, 30, turnAngle, 0, 5);
+  fifteen.goForwardU(9, 30, turnAngle, 0, 3);
   fifteen.clawDown(); // grab yellow
   fifteen.moveArmTo(200, 100, false);
   logController("turn to 0");
   fifteen.goTurnU(0);
 
   // drop yellow off
-  fifteen.goForwardU(41, 100, 0, 3, 10);
+  fifteen.goForwardU(44, 100, 0, 3, 10);
   fifteen.clawUp();
-  fifteen.goForwardU(1, 30, 0, 0, 0);
+  fifteen.goForwardU(-1, 30, 0, 0, 0);
   fifteen.goTurnU(330);
-  fifteen.goForwardU(-5, 50, 330, 1, 3);
+  fifteen.goForwardU(-3, 50, 330, 1, 3);
   fifteen.moveArmTo(lowArmAngle, 100, false);
 
   // get red
@@ -118,18 +118,19 @@ int vcat300Skills2() {
   fifteen.goVision(20, 60, RED, 1, 3);
   fifteen.clawDown(); // clamp red
   wait(100, msec);
-  fifteen.goForward(-4, 30, 1, 1);
+  fifteen.goForward(-6, 30, 1, 1);
+  fifteen.goTurnU(270);
   fifteen.moveArmTo(600, 100, true);
   fifteen.goForwardTimed(1.75, 30);
   fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
   //wait(300, msec);
 
-  fifteen.goForward(-20, 50, 1, 5);
+  fifteen.goForward(-17, 50, 1, 5);
   fifteen.moveArmTo(200, 60, false);
   fifteen.goTurnU(180);
   fifteen.startIntake();
   fifteen.goForwardU(30, 50, 180, 1, 0, false);
-  fifteen.goToAxis(xaxis, false, -46, 80);
+  fifteen.goToAxis(xaxis, true, -46, 80); // localize in platform-platform direction
   fifteen.clawUp(); // drop off red
   wait(100, msec);
 
@@ -137,8 +138,8 @@ int vcat300Skills2() {
   fifteen.moveArmTo(lowArmAngle, 100, false);
   fifteen.goForwardU(-10, 40, 180, 1, 2);
   fifteen.goTurnU(90);
-  fifteen.goForwardU(40, 100, 90, 3, 5, false, 20, 40);
-  fifteen.goVision(50.05, 60, BLUE, 0, 4);
+  fifteen.goForwardU(11 + fifteen.getY(), 100, 90, 3, 5, false, 20, 40); // localize in side-to-side so robot always goes to same point before vision goal
+  fifteen.goVision(40, 60, BLUE, 0, 4);
   fifteen.clawDown(); // clamp blue
   wait(100, msec);
 

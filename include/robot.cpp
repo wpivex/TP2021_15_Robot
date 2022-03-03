@@ -337,7 +337,7 @@ float slowDownMinSpeed, float timeout) {
 // Go at specified direction and approach given x position with PID motion profiling using GPS absolute positioning
 void Robot::goToAxis(axisType axis, bool reverseDirection, float finalValue, float maxSpeed, float timeout) {
 
-  PID pid(7, 0, 0.2, 0.3, 5, 11, maxSpeed);
+  PID pid(5, 0, 0.3, 0.3, 5, 11, maxSpeed);
   PID turnPID(1, 0, 0);
   int startTime = vex::timer::system();
   float h = getAngle(); // maintain current heading
