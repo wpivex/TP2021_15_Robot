@@ -83,9 +83,9 @@ class Robot {
     void goTurnU(float universalAngleDegrees, bool stopAfter = true, bool faster = false);
 
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 4, float timeout = 10, bool angleCorrection = true);
+bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 10, bool angleCorrection = true);
     void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, 
-    float rampMinSpeed = 20, float slowDownMinSpeed = 4, float timeout = 5);
+    float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 5);
 
     void goToAxis(axisType axis, bool reverseDirection, float finalValue, float maxSpeed, float timeout = 10);
     void goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, directionType dir = forward); 

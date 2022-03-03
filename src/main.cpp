@@ -92,13 +92,18 @@ int vcat300Skills2() {
   // get yellow
   fifteen.goTurnU(30);
   fifteen.stopIntake();
-  fifteen.goForwardU(20, 80, 30, 2, 3, true, 20, 30);
+  fifteen.moveArmTo(lowArmAngle, 100, false);
+  logController("forward");
+  fifteen.goForwardU(15, 80, 30, 2, 2, true, 20, 60);
   wait(1000, msec);
-  fifteen.goVision(32, 30, YELLOW, 0, 0, true);
+  logController("vision");
+  fifteen.goVision(32, 60, YELLOW, 0, 0, true);
   wait(1000, msec);
+  logController("forward 2");
   fifteen.goForwardU(5, 30, 113, 0, 5);
   fifteen.clawDown(); // grab yellow
   fifteen.moveArmTo(200, 100, false);
+  logController("turn to 0");
   fifteen.goTurnU(0);
 
   // drop yellow off
@@ -114,7 +119,7 @@ int vcat300Skills2() {
   //wait(300, msec);
   //fifteen.driveStraight(7, 50, reverse, 5, 5); // go back a little for better vision alignment
   fifteen.goAlignVision(RED, 5);
-  fifteen.goVision(20, 25, RED, 1, 3);
+  fifteen.goVision(20, 60, RED, 1, 3);
   fifteen.clawDown(); // clamp red
   wait(100, msec);
   fifteen.goForward(-4, 30, 1, 1);
@@ -137,7 +142,7 @@ int vcat300Skills2() {
   fifteen.goForward(-4, 35, 1, 1);
   fifteen.goTurnU(90);
   fifteen.goForwardU(40, 100, 90, 3, 5, false, 20, 40);
-  fifteen.goVision(50.05, 40, BLUE, 0, 4);
+  fifteen.goVision(50.05, 60, BLUE, 0, 4);
   fifteen.clawDown(); // clamp blue
   wait(100, msec);
 
@@ -190,7 +195,15 @@ int logAngle() {
   }
 }
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(vcat300Skills2); }
+int visionTest() {
+  fifteen.goAlignVision(YELLOW, 5);
+  log("yes");
+  wait(2000, msec);
+  fifteen.goVision(50, 60, YELLOW, 1, 5);
+  return 0;
+}
+
+void autonomous() { fifteen.setBrakeType(hold); task auto1(visionTest); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }

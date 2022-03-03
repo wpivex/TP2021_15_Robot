@@ -89,6 +89,8 @@ void Robot::driveTeleop() {
 // Not a truly blocking function, one second timeout if blocking
 void Robot::setBackLift(Buttons::Button b, bool blocking) {
 
+  logController("start back lift");
+
   float SPEED = 100;
 
   if (b == BACK_LIFT_UP) {
@@ -109,6 +111,7 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
   }
 
   if (blocking) wait(800, msec);
+  logController("end back lift");
 
 }
 
@@ -525,8 +528,8 @@ void Robot::updateCamera(Goal goal) {
 // for indefinite timeout, set to -1
 void Robot::goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
 
-  Trapezoid trapDist(distInches, speed, 2, rampUpInches, slowDownInches);
-  PID pidTurn(1, 0, 0);
+  Trapezoid trapDist(distInches, speed, 12, rampUpInches, slowDownInches);
+  PID pidTurn(35, 0, 0);
 
   updateCamera(goal);
 
@@ -562,7 +565,7 @@ void Robot::goAlignVision(Goal goal, float timeout) {
   int startTime = vex::timer::system();
   float speed = 0;
 
-  PID vTurnPID(10, 0, 0, 0.05, 3, 2);
+  PID vTurnPID(40, 0, 2, 0.04, 3, 12);
 
   while (!vTurnPID.isCompleted() && !isTimeout(startTime, timeout)) {
 
