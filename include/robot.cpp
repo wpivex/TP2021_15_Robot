@@ -33,17 +33,15 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   backLiftL.setBrake(hold);
   backLiftR.setBrake(hold);
 
-  setControllerMapping(DEFAULT_MAPPING);
+  setControllerMapping(EZEQUIEL_MAPPING);
 }
 
 void Robot::setControllerMapping(ControllerMapping mapping) {
 
   cMapping = mapping;
 
-  driveType = ONE_STICK_ARCADE;
-
   //Controls that don't change:
-  BACK_LIFT_UP = Buttons::A;
+  BACK_LIFT_UP = cMapping == BRIAN_MAPPING ? Buttons::X : Buttons::A;
   BACK_LIFT_MID = Buttons::R1;
   BACK_LIFT_DOWN = Buttons::R2;
   BACK_LIFT_SLIGHT = Buttons::INVALID;
@@ -59,10 +57,6 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
   FRONT_ARM_UP = Buttons::INVALID; // brian uses left-stick controls
   FRONT_ARM_DOWN = Buttons::INVALID;
 
-  if (mapping == BRIAN_MAPPING) {
-    BACK_LIFT_UP = Buttons::X;
-  }
-
 }
 
 void Robot::waitGpsCallibrate() {
@@ -74,11 +68,11 @@ void Robot::waitGpsCallibrate() {
 void Robot::driveTeleop() {
 
 
-  if(driveType == TANK) {
+  if(false) { // tank
     setLeftVelocity(forward,buttons.axis(Buttons::LEFT_VERTICAL));
     setRightVelocity(forward,buttons.axis(Buttons::RIGHT_VERTICAL));
   } else {
-    float drive = driveType == ONE_STICK_ARCADE ? buttons.axis(Buttons::RIGHT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
+    float drive = cMapping == BRIAN_MAPPING ? buttons.axis(Buttons::RIGHT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
     float turn = buttons.axis(Buttons::RIGHT_HORIZONTAL) / 2.0;
     float max = std::max(1.0, std::max(fabs(drive+turn), fabs(drive-turn)));
     setLeftVelocity(forward,100 * (drive+turn)/max);
@@ -88,8 +82,6 @@ void Robot::driveTeleop() {
 
 // Not a truly blocking function, one second timeout if blocking
 void Robot::setBackLift(Buttons::Button b, bool blocking) {
-
-  logController("start back lift");
 
   float SPEED = 100;
 
@@ -111,7 +103,6 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
   }
 
   if (blocking) wait(800, msec);
-  logController("end back lift");
 
 }
 
@@ -152,7 +143,7 @@ void Robot::armTeleop() {
 
   //logController("%f", frontArmL.rotation(degrees));
   
-  float brianArm = buttons.axis(Buttons::LEFT_VERTICAL); // Brian's weird shit
+  float arm = buttons.axis(cMapping == BRIAN_MAPPING ? Buttons::LEFT_VERTICAL : Buttons::RIGHT_VERTICAL); // Brian's weird shit
 
   if (buttons.pressing(FRONT_ARM_UP)) {
     frontArmL.spin(forward, MOTOR_SPEED, pct);
@@ -162,9 +153,9 @@ void Robot::armTeleop() {
     frontArmL.spin(reverse, MOTOR_SPEED, pct);
     frontArmR.spin(reverse, MOTOR_SPEED, pct);
     
-  } else if ((cMapping == BRIAN_MAPPING || cMapping == DEFAULT_MAPPING) && brianArm != 0) {
-    frontArmL.spin(forward, brianArm * 100, pct);
-    frontArmR.spin(forward, brianArm * 100, pct);
+  } else if (arm != 0) {
+    frontArmL.spin(forward, arm * 100, pct);
+    frontArmR.spin(forward, arm * 100, pct);
   }
   else {
 

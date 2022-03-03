@@ -55,10 +55,10 @@ class Robot {
 
     Buttons buttons;
 
-    enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };
-    DriveType driveType;
+    //enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };
+    //DriveType driveType;
 
-    enum ControllerMapping {DEFAULT_MAPPING, BRIAN_MAPPING};
+    enum ControllerMapping {EZEQUIEL_MAPPING, BRIAN_MAPPING};
     ControllerMapping cMapping;
     Buttons::Button FRONT_ARM_UP, FRONT_ARM_DOWN, FRONT_CLAW_ON, FRONT_CLAW_OFF, CLAW_UP, CLAW_DOWN;
     Buttons::Button BACK_LIFT_UP, BACK_LIFT_MID, BACK_LIFT_SLIGHT, BACK_LIFT_DOWN, BACK_LIFT_UPPING, BACK_LIFT_DOWNING, INTAKE_TOGGLE, INTAKE_TOGGLE_REV;
