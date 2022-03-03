@@ -66,7 +66,7 @@ int testGPS() {
 
 int vcat300Skills2() {
 
-  float lowArmAngle = 0;
+  float lowArmAngle = -10;
 
   //fifteen.waitGyroCallibrate();
   fifteen.clawUp();
@@ -90,17 +90,16 @@ int vcat300Skills2() {
   
 
   // get yellow
-  fifteen.goTurnU(30);
+  fifteen.goTurnU(25);
   fifteen.stopIntake();
   fifteen.moveArmTo(lowArmAngle, 100, false);
   logController("forward");
-  fifteen.goForwardU(15, 80, 30, 2, 2, true, 20, 60);
   wait(1000, msec);
   logController("vision");
-  fifteen.goVision(32, 60, YELLOW, 0, 0, true);
+  fifteen.goVision(40, 60, YELLOW, 2, 0, true);
   wait(1000, msec);
   logController("forward 2");
-  fifteen.goForwardU(5, 30, 113, 0, 5);
+  fifteen.goForwardU(5, 30, 25, 0, 5);
   fifteen.clawDown(); // grab yellow
   fifteen.moveArmTo(200, 100, false);
   logController("turn to 0");
@@ -203,7 +202,7 @@ int visionTest() {
   return 0;
 }
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(visionTest); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(vcat300Skills2); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
