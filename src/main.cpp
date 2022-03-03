@@ -83,34 +83,31 @@ int vcat300Skills2() {
   // grab home goal
   fifteen.moveArmTo(200, 100, false);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
-  fifteen.goForward(-10, 30, 5, 5);
+  fifteen.goForward(-10, 40, 1, 2);
   fifteen.startIntake();
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
-  fifteen.goForward(17, 30, 10, 5);
+  fifteen.goForward(17, 30, 1, 2);
   
 
   // get yellow
-  fifteen.goTurnU(25);
+  float turnAngle = 25;
+  fifteen.goTurnU(turnAngle);
   fifteen.stopIntake();
   fifteen.moveArmTo(lowArmAngle, 100, false);
-  logController("forward");
-  wait(1000, msec);
-  logController("vision");
-  fifteen.goVision(40, 60, YELLOW, 2, 0, true);
-  wait(1000, msec);
-  logController("forward 2");
-  fifteen.goForwardU(5, 30, 25, 0, 5);
+  fifteen.clawUp();
+  fifteen.goVision(40, 60, YELLOW, 2, 0, false);
+  fifteen.goForwardU(5, 30, turnAngle, 0, 5);
   fifteen.clawDown(); // grab yellow
   fifteen.moveArmTo(200, 100, false);
   logController("turn to 0");
   fifteen.goTurnU(0);
 
   // drop yellow off
-  fifteen.goForwardU(40, 100, 0, 3, 10);
+  fifteen.goForwardU(41, 100, 0, 3, 10);
   fifteen.clawUp();
   fifteen.goForwardU(1, 30, 0, 0, 0);
   fifteen.goTurnU(330);
-  fifteen.goForwardU(-10, 50, 330, 1, 3);
+  fifteen.goForwardU(-5, 50, 330, 1, 3);
   fifteen.moveArmTo(lowArmAngle, 100, false);
 
   // get red
@@ -127,18 +124,18 @@ int vcat300Skills2() {
   fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
   //wait(300, msec);
 
-  fifteen.goForward(-33, 50, 1, 5);
+  fifteen.goForward(-20, 50, 1, 5);
   fifteen.moveArmTo(200, 60, false);
   fifteen.goTurnU(180);
-  fifteen.goForwardU(40, 100, 180, 3, 10);
-  fifteen.goTurnU(190);
-  fifteen.goToAxis(xaxis, false, -30, 80);
+  fifteen.startIntake();
+  fifteen.goForwardU(30, 50, 180, 1, 0, false);
+  fifteen.goToAxis(xaxis, false, -46, 80);
   fifteen.clawUp(); // drop off red
   wait(100, msec);
 
   // get blue across field
   fifteen.moveArmTo(lowArmAngle, 100, false);
-  fifteen.goForward(-4, 35, 1, 1);
+  fifteen.goForwardU(-10, 40, 180, 1, 2);
   fifteen.goTurnU(90);
   fifteen.goForwardU(40, 100, 90, 3, 5, false, 20, 40);
   fifteen.goVision(50.05, 60, BLUE, 0, 4);
@@ -165,7 +162,6 @@ int vcat300Skills2() {
   fifteen.goTurnU(285);
   fifteen.goForwardU(7, 30, 285, 1, 2);
   fifteen.goTurnU(270); // aim platform side
-
 
 
   // climb

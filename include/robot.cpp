@@ -125,11 +125,11 @@ void Robot::backLiftTeleop() {
 }
 
 void Robot::clawUp() {
-  frontClaw.set(false);
+  frontClaw.set(true);
 }
 
 void Robot::clawDown() {
-  frontClaw.set(true);
+  frontClaw.set(false);
 }
 
 void Robot::moveArmTo(double degr, double speed, bool blocking) {
@@ -164,9 +164,9 @@ void Robot::armTeleop() {
   }
 
   if (buttons.pressing(CLAW_UP)) {
-    frontClaw.set(true);
+    clawUp();
   } else if (buttons.pressing(CLAW_DOWN)) {
-    frontClaw.set(false); 
+    clawDown();
   }
 
 }
