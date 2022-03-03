@@ -518,7 +518,7 @@ void Robot::driveStraightFighting(float distInches, float speed, directionType d
 
 
 void Robot::updateCamera(Goal goal) {
-  camera = vision(PORT5, goal.bright, goal.sig);
+  camera = vision(PORT13, goal.bright, goal.sig);
 }
 
 // Go forward until the maximum distance is hit or the timeout is reached

@@ -66,21 +66,22 @@ int testGPS() {
 
 int vcat300Skills2() {
 
-
   float lowArmAngle = 0;
 
   //fifteen.waitGyroCallibrate();
   fifteen.clawUp();
 
   fifteen.backLiftL.resetRotation();
-  fifteen.backLiftR.resetPosition();
+  fifteen.backLiftR.resetRotation();
+  fifteen.frontArmL.resetRotation();
+  fifteen.frontArmR.resetRotation();
 
 
   //fifteen.backLiftL.spin(forward, 0, pct);
   //fifteen.backLiftR.spin(forward, 0, pct);
 
   // grab home goal
-  fifteen.moveArmTo(200, 100);
+  fifteen.moveArmTo(200, 100, false);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
   fifteen.goForward(-10, 30, 5, 5);
   fifteen.startIntake();
@@ -89,10 +90,12 @@ int vcat300Skills2() {
   
 
   // get yellow
-  fifteen.goTurnU(113);
+  fifteen.goTurnU(30);
   fifteen.stopIntake();
-  fifteen.goForwardU(20, 80, 113, 2, 3, false, 20, 30);
-  fifteen.goVision(32, 30, YELLOW, 0, 0, false);
+  fifteen.goForwardU(20, 80, 30, 2, 3, true, 20, 30);
+  wait(1000, msec);
+  fifteen.goVision(32, 30, YELLOW, 0, 0, true);
+  wait(1000, msec);
   fifteen.goForwardU(5, 30, 113, 0, 5);
   fifteen.clawDown(); // grab yellow
   fifteen.moveArmTo(200, 100, false);
@@ -200,7 +203,7 @@ int main() {
   GPS11.calibrate();
   fifteen.gyroSensor.calibrate();
   fifteen.waitGpsCallibrate();
-  fifteen.gyroSensor.setHeading(0);
+  fifteen.gyroSensor.setHeading(0, degrees);
   log("calibrated gyro");
 
   Competition.bStopAllTasksBetweenModes = true;
