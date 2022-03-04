@@ -398,9 +398,9 @@ void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, f
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
-void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, bool faster) {
+void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout) {
 
-  PID anglePID(2, 0, 0.13, 1, 5, 12, 75);
+  PID anglePID(2, 0, 0.13, 1.5, 5, 12, 75);
   if (faster) {
     //anglePID = PID(2, 0.00, 0.02, 3, 3, 12, 75);
   }

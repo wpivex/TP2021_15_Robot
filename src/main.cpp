@@ -87,7 +87,7 @@ int vcat300Skills2() {
   fifteen.startIntake();
   wait(500, msec);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
-  fifteen.goForward(17, 30, 1, 2);
+  fifteen.goForward(17, 20, 1, 2);
   
 
   // get yellow
@@ -108,13 +108,11 @@ int vcat300Skills2() {
   fifteen.clawUp();
   fifteen.goForwardU(-1, 30, 0, 0, 0);
   fifteen.goTurnU(330);
-  fifteen.goForwardU(-3, 50, 330, 1, 3);
+  fifteen.goForwardU(-3, 30, 330, 1, 0);
   fifteen.moveArmTo(lowArmAngle, 100, false);
 
   // get red
-  fifteen.goTurnU(270);
-  //wait(300, msec);
-  //fifteen.driveStraight(7, 50, reverse, 5, 5); // go back a little for better vision alignment
+  fifteen.goTurnU(270, 3);
   fifteen.goAlignVision(RED, 2);
   fifteen.goVision(16, 60, RED, 1, 3, true, 2);
   fifteen.clawDown(); // clamp red
@@ -131,12 +129,12 @@ int vcat300Skills2() {
   fifteen.goTurnU(180);
   fifteen.startIntake();
   fifteen.goForwardU(30, 50, 180, 1, 0, false);
-  fifteen.goToAxis(xaxis, true, -46, 80); // localize in platform-platform direction
+  fifteen.goToAxis(xaxis, true, -48, 80, 6); // localize in platform-platform direction
   fifteen.clawUp(); // drop off red
   wait(100, msec);
 
   // get blue across field
-  fifteen.goForwardU(-8, 40, 180, 1, 2);
+  fifteen.goToAxis(xaxis, false, -38, 50, 3);
   fifteen.goTurnU(90);
   fifteen.goForwardU(11 + fifteen.getY(), 100, 90, 3, 5, false, 20, 40); // localize in side-to-side so robot always goes to same point before vision goal
   fifteen.moveArmTo(lowArmAngle, 100, false);
