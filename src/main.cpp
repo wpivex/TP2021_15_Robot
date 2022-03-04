@@ -66,7 +66,7 @@ int testGPS() {
 
 int vcat300Skills2() {
 
-  float lowArmAngle = -10;
+  float lowArmAngle = -20;
 
   //fifteen.waitGyroCallibrate();
   fifteen.clawUp();
@@ -85,6 +85,7 @@ int vcat300Skills2() {
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
   fifteen.goForward(-10, 40, 1, 2);
   fifteen.startIntake();
+  wait(500, msec);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
   fifteen.goForward(17, 30, 1, 2);
   
@@ -96,14 +97,14 @@ int vcat300Skills2() {
   fifteen.moveArmTo(lowArmAngle, 100, false);
   fifteen.clawUp();
   fifteen.goVision(40, 60, YELLOW, 2, 0, false);
-  fifteen.goForwardU(9, 30, turnAngle, 0, 3);
+  fifteen.goForwardU(12, 40, turnAngle, 0, 4);
   fifteen.clawDown(); // grab yellow
   fifteen.moveArmTo(200, 100, false);
   logController("turn to 0");
   fifteen.goTurnU(0);
 
   // drop yellow off
-  fifteen.goForwardU(44, 100, 0, 3, 10);
+  fifteen.goForwardU(46, 100, 0, 3, 10);
   fifteen.clawUp();
   fifteen.goForwardU(-1, 30, 0, 0, 0);
   fifteen.goTurnU(330);
@@ -114,11 +115,11 @@ int vcat300Skills2() {
   fifteen.goTurnU(270);
   //wait(300, msec);
   //fifteen.driveStraight(7, 50, reverse, 5, 5); // go back a little for better vision alignment
-  fifteen.goAlignVision(RED, 5);
-  fifteen.goVision(20, 60, RED, 1, 3);
+  fifteen.goAlignVision(RED, 2);
+  fifteen.goVision(16, 60, RED, 1, 3, true, 2);
   fifteen.clawDown(); // clamp red
   wait(100, msec);
-  fifteen.goForward(-6, 30, 1, 1);
+  fifteen.goForward(-7, 30, 1, 1);
   fifteen.goTurnU(270);
   fifteen.moveArmTo(600, 100, true);
   fifteen.goForwardTimed(1.75, 30);
@@ -126,7 +127,7 @@ int vcat300Skills2() {
   //wait(300, msec);
 
   fifteen.goForward(-17, 50, 1, 5);
-  fifteen.moveArmTo(200, 60, false);
+  fifteen.moveArmTo(300, 60, false);
   fifteen.goTurnU(180);
   fifteen.startIntake();
   fifteen.goForwardU(30, 50, 180, 1, 0, false);
@@ -135,11 +136,12 @@ int vcat300Skills2() {
   wait(100, msec);
 
   // get blue across field
-  fifteen.moveArmTo(lowArmAngle, 100, false);
-  fifteen.goForwardU(-10, 40, 180, 1, 2);
+  fifteen.goForwardU(-8, 40, 180, 1, 2);
   fifteen.goTurnU(90);
   fifteen.goForwardU(11 + fifteen.getY(), 100, 90, 3, 5, false, 20, 40); // localize in side-to-side so robot always goes to same point before vision goal
-  fifteen.goVision(40, 60, BLUE, 0, 4);
+  fifteen.moveArmTo(lowArmAngle, 100, false);
+  fifteen.stopIntake();
+  fifteen.goVision(45, 60, BLUE, 0, 4);
   fifteen.clawDown(); // clamp blue
   wait(100, msec);
 

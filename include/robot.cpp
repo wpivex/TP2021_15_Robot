@@ -337,7 +337,7 @@ float slowDownMinSpeed, float timeout) {
 // Go at specified direction and approach given x position with PID motion profiling using GPS absolute positioning
 void Robot::goToAxis(axisType axis, bool reverseDirection, float finalValue, float maxSpeed, float timeout) {
 
-  PID pid(5, 0, 0.3, 0.3, 5, 11, maxSpeed);
+  PID pid(5, 0, 0.2, 0.3, 5, 12, maxSpeed);
   PID turnPID(1, 0, 0);
   int startTime = vex::timer::system();
   float h = getAngle(); // maintain current heading
@@ -520,7 +520,7 @@ void Robot::updateCamera(Goal goal) {
 void Robot::goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
 
   Trapezoid trapDist(distInches, speed, 12, rampUpInches, slowDownInches);
-  PID pidTurn(35, 0, 0);
+  PID pidTurn(25, 0, 0);
 
   updateCamera(goal);
 
@@ -556,7 +556,7 @@ void Robot::goAlignVision(Goal goal, float timeout) {
   int startTime = vex::timer::system();
   float speed = 0;
 
-  PID vTurnPID(40, 0, 2, 0.04, 3, 12);
+  PID vTurnPID(40, 0, 2, 0.05, 3, 12);
 
   while (!vTurnPID.isCompleted() && !isTimeout(startTime, timeout)) {
 
