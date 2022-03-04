@@ -91,7 +91,7 @@ int vcat300Skills2() {
   
 
   // get yellow
-  float turnAngle = 25;
+  float turnAngle = 28;
   fifteen.goTurnU(turnAngle);
   fifteen.stopIntake();
   fifteen.moveArmTo(lowArmAngle, 100, false);
@@ -118,8 +118,9 @@ int vcat300Skills2() {
   fifteen.clawDown(); // clamp red
   wait(100, msec);
   fifteen.goForward(-7, 30, 1, 1);
-  fifteen.goTurnU(270);
-  fifteen.moveArmTo(600, 100, true);
+  fifteen.moveArmTo(600, 100, false);
+  fifteen.goTurnU(270, 1);
+  fifteen.moveArmTo(600, 100, true); // make sure arm movement is completed
   fifteen.goForwardTimed(1.75, 30);
   fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
   //wait(300, msec);
@@ -129,12 +130,12 @@ int vcat300Skills2() {
   fifteen.goTurnU(180);
   fifteen.startIntake();
   fifteen.goForwardU(30, 50, 180, 1, 0, false);
-  fifteen.goToAxis(xaxis, true, -48, 80, 6); // localize in platform-platform direction
+  fifteen.goToAxis(xaxis, true, -44, 80, 6); // localize in platform-platform direction
   fifteen.clawUp(); // drop off red
   wait(100, msec);
 
   // get blue across field
-  fifteen.goToAxis(xaxis, false, -38, 50, 3);
+  fifteen.goToAxis(xaxis, true, -38, 50, 3);
   fifteen.goTurnU(90);
   fifteen.goForwardU(11 + fifteen.getY(), 100, 90, 3, 5, false, 20, 40); // localize in side-to-side so robot always goes to same point before vision goal
   fifteen.moveArmTo(lowArmAngle, 100, false);
@@ -144,9 +145,10 @@ int vcat300Skills2() {
   wait(100, msec);
 
   // Wall align
-  fifteen.goForwardU(-4, 30, 90, 1, 1);
+  fifteen.goForwardU(-7, 40, 90, 1, 1);
   fifteen.moveArmTo(600, 100, true);
   fifteen.goForwardTimed(1.5, 30);
+  fifteen.gyroSensor.setHeading(90, degrees);
 
   // multi step turn
   fifteen.goForwardU(-20, 30, 90, 1, 2);

@@ -337,7 +337,7 @@ float slowDownMinSpeed, float timeout) {
 // Go at specified direction and approach given x position with PID motion profiling using GPS absolute positioning
 void Robot::goToAxis(axisType axis, bool reverseDirection, float finalValue, float maxSpeed, float timeout) {
 
-  PID pid(5, 0, 0.2, 0.3, 5, 12, maxSpeed);
+  PID pid(7, 0, 0.2, 0.4, 5, 12, maxSpeed);
   PID turnPID(1, 0, 0);
   int startTime = vex::timer::system();
   float h = getAngle(); // maintain current heading
@@ -401,11 +401,7 @@ void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, f
 void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout) {
 
   PID anglePID(2, 0, 0.13, 1.5, 5, 12, 75);
-  if (faster) {
-    //anglePID = PID(2, 0.00, 0.02, 3, 3, 12, 75);
-  }
 
-  float timeout = 5;
   float speed;
 
   log("initing");
@@ -556,7 +552,7 @@ void Robot::goAlignVision(Goal goal, float timeout) {
   int startTime = vex::timer::system();
   float speed = 0;
 
-  PID vTurnPID(40, 0, 2, 0.05, 3, 12);
+  PID vTurnPID(40, 0, 1, 0.05, 3, 12);
 
   while (!vTurnPID.isCompleted() && !isTimeout(startTime, timeout)) {
 
