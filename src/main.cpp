@@ -81,7 +81,7 @@ int vcat300Skills2() {
   //fifteen.backLiftR.spin(forward, 0, pct);
 
   // grab home goal
-  fifteen.moveArmTo(200, 100, false);
+  fifteen.moveArmTo(250, 100, false);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
   fifteen.goForward(-10, 40, 1, 2);
   fifteen.startIntake();
@@ -99,34 +99,35 @@ int vcat300Skills2() {
   fifteen.goVision(40, 60, YELLOW, 2, 0, false);
   fifteen.goForwardU(12, 40, turnAngle, 0, 4);
   fifteen.clawDown(); // grab yellow
-  fifteen.moveArmTo(200, 100, false);
+  fifteen.moveArmTo(250, 100, false);
   logController("turn to 0");
   fifteen.goTurnU(0);
 
   // drop yellow off
-  fifteen.goForwardU(46, 100, 0, 3, 10);
+  fifteen.goForwardU(34, 100, 0, 3, 10);
+  fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
+  fifteen.goForwardU(12, 50, 0, 2, 3, true);
+  fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
+  
+  // Move blue goal to front claw from back
   fifteen.clawUp();
-  fifteen.goForwardU(-1, 30, 0, 0, 0);
-  fifteen.goTurnU(330);
-  fifteen.goForwardU(-3, 30, 330, 1, 0);
+  fifteen.goForwardU(-1, 30, 0, 0, 0, false);
   fifteen.moveArmTo(lowArmAngle, 100, false);
+  fifteen.goTurnU(180);
+  fifteen.goForwardU(12, 50, 180, 1, 3);
+  fifteen.clawDown();
+  fifteen.moveArmTo(250, 100);
 
   // get red
-  fifteen.goTurnU(270, 3);
-  fifteen.goAlignVision(RED, 2);
-  fifteen.goVision(16, 60, RED, 1, 3, true, 2);
-  fifteen.clawDown(); // clamp red
-  wait(100, msec);
-  fifteen.goForward(-7, 30, 1, 1);
-  fifteen.moveArmTo(600, 100, false);
-  fifteen.goTurnU(270, 1);
-  fifteen.moveArmTo(600, 100, true); // make sure arm movement is completed
-  fifteen.goForwardTimed(1.75, 30);
-  fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
-  //wait(300, msec);
+  fifteen.goToAxis(xaxis, true, 37, 50);
+  fifteen.goTurnU(270);
+  fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
+  fifteen.goForwardU(2, 40, 270, 0, 0.5);
+  wait(300, msec);
+  fifteen.goForwardU(-10, 50, 270, 1, 1);
+  fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
 
-  fifteen.goForward(-17, 50, 1, 5);
-  fifteen.moveArmTo(300, 60, false);
+  // Bring red to home zone
   fifteen.goTurnU(180);
   fifteen.startIntake();
   fifteen.goForwardU(30, 50, 180, 1, 0, false);
@@ -140,7 +141,7 @@ int vcat300Skills2() {
   fifteen.goForwardU(11 + fifteen.getY(), 100, 90, 3, 5, false, 20, 40); // localize in side-to-side so robot always goes to same point before vision goal
   fifteen.moveArmTo(lowArmAngle, 100, false);
   fifteen.stopIntake();
-  fifteen.goVision(45, 60, BLUE, 0, 4);
+  fifteen.goVision(44, 60, BLUE, 0, 4, true, 4);
   fifteen.clawDown(); // clamp blue
   wait(100, msec);
 
@@ -165,14 +166,14 @@ int vcat300Skills2() {
   fifteen.goTurnU(285);
   fifteen.goForwardU(7, 30, 285, 1, 2);
   fifteen.goTurnU(270); // aim platform side
-
+  fifteen.goForwardU(2, 40, 270, 0, 0);
 
   // climb
   fifteen.moveArmTo(100, 100);
 
-  fifteen.goForwardU(39, 30, 270, 1, 2);
+  fifteen.goForwardU(40, 40, 270, 1, 1);
   wait(350, msec);
-  fifteen.goForwardU(2.8, 18, 270, 0, 0);
+  fifteen.goForwardU(3, 18, 270, 0, 0);
 
   return 0;
 
