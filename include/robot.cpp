@@ -351,7 +351,7 @@ void Robot::goToAxis(axisType axis, bool reverseDirection, float finalValue, flo
     setLeftVelocity(forward, speed + correction);
     setRightVelocity(forward, speed - correction);
 
-    log("%f", speed);
+    log("Current: %f \n Final: %f", currDist, finalValue);
 
     wait(20, msec);
   }

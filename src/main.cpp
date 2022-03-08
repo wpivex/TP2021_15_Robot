@@ -104,9 +104,9 @@ int vcat300Skills2() {
   fifteen.goTurnU(0);
 
   // drop yellow off
-  fifteen.goForwardU(34, 100, 0, 3, 10);
+  fifteen.goForwardU(34, 100, 0, 3, 10, true);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
-  fifteen.goForwardU(12, 50, 0, 2, 3, true);
+  fifteen.goForwardU(11, 50, 0, 2, 3, true, 20, 12, 3);
   fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
   
   // Move blue goal to front claw from back
@@ -114,15 +114,15 @@ int vcat300Skills2() {
   fifteen.goForwardU(-1, 30, 0, 0, 0, false);
   fifteen.moveArmTo(lowArmAngle, 100, false);
   fifteen.goTurnU(180);
-  fifteen.goForwardU(12, 50, 180, 1, 3);
+  fifteen.goForwardU(15, 50, 180, 1, 3);
   fifteen.clawDown();
   fifteen.moveArmTo(250, 100);
 
   // get red
-  fifteen.goToAxis(xaxis, true, 37, 50);
-  fifteen.goTurnU(270);
+  fifteen.goForwardU(-5, 40, 180, 0, 1);
+  fifteen.goTurnU(90);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
-  fifteen.goForwardU(2, 40, 270, 0, 0.5);
+  fifteen.goForwardU(2, 40, 90, 0, 0.5);
   wait(300, msec);
   fifteen.goForwardU(-10, 50, 270, 1, 1);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
