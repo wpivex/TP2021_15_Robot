@@ -106,7 +106,7 @@ int vcat300Skills2() {
   // drop yellow off
   fifteen.goForwardU(34, 100, 0, 3, 10, true);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
-  fifteen.goForwardU(11, 50, 0, 2, 3, true, 20, 12, 3);
+  fifteen.goForwardU(10, 50, 0, 2, 3, true, 20, 12, 3);
   fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
   
   // Move blue goal to front claw from back
@@ -124,12 +124,12 @@ int vcat300Skills2() {
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   fifteen.goForwardU(2, 40, 90, 0, 0.5);
   wait(300, msec);
-  fifteen.goForwardU(-22, 50, 90, 1, 1);
+  fifteen.goForwardU(-21, 50, 90, 1, 1);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
+  fifteen.goForwardU(1.5, 40, 90, 1, 1);
 
   // Bring red to home zone
   fifteen.goTurnU(180);
-  if (GPS11.quality() == 100) fifteen.gyroSensor.setHeading(GPS11.heading() - 90, degrees); // recalibrate gyro
   fifteen.startIntake();
   fifteen.goForwardU(30, 40, 180, 1, 0, false);
   fifteen.goToAxis(xaxis, true, -44, 80, 6); // localize in platform-platform direction
@@ -139,10 +139,10 @@ int vcat300Skills2() {
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true); // drop off red
 
   // get blue across field
-  fifteen.goForwardU(2, 40, 0, 1, 3);
+  //fifteen.goForwardU(2, 40, 0, 1, 3);
   fifteen.setBackLift(fifteen.BACK_LIFT_SLIGHT, false);
   fifteen.goTurnU(270);
-  fifteen.goForwardU(-(40 + y), 100, 270, 5, 0, false); // Go to blue goal with previous localization information
+  fifteen.goForwardU(-(44 + y), 100, 270, 5, 0, false); // Go to blue goal with previous localization information
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   fifteen.goForwardU(-5, 100, 270, 0, 5, false, 20, 40); // slow down on approach to blue goal
   fifteen.goForwardU(-5, 40, 270, 0, 2, true); // slow final approach to blue goal
@@ -152,11 +152,15 @@ int vcat300Skills2() {
   fifteen.startIntake();
   fifteen.moveArmTo(600, 100, false);
   fifteen.goCurve(12, 40, 0.5, 1, 1);
+  wait(1000, msec);
   fifteen.goTurnU(0);
-  fifteen.goForwardU(15, 40, 0, 1, 0, false);
-  fifteen.goCurve(10, 40, 0.4, 0, false);
+  fifteen.goForwardU(15, 40, 0, 1, 0, true);
+  wait(1000, msec);
+  fifteen.goCurve(10, 40, 0.4, 0, true);
+  wait(1000, msec);
   fifteen.goForwardU(-12, 40, 90, 2, 5); // back away from rings
   fifteen.stopIntake();
+  wait(1000, msec);
   fifteen.goTurnU(0); // aim at platform
 
   // Go to platform
