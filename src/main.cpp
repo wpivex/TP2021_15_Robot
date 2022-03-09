@@ -119,7 +119,7 @@ int vcat300Skills2() {
   fifteen.moveArmTo(250, 100, false);
 
   // get red
-  fifteen.goForwardU(-9, 40, 180, 0, 1);
+  fifteen.goForwardU(-8, 40, 180, 0, 1);
   fifteen.goTurnU(90);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   fifteen.goForwardU(2, 40, 90, 0, 0.5);
@@ -129,7 +129,7 @@ int vcat300Skills2() {
 
   // Bring red to home zone
   fifteen.goTurnU(180);
-  if (GPS11.quality() == 100) fifteen.gyroSensor.setHeading(GPS11.heading(), degrees);
+  if (GPS11.quality() == 100) fifteen.gyroSensor.setHeading(GPS11.heading() - 90, degrees); // recalibrate gyro
   fifteen.startIntake();
   fifteen.goForwardU(30, 40, 180, 1, 0, false);
   fifteen.goToAxis(xaxis, true, -44, 80, 6); // localize in platform-platform direction
@@ -139,10 +139,10 @@ int vcat300Skills2() {
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true); // drop off red
 
   // get blue across field
-  fifteen.goForwardU(6, 50, 0, 1, 3);
+  fifteen.goForwardU(2, 40, 0, 1, 3);
   fifteen.setBackLift(fifteen.BACK_LIFT_SLIGHT, false);
   fifteen.goTurnU(270);
-  fifteen.goForwardU(-(44 + y), 100, 270, 5, 0, false); // Go to blue goal with previous localization information
+  fifteen.goForwardU(-(40 + y), 100, 270, 5, 0, false); // Go to blue goal with previous localization information
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   fifteen.goForwardU(-5, 100, 270, 0, 5, false, 20, 40); // slow down on approach to blue goal
   fifteen.goForwardU(-5, 40, 270, 0, 2, true); // slow final approach to blue goal
@@ -154,7 +154,7 @@ int vcat300Skills2() {
   fifteen.goCurve(12, 40, 0.5, 1, 1);
   fifteen.goTurnU(0);
   fifteen.goForwardU(15, 40, 0, 1, 0, false);
-  fifteen.goCurve(10, 40, 0.8, 0, false);
+  fifteen.goCurve(10, 40, 0.4, 0, false);
   fifteen.goForwardU(-12, 40, 90, 2, 5); // back away from rings
   fifteen.stopIntake();
   fifteen.goTurnU(0); // aim at platform
@@ -164,14 +164,14 @@ int vcat300Skills2() {
   y = fifteen.getY();
   fifteen.goForwardU(55 - x, 80, 0, 3, 7);
   fifteen.goTurnU(270);
-  fifteen.goForwardU(-41 - y, 30, 270, 1, 1);
+  fifteen.goForwardU(-38 - y, 30, 270, 1, 1);
 
   // climb
   fifteen.moveArmTo(100, 100);
 
-  fifteen.goForwardU(40, 40, 270, 1, 1);
+  fifteen.goForwardU(45, 50, 270, 1, 3);
   wait(350, msec);
-  fifteen.goForwardU(3, 18, 270, 0, 0);
+  fifteen.goForwardU(3, 20, 270, 0, 0);
 
   return 0;
 
