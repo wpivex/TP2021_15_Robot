@@ -98,8 +98,8 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
     backLiftL.rotateTo(330, degrees, SPEED, velocityUnits::pct, false);
     backLiftR.rotateTo(330, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_SLIGHT) {
-    backLiftL.rotateTo(290, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(290, degrees, SPEED, velocityUnits::pct, false);
+    backLiftL.rotateTo(260, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(260, degrees, SPEED, velocityUnits::pct, false);
   }
 
   if (blocking) wait(800, msec);
@@ -319,6 +319,8 @@ bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout, bool 
     setLeftVelocity(forward, speed + correction);
     setRightVelocity(forward, speed - correction);
 
+    log("Target: %f\nActual:%f\nLeft:%f\nRight:%f\n", universalAngle, getAngle(), speed+correction, speed-correction);
+
     wait(20, msec);
   }
   if (stopAfter) {
@@ -337,15 +339,17 @@ float slowDownMinSpeed, float timeout) {
 // Go at specified direction and approach given x position with PID motion profiling using GPS absolute positioning
 void Robot::goToAxis(axisType axis, bool reverseDirection, float finalValue, float maxSpeed, float timeout) {
 
-  PID pid(7, 0, 0.2, 0.4, 5, 12, maxSpeed);
+  float startDist = axis == axisType::xaxis ? getX() : getY();
+
+  Trapezoid trap(finalValue - startDist, maxSpeed, 12, 3, 8);
   PID turnPID(1, 0, 0);
   int startTime = vex::timer::system();
   float h = getAngle(); // maintain current heading
 
-  while (!pid.isCompleted() && !isTimeout(startTime, timeout)) {
+  while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
 
     float currDist = axis == axisType::xaxis ? getX() : getY();
-    float speed = pid.tick(finalValue - currDist) * (reverseDirection ? -1 : 1);
+    float speed = trap.tick(currDist - startDist) * (reverseDirection ? -1 : 1);
     float correction = turnPID.tick(getAngleDiff(h, getAngle()));
 
     setLeftVelocity(forward, speed + correction);

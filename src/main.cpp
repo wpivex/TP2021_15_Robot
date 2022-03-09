@@ -116,57 +116,55 @@ int vcat300Skills2() {
   fifteen.goTurnU(180);
   fifteen.goForwardU(15, 50, 180, 1, 3);
   fifteen.clawDown();
-  fifteen.moveArmTo(250, 100);
+  fifteen.moveArmTo(250, 100, false);
 
   // get red
-  fifteen.goForwardU(-5, 40, 180, 0, 1);
+  fifteen.goForwardU(-9, 40, 180, 0, 1);
   fifteen.goTurnU(90);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   fifteen.goForwardU(2, 40, 90, 0, 0.5);
   wait(300, msec);
-  fifteen.goForwardU(-10, 50, 270, 1, 1);
+  fifteen.goForwardU(-22, 50, 90, 1, 1);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
 
   // Bring red to home zone
   fifteen.goTurnU(180);
+  if (GPS11.quality() == 100) fifteen.gyroSensor.setHeading(GPS11.heading(), degrees);
   fifteen.startIntake();
-  fifteen.goForwardU(30, 50, 180, 1, 0, false);
+  fifteen.goForwardU(30, 40, 180, 1, 0, false);
   fifteen.goToAxis(xaxis, true, -44, 80, 6); // localize in platform-platform direction
-  fifteen.clawUp(); // drop off red
-  wait(100, msec);
+  fifteen.stopIntake();
+  float y = fifteen.getY(); // localize and store robot's position on the platform-to-platform axis to be able to calculate distance from blue goal
+  fifteen.goTurnU(0);
+  fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true); // drop off red
 
   // get blue across field
-  fifteen.goToAxis(xaxis, true, -38, 50, 3);
-  fifteen.goTurnU(90);
-  fifteen.goForwardU(11 + fifteen.getY(), 100, 90, 3, 5, false, 20, 40); // localize in side-to-side so robot always goes to same point before vision goal
-  fifteen.moveArmTo(lowArmAngle, 100, false);
-  fifteen.stopIntake();
-  fifteen.goVision(44, 60, BLUE, 0, 4, true, 4);
-  fifteen.clawDown(); // clamp blue
-  wait(100, msec);
+  fifteen.goForwardU(6, 50, 0, 1, 3);
+  fifteen.setBackLift(fifteen.BACK_LIFT_SLIGHT, false);
+  fifteen.goTurnU(270);
+  fifteen.goForwardU(-(44 + y), 100, 270, 5, 0, false); // Go to blue goal with previous localization information
+  fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
+  fifteen.goForwardU(-5, 100, 270, 0, 5, false, 20, 40); // slow down on approach to blue goal
+  fifteen.goForwardU(-5, 40, 270, 0, 2, true); // slow final approach to blue goal
+  fifteen.setBackLift(fifteen.BACK_LIFT_MID, true); // pick up blue
 
-  // Wall align
-  fifteen.goForwardU(-7, 40, 90, 1, 1);
-  fifteen.moveArmTo(600, 100, true);
-  fifteen.goForwardTimed(1.5, 30);
-  fifteen.gyroSensor.setHeading(90, degrees);
-
-  // multi step turn
-  fifteen.goForwardU(-20, 30, 90, 1, 2);
-  fifteen.goTurnU(70);
-  fifteen.goForwardU(10, 30, 70, 1, 2);
-
-  // Head to blue platform areas
+  // Pick up rings
+  fifteen.startIntake();
+  fifteen.moveArmTo(600, 100, false);
+  fifteen.goCurve(12, 40, 0.5, 1, 1);
   fifteen.goTurnU(0);
-  fifteen.goForwardU(80, 100, 0, 3, 10);
-  fifteen.goForwardTimed(1.5, 20);
+  fifteen.goForwardU(15, 40, 0, 1, 0, false);
+  fifteen.goCurve(10, 40, 0.8, 0, false);
+  fifteen.goForwardU(-12, 40, 90, 2, 5); // back away from rings
+  fifteen.stopIntake();
+  fifteen.goTurnU(0); // aim at platform
 
-  // align to platform
-  fifteen.goForwardU(-4, 20, 0, 1, 1);
-  fifteen.goTurnU(285);
-  fifteen.goForwardU(7, 30, 285, 1, 2);
-  fifteen.goTurnU(270); // aim platform side
-  fifteen.goForwardU(2, 40, 270, 0, 0);
+  // Go to platform
+  float x = fifteen.getX(); // Localize (x,y) because gps will be terrible later in the run
+  y = fifteen.getY();
+  fifteen.goForwardU(55 - x, 80, 0, 3, 7);
+  fifteen.goTurnU(270);
+  fifteen.goForwardU(-41 - y, 30, 270, 1, 1);
 
   // climb
   fifteen.moveArmTo(100, 100);
