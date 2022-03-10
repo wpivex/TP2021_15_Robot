@@ -80,7 +80,7 @@ class Robot {
 
     void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter = true, float rampMinSpeed = 20);
 
-    void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5);
+    void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, bool fast = false);
 
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
 bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 10, bool angleCorrection = true);
@@ -120,7 +120,6 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 12, flo
 
   private:
     void driveTeleop();
-    void checkLowerLimit(std::function<void(void)> doInstead);
 
     int intakeState;
 
