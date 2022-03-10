@@ -67,6 +67,7 @@ int testGPS() {
 int vcat300Skills2() {
 
   float lowArmAngle = -20;
+  float highArmAngle = 670;
 
   //fifteen.waitGyroCallibrate();
   fifteen.clawUp();
@@ -117,15 +118,14 @@ int vcat300Skills2() {
   fifteen.clawDown(); // clamp red
   wait(100, msec);
   fifteen.goForward(-3, 30, 1, 0, false); // start going backward
-  fifteen.moveArmTo(600, 100, false); // halfway going backward, start raising arm
+  fifteen.moveArmTo(highArmAngle, 100, false); // halfway going backward, start raising arm
   fifteen.goForward(-4, 30, 0, 1, true); // finish going backward
   fifteen.goTurnU(270, 1); // make sure aligned
-  fifteen.moveArmTo(600, 100, true); // make sure arm movement is completed
+  fifteen.moveArmTo(highArmAngle, 100, true); // make sure arm movement is completed
   fifteen.goForwardU(13, 60, 270, 1, 2, false, 20, 30);
   fifteen.goForwardTimed(1, 30);
   fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
   fifteen.goForwardU(-28.5, 50, 270, 1, 5); // back away from wall
-  fifteen.moveArmTo(600, 60, false);
   fifteen.goTurnU(180); // turn to red zone
 
   // Go back to red zone
@@ -148,38 +148,38 @@ int vcat300Skills2() {
   // get blue across field
   fifteen.moveArmTo(lowArmAngle, 60, false);
   fifteen.goTurnU(90);
-  fifteen.goForwardU(35, 100, 90, 3, 5, false, 20, 40);
-  fifteen.goVision(35, 50, BLUE, 0, 4);
+  fifteen.goForwardU(44, 100, 90, 3, 5, false, 20, 40);
+  fifteen.goVision(44, 50, BLUE, 0, 4);
   fifteen.clawDown(); // clamp blue
   wait(100, msec);
 
   // Wall align
   fifteen.goForwardU(-7, 40, 90, 1, 1);
-  fifteen.moveArmTo(600, 100, true);
-  fifteen.goForwardTimed(1.5, 30);
+  fifteen.moveArmTo(highArmAngle, 100, true);
+  fifteen.goForwardU(13, 60, 90, 1, 2, false, 20, 30);
+  fifteen.goForwardTimed(1, 30);
   fifteen.gyroSensor.setHeading(90, degrees);
 
   // multi step turn
   fifteen.startIntake();
-  fifteen.goForwardU(-20, 30, 90, 1, 2);
+  fifteen.goForwardU(-20, 50, 90, 2, 4);
   fifteen.goTurnU(70);
-  fifteen.goForwardU(10, 30, 70, 1, 2);
+  fifteen.goForwardU(10, 40, 70, 1, 2);
 
   // Head to blue platform areas
   fifteen.goTurnU(0);
-  fifteen.goForwardU(80, 100, 0, 3, 8, false, 20, 20);
-  fifteen.goForwardTimed(1.5, 20);
+  fifteen.goForwardU(80, 100, 0, 3, 8, false, 20, 30);
+  fifteen.goForwardTimed(1.5, 30);
   fifteen.stopIntake();
 
   // align to platform
-  fifteen.goForwardU(-4, 20, 0, 1, 1);
-  fifteen.goTurnU(285);
-  fifteen.goForwardU(7, 30, 285, 1, 2);
+  fifteen.goForwardU(-3.5, 30, 0, 1, 1);
   fifteen.goTurnU(270); // aim platform side
+  fifteen.goForwardU(6, 40, 270, 1, 2);
 
 
   // climb
-  fifteen.moveArmTo(100, 100);
+  fifteen.moveArmTo(100, 100, true);
 
   fifteen.goForwardU(42, 40, 270, 1, 3);
   wait(350, msec);
