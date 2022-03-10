@@ -121,34 +121,35 @@ int vcat300Skills2() {
   fifteen.goForward(-4, 30, 0, 1, true); // finish going backward
   fifteen.goTurnU(270, 1); // make sure aligned
   fifteen.moveArmTo(600, 100, true); // make sure arm movement is completed
-  fifteen.goForwardTimed(1.75, 30);
+  fifteen.goForwardU(13, 60, 270, 1, 2, false, 20, 30);
+  fifteen.goForwardTimed(1, 30);
   fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
-  //wait(300, msec);
-
-  fifteen.goForward(-17, 50, 1, 5);
-  fifteen.moveArmTo(300, 60, false);
-  fifteen.goTurnU(180);
-  fifteen.startIntake();
-  fifteen.goForwardU(30, 50, 180, 1, 0, false); // slow while picking up rings
+  fifteen.goForwardU(-28.5, 50, 270, 1, 5); // back away from wall
   fifteen.moveArmTo(600, 60, false);
-  fifteen.goForwardU(50, 80, 180, 3, 0, false, 30); // fast after leaving rings
-  fifteen.goForwardU(4, 80, 180, 0, 4, false, 20, 30); // slow to 30 speed for wall align
+  fifteen.goTurnU(180); // turn to red zone
+
+  // Go back to red zone
+  fifteen.startIntake();
+  fifteen.goForwardU(36, 100, 180, 3, 10);
+  fifteen.goTurnU(190);
+  fifteen.goForwardU(24, 50, 190, 1, 2);
+  fifteen.goTurnU(180);
+  fifteen.goForwardU(16, 80, 180, 2, 3, false, 20, 30); // slow to 30 speed for wall align
   fifteen.goForwardTimed(1.5, 30); // align with back wall
   fifteen.stopIntake();
 
   // Drop off red
-  fifteen.goForward(-5, 50, 2, 0, false);
+  fifteen.goForwardU(-5, 50, 180, 2, 0, false);
   fifteen.moveArmTo(300, 100, false);
-  fifteen.goForward(-15, 50, 0, 0, false);
+  fifteen.goForwardU(-13, 50, 180, 0, 0, false);
   fifteen.clawUp(); // drop off red
-  fifteen.goForward(-5, 50, 0, 5, true); // back up for clearance from red goal
+  fifteen.goForwardU(-4, 50, 180, 0, 5, true); // back up for clearance from red goal
 
   // get blue across field
+  fifteen.moveArmTo(lowArmAngle, 60, false);
   fifteen.goTurnU(90);
-  fifteen.moveArmTo(lowArmAngle, 100, false);
-  fifteen.startIntake();
-  fifteen.goForwardU(70, 100, 90, 3, 5, false, 20, 40);
-  fifteen.goVision(40, 50, BLUE, 0, 4);
+  fifteen.goForwardU(35, 100, 90, 3, 5, false, 20, 40);
+  fifteen.goVision(35, 50, BLUE, 0, 4);
   fifteen.clawDown(); // clamp blue
   wait(100, msec);
 

@@ -61,7 +61,7 @@ void Buttons::updateButtonState() {
   }
 }
 
-const vex::controller::button* Buttons::getObject(Button b) {
+vex::controller::button* Buttons::getObject(Button b) {
   switch (b) {
     case LEFT:
       return &rController->ButtonLeft;
