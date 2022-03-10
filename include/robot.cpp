@@ -95,8 +95,8 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
     backLiftR.rotateTo(130, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_DOWN) {
     log("down");
-    backLiftL.rotateTo(330, degrees, 60, velocityUnits::pct, false); // gentler set down
-    backLiftR.rotateTo(330, degrees, 60, velocityUnits::pct, false);
+    backLiftL.rotateTo(350, degrees, 60, velocityUnits::pct, false); // gentler set down
+    backLiftR.rotateTo(350, degrees, 60, velocityUnits::pct, false);
     if (blocking) wait(400, msec);
   } else if (b == BACK_LIFT_SLIGHT) {
     backLiftL.rotateTo(260, degrees, SPEED, velocityUnits::pct, false);
