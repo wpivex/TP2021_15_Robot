@@ -64,7 +64,7 @@ int testGPS() {
   return 0;
 }
 
-int vcat300Skills2() {
+int middleSchoolSkills() {
 
   float lowArmAngle = -20;
   float highArmAngle = 670;
@@ -82,27 +82,29 @@ int vcat300Skills2() {
   //fifteen.backLiftR.spin(forward, 0, pct);
 
   // grab home goal
-  fifteen.moveArmTo(250, 100, false);
+  fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
   fifteen.goForward(-10, 40, 1, 2);
   fifteen.startIntake();
-  wait(500, msec);
+  wait(200, msec);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
-  fifteen.goForward(20, 30, 1, 2);
-  fifteen.goForward(-15, 40, 1, 2); // go two passes to pick up rings
-  fifteen.goForward(12, 30, 1, 2);
+  fifteen.goForward(21, 30, 2, 2);
+  fifteen.goForward(-15, 40, 2, 2); // go three passes to pick up rings
+  fifteen.goForward(15, 30, 2, 2);
+  fifteen.goForward(-15, 40, 2, 2);
+  fifteen.goForward(11, 30, 2, 2);
   
   // get yellow
   float turnAngle = 28;
+  fifteen.moveArmTo(lowArmAngle, 80, false);
   fifteen.goTurnU(turnAngle);
   fifteen.stopIntake();
-  fifteen.moveArmTo(lowArmAngle, 100, false);
   fifteen.clawUp();
+  wait(300, msec);
   fifteen.goVision(40, 60, YELLOW, 2, 0, false);
   fifteen.goForwardU(12, 40, turnAngle, 0, 4);
   fifteen.clawDown(); // grab yellow
   fifteen.moveArmTo(250, 100, false);
-  logController("turn to 0");
   fifteen.goTurnU(0);
 
   // drop yellow off
@@ -124,8 +126,8 @@ int vcat300Skills2() {
   fifteen.moveArmTo(highArmAngle, 100, true); // make sure arm movement is completed
   fifteen.goForwardU(13, 60, 270, 1, 2, false, 20, 30);
   fifteen.goForwardTimed(1, 30);
-  fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
-  fifteen.goForwardU(-28.5, 50, 270, 1, 5); // back away from wall
+  fifteen.possiblyResetGyro(270); // recallibrate initial heading since squared with wall
+  fifteen.goForwardU(-27.5, 50, 270, 1, 5); // back away from wall
   fifteen.goTurnU(180); // turn to red zone
 
   // Go back to red zone
@@ -136,6 +138,7 @@ int vcat300Skills2() {
   fifteen.goTurnU(180);
   fifteen.goForwardU(16, 80, 180, 2, 3, false, 20, 30); // slow to 30 speed for wall align
   fifteen.goForwardTimed(1.5, 30); // align with back wall
+  fifteen.possiblyResetGyro(180);
   fifteen.stopIntake();
 
   // Drop off red
@@ -148,8 +151,9 @@ int vcat300Skills2() {
   // get blue across field
   fifteen.moveArmTo(lowArmAngle, 60, false);
   fifteen.goTurnU(90);
-  fifteen.goForwardU(44, 100, 90, 3, 5, false, 20, 40);
-  fifteen.goVision(44, 50, BLUE, 0, 4);
+  fifteen.goForwardU(44, 100, 90, 3, 10);
+  wait(2000, msec); // WAIT FOR 24 TO PASS
+  fifteen.goVision(45, 50, BLUE, 2, 4);
   fifteen.clawDown(); // clamp blue
   wait(100, msec);
 
@@ -158,7 +162,7 @@ int vcat300Skills2() {
   fifteen.moveArmTo(highArmAngle, 100, true);
   fifteen.goForwardU(13, 60, 90, 1, 2, false, 20, 30);
   fifteen.goForwardTimed(1, 30);
-  fifteen.gyroSensor.setHeading(90, degrees);
+  fifteen.possiblyResetGyro(90);
 
   // multi step turn
   fifteen.startIntake();
@@ -166,24 +170,24 @@ int vcat300Skills2() {
   fifteen.goTurnU(70);
   fifteen.goForwardU(10, 40, 70, 1, 2);
 
-  // Head to blue platform areas
+  // Head to blue platform area
   fifteen.goTurnU(0);
   fifteen.goForwardU(80, 100, 0, 3, 8, false, 20, 30);
   fifteen.goForwardTimed(1.5, 30);
+  fifteen.possiblyResetGyro(0);
   fifteen.stopIntake();
 
   // align to platform
-  fifteen.goForwardU(-3.5, 30, 0, 1, 1);
-  fifteen.goTurnU(270); // aim platform side
-  fifteen.goForwardU(6, 40, 270, 1, 2);
-
+  fifteen.goForwardU(-3, 30, 0, 0, 0.5);
+  fifteen.goTurnU(285); // aim platform side
+  fifteen.goForwardU(10, 40, 285, 1, 2);
+  fifteen.goTurnU(270);
 
   // climb
   fifteen.moveArmTo(100, 100, true);
-
   fifteen.goForwardU(42, 40, 270, 1, 3);
   wait(350, msec);
-  fifteen.goForwardU(3, 18, 270, 0, 0);
+  fifteen.goForwardU(3, 18, 270, 0.5, 0.5);
 
   return 0;
 
@@ -209,7 +213,7 @@ int visionTest() {
   return 0;
 }
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(vcat300Skills2); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(middleSchoolSkills); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }

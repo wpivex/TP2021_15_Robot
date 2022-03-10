@@ -243,6 +243,18 @@ float angleToPointU(float dx, float dy) {
   return 90 - (180 / PI * atan2(dy, dx));
 }
 
+// If the robot is known to have a given heading (i.e. from wall align) and the gyro heading is close enough to heading, recalibrate gyro heading
+void Robot::possiblyResetGyro(float targetAngle) {
+
+  if (fabs(getAngleDiff(targetAngle, getAngle())) < 4) {
+    logController("YES set heading\nfrom:%f\nto:%f", getAngle(), targetAngle);
+    gyroSensor.setHeading(targetAngle, degrees);
+  } else {
+    logController("NO set heading\nfrom:%f\nto:%f", getAngle(), targetAngle);
+  }
+
+}
+
 void Robot::goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed) {
   float timeout = 5;
 

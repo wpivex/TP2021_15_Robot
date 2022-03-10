@@ -69,6 +69,7 @@ class Robot {
     float getAngle();
     float getX(int numSamples = 1);
     float getY(int numSamples = 1);
+    void possiblyResetGyro(float targetAngle);
 
     void setBackLift(Buttons::Button b, bool blocking);
     void backLiftTeleop();
