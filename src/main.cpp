@@ -182,13 +182,13 @@ int middleSchoolSkills() {
   fifteen.goForwardU(80, 100, 357, 3, 8, false, 20, 30);
   fifteen.goForwardTimed(1.5, 30);
   fifteen.possiblyResetGyro(0);
-  fifteen.stopIntake();
 
   // align to platform
   fifteen.goForwardU(-3, 30, 0, 0, 0.5);
   fifteen.goTurnU(285); // aim platform side
   fifteen.goForwardU(11, 40, 285, 1, 2);
   fifteen.goTurnU(270);
+  fifteen.stopIntake();
 
   // climb
   fifteen.moveArmTo(100, 100, true);
