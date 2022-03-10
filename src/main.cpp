@@ -104,7 +104,7 @@ int vcat300Skills2() {
   fifteen.goTurnU(0);
 
   // drop yellow off
-  fifteen.goForwardU(34, 100, 0, 3, 10, true);
+  fifteen.goForwardU(31, 100, 0, 3, 10, true);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
   fifteen.goForwardU(10, 50, 0, 2, 3, true, 20, 12, 3);
   fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
@@ -126,20 +126,19 @@ int vcat300Skills2() {
   wait(300, msec);
   fifteen.goForwardU(-21, 50, 90, 1, 1);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
-  fifteen.goForwardU(1.5, 40, 90, 1, 1);
 
   // Bring red to home zone
   fifteen.goTurnU(180);
   fifteen.startIntake();
   fifteen.goForwardU(30, 40, 180, 1, 0, false);
-  fifteen.goToAxis(xaxis, true, -44, 80, 6); // localize in platform-platform direction
+  fifteen.goToAxis(xaxis, true, -44, 50, 6); // localize in platform-platform direction
   fifteen.stopIntake();
   float y = fifteen.getY(); // localize and store robot's position on the platform-to-platform axis to be able to calculate distance from blue goal
   fifteen.goTurnU(0);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true); // drop off red
 
   // get blue across field
-  //fifteen.goForwardU(2, 40, 0, 1, 3);
+  fifteen.goForwardU(6, 40, 0, 1, 3);
   fifteen.setBackLift(fifteen.BACK_LIFT_SLIGHT, false);
   fifteen.goTurnU(270);
   fifteen.goForwardU(-(44 + y), 100, 270, 5, 0, false); // Go to blue goal with previous localization information
@@ -197,10 +196,7 @@ int logAngle() {
 }
 
 int visionTest() {
-  fifteen.goAlignVision(YELLOW, 5);
-  log("yes");
-  wait(2000, msec);
-  fifteen.goVision(50, 60, YELLOW, 1, 5);
+  fifteen.goToAxis(xaxis, true, -44, 50, 6); // localize in platform-platform direction
   return 0;
 }
 
