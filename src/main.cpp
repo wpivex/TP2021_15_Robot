@@ -97,13 +97,14 @@ int middleSchoolSkills() {
   fifteen.goForward(11, 25, 2, 2);
   
   // get yellow
-  float turnAngle = 28;
+  float turnAngle = 25;
   fifteen.moveArmTo(lowArmAngle, 80, false);
   fifteen.goTurnU(turnAngle);
   fifteen.stopIntake();
   fifteen.clawUp();
   wait(300, msec);
-  fifteen.goVision(40, 60, YELLOW, 2, 0, false);
+  fifteen.goForwardU(7, 60, turnAngle, 2, 0, false);
+  fifteen.goVision(33, 60, YELLOW, 0, 0, false);
   fifteen.goForwardU(12, 40, turnAngle, 0, 4);
   fifteen.clawDown(); // grab yellow
   fifteen.moveArmTo(250, 100, false);
@@ -155,9 +156,9 @@ int middleSchoolSkills() {
   fifteen.moveArmTo(lowArmAngle, 60, false);
   fifteen.goTurnU(90);
   fifteen.goForwardU(40, 100, 90, 3, 10);
-  wait(3000, msec); // WAIT FOR 24 TO PASS
+  wait(2000, msec); // WAIT FOR 24 TO PASS
   fifteen.goForwardU(10, 100, 90, 3, 4, false, 20, 50);
-  fifteen.goVision(37, 50, BLUE, 2, 3.5);
+  fifteen.goVision(35, 50, BLUE, 2, 3);
   fifteen.clawDown(); // clamp blue
   wait(100, msec);
 
@@ -172,11 +173,11 @@ int middleSchoolSkills() {
   fifteen.startIntake();
   fifteen.goForwardU(-20, 50, 90, 2, 4);
   fifteen.goTurnU(70);
-  fifteen.goForwardU(5, 40, 70, 1, 2);
+  fifteen.goForwardU(10, 40, 70, 1, 2);
 
   // Head to blue platform area
-  fifteen.goTurnU(0);
-  fifteen.goForwardU(80, 100, 0, 3, 8, false, 20, 30);
+  fifteen.goTurnU(355); // slight angle to left to avoid brushing against right wall when turning
+  fifteen.goForwardU(80, 100, 355, 3, 8, false, 20, 30);
   fifteen.goForwardTimed(1.5, 30);
   fifteen.possiblyResetGyro(0);
   fifteen.stopIntake();
@@ -184,7 +185,7 @@ int middleSchoolSkills() {
   // align to platform
   fifteen.goForwardU(-3, 30, 0, 0, 0.5);
   fifteen.goTurnU(285); // aim platform side
-  fifteen.goForwardU(10, 40, 285, 1, 2);
+  fifteen.goForwardU(11, 40, 285, 1, 2);
   fifteen.goTurnU(270);
 
   // climb
