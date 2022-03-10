@@ -84,15 +84,17 @@ int middleSchoolSkills() {
   // grab home goal
   fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
-  fifteen.goForward(-10, 40, 1, 2);
+  fifteen.goForward(-10.5, 40, 1, 2);
   fifteen.startIntake();
   wait(200, msec);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
-  fifteen.goForward(21, 30, 2, 2);
-  fifteen.goForward(-15, 40, 2, 2); // go three passes to pick up rings
-  fifteen.goForward(15, 30, 2, 2);
-  fifteen.goForward(-15, 40, 2, 2);
-  fifteen.goForward(11, 30, 2, 2);
+  fifteen.goForward(21.5, 25, 2, 2);
+  fifteen.goForward(-15, 40, 2, 2.5); // go three passes to pick up rings
+  fifteen.goForward(15, 25, 2, 2);
+  fifteen.goForward(-15, 40, 2, 2.5);
+  fifteen.goForward(15, 25, 2, 2);
+  fifteen.goForward(-15, 40, 2, 2.5);
+  fifteen.goForward(11, 25, 2, 2);
   
   // get yellow
   float turnAngle = 28;
@@ -110,8 +112,9 @@ int middleSchoolSkills() {
   // drop yellow off
   fifteen.goForwardU(46, 100, 0, 3, 10);
   fifteen.clawUp();
+  fifteen.goTurnU(330);
   fifteen.moveArmTo(lowArmAngle, 100, false);
-  fifteen.goForwardU(-3, 40, 0, 0.5, 0.5);
+  fifteen.goForwardU(-5, 40, 0, 0.5, 0.5);
 
   // get red
   fifteen.goTurnU(270, false, 2, true);
@@ -151,9 +154,10 @@ int middleSchoolSkills() {
   // get blue across field
   fifteen.moveArmTo(lowArmAngle, 60, false);
   fifteen.goTurnU(90);
-  fifteen.goForwardU(44, 100, 90, 3, 10);
-  wait(2000, msec); // WAIT FOR 24 TO PASS
-  fifteen.goVision(45, 50, BLUE, 2, 4);
+  fifteen.goForwardU(40, 100, 90, 3, 10);
+  wait(3000, msec); // WAIT FOR 24 TO PASS
+  fifteen.goForwardU(10, 100, 90, 3, 4, false, 20, 50);
+  fifteen.goVision(37, 50, BLUE, 2, 3.5);
   fifteen.clawDown(); // clamp blue
   wait(100, msec);
 
@@ -168,7 +172,7 @@ int middleSchoolSkills() {
   fifteen.startIntake();
   fifteen.goForwardU(-20, 50, 90, 2, 4);
   fifteen.goTurnU(70);
-  fifteen.goForwardU(10, 40, 70, 1, 2);
+  fifteen.goForwardU(5, 40, 70, 1, 2);
 
   // Head to blue platform area
   fifteen.goTurnU(0);
@@ -185,9 +189,9 @@ int middleSchoolSkills() {
 
   // climb
   fifteen.moveArmTo(100, 100, true);
-  fifteen.goForwardU(42, 40, 270, 1, 3);
+  fifteen.goForwardU(42, 40, 270, 1, 1);
   wait(350, msec);
-  fifteen.goForwardU(3, 18, 270, 0.5, 0.5);
+  fifteen.goForwardU(2, 30, 270, 0.5, 0.5);
 
   return 0;
 
