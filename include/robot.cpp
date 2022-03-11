@@ -437,7 +437,6 @@ void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, 
 
     //log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
     //log("heading: %f", GPS11.heading());
-    log("Quality: %d \n Current: %f \n Target: %f", GPS11.quality(), getAngle(), universalAngleDegrees);
 
     setLeftVelocity(forward, speed);
     setRightVelocity(reverse, speed);

@@ -92,13 +92,11 @@ int middleSchoolSkills() {
   fifteen.startIntake();
   wait(200, msec);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
-  fifteen.goForward(21.5, 25, 2, 2);
-  fifteen.goForward(-15, 40, 2, 2.5); // go three passes to pick up rings
-  fifteen.goForward(15, 25, 2, 2);
-  fifteen.goForward(-15, 40, 2, 2.5);
-  fifteen.goForward(15, 25, 2, 2);
-  fifteen.goForward(-15, 40, 2, 2.5);
-  fifteen.goForward(11, 25, 2, 2);
+  fifteen.goForward(21.5, 22, 2, 2);
+  fifteen.goForward(-15, 35, 2, 2.5); // go three passes to pick up rings
+  fifteen.goForward(15, 22, 2, 2);
+  fifteen.goForward(-15, 35, 2, 2.5);
+  fifteen.goForward(11, 22, 2, 2);
   
   // get yellow
   float turnAngle = 17;
