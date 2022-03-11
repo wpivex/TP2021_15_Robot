@@ -447,6 +447,8 @@ std::function<bool(void)> func, float startUpInches) {
 // maxSpeed is the starting speed of the turn. Will slow down once past startSlowDownDegrees theshhold
 void Robot::gyroTurn(bool clockwise, float angleDegrees) {
 
+  if (!clockwise) angleDegrees = -angleDegrees;
+
   float K_PROPORTIONAL = 2;
   float K_DERIVATIVE = 0.13;
   float tolerance = 1.5;
@@ -466,36 +468,40 @@ void Robot::gyroTurn(bool clockwise, float angleDegrees) {
   log("about to loop");
 
   float currDegrees = 0; // always positive with abs
-  float delta = 0;
-  float delta_prev = 0;
+  float error = 0;
+  float prev_error = 0;
   float delta_dir = 0;
 
   int NUM_VALID_THRESHOLD = 5;
   int numValid = 0;
   float MIN_SPEED = 12;
+  float MAX_SPEED = 75;
 
   while (numValid < NUM_VALID_THRESHOLD && !isTimeout(startTime, timeout) && Competition.isAutonomous()) {
 
-    currDegrees = fabs(gyroSensor.rotation());
+    currDegrees = gyroSensor.rotation();
 
-    delta = angleDegrees - currDegrees;
-    delta_dir = (delta - delta_prev)/0.02;
+    error = angleDegrees - currDegrees;
+    delta_dir = (error - prev_error)/0.02;
 
-    speed = delta * K_PROPORTIONAL + delta_dir * K_DERIVATIVE;
+    speed = error * K_PROPORTIONAL + delta_dir * K_DERIVATIVE;
 
     if (speed > 0 and speed < MIN_SPEED) speed = MIN_SPEED;
     if (speed < 0 and speed > -MIN_SPEED) speed = -MIN_SPEED;
+
+    if (speed > MAX_SPEED) speed = MAX_SPEED;
+    if (speed < -MAX_SPEED) speed = -MAX_SPEED;
     
 
     //logController("%d %f %f", clockwise? 1:0, speed, delta);
-    logController("%f %f", delta*K_PROPORTIONAL, delta_dir*K_DERIVATIVE);
-    setLeftVelocity(clockwise ? forward : reverse, speed);
-    setRightVelocity(clockwise ? reverse : forward, speed);
+    logController("%f %f", error*K_PROPORTIONAL, delta_dir*K_DERIVATIVE);
+    setLeftVelocity(forward, speed);
+    setRightVelocity(reverse, speed);
 
-    delta_prev = delta;
+    prev_error = error;
 
     wait(20, msec);
-    if (fabs(currDegrees - angleDegrees) < tolerance) numValid++;
+    if (fabs(error) < tolerance) numValid++;
     else numValid = 0;
     //logController("%d %f", numValid, delta);
   }
