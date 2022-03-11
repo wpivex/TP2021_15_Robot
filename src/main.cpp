@@ -87,6 +87,8 @@ int mainAuto() {
 
 int vcat300Skills() {
 
+  int autonStart = vex::timer::system();
+
   task a(armStartup);
 
   float lowArmAngle = 0;
@@ -111,7 +113,7 @@ int vcat300Skills() {
 
   // get yellow
   fifteen.gyroTurn(true, 93);
-  fifteen.driveStraightGyro(20, 55, forward, 5, 0);
+  fifteen.driveStraight(20, 55, forward, 5, 0);
   fifteen.goForwardVision(YELLOW, 30, forward, 32, 10, nullptr);
   fifteen.driveStraightGyro(5, 30, forward, 5, 5);
   fifteen.clawDown(); // grab yellow
@@ -133,7 +135,7 @@ int vcat300Skills() {
   //fifteen.driveStraight(7, 50, reverse, 5, 5); // go back a little for better vision alignment
   fifteen.alignToGoalVision(RED, true, forward, 5);
   wait(100, msec);
-  fifteen.goForwardVision(RED, 25, forward, 20, 5);
+  fifteen.goForwardVision(RED, 25, forward, 22.5, 5);
   fifteen.clawDown(); // clamp red
   wait(100, msec);
   fifteen.driveStraightGyro(4, 30, reverse, 3, 3);
@@ -160,7 +162,8 @@ int vcat300Skills() {
   fifteen.driveStraightGyro(5, 35, reverse, 10, 5);
   fifteen.gyroTurnU(90);
 
-  wait(3000, msec); // WAIT 24
+// Wait for 24 robot to pass with universal wait until time delta
+  while (!isTimeout(autonStart, 40.0)) wait(20, msec);
 
   fifteen.driveStraightGyroHeading(40, 100, 90, forward, 10, 5, {}, 5);
   fifteen.goForwardVision(BLUE, 40, forward, 50.5, 5, nullptr);
@@ -264,7 +267,13 @@ int testTurn() {
 
 }
 
-void autonomous() { task auto1(testTurn); }
+int testVision() {
+  fifteen.driveStraightGyro(50, 40, forward, 20, 4);
+
+  return 0;
+}
+
+void autonomous() { task auto1(testVision); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { task controlLoop1(mainTeleop); }

@@ -18,6 +18,7 @@ const struct Goal YELLOW = {0, 13, vex::vision::signature (1, 1849, 2799, 2324, 
 const struct Goal RED = {1, 56, vex::vision::signature (1, 5767, 9395, 7581, -685, 1, -342, 3.000, 0)};
 const struct Goal BLUE = {2, 67, vex::vision::signature (1, -2675, -1975, -2324, 8191, 14043, 11116, 3.000, 0)};
 
+
 namespace BackLift {
   enum State {DOWN, MID, UP};
 }

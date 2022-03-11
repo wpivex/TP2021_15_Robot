@@ -357,7 +357,7 @@ bool resetEncoder, std::function<bool(void)> func, float startUpInches) {
   rightMotorA.resetPosition();
   if (resetEncoder) gyroSensor.resetRotation();
 
-  const float GYRO_CONSTANT = 1;
+  const float GYRO_CONSTANT = 0.5;
   bool hasSetToDone = false;
 
   // finalDist is 0 if we want driveTimed instead of drive some distance
@@ -460,7 +460,7 @@ void Robot::gyroTurn(bool clockwise, float angleDegrees) {
   }
 
   // TESTING
-  timeout = 1000;
+  //timeout = 1000;
 
   float speed;
 
