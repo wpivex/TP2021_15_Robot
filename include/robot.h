@@ -41,11 +41,13 @@ class Robot {
     motor backLiftL;
     motor backLiftR;
 
+    motor intake;
+
 
     vision frontCamera;
 
 
-    digital_out frontClaw = digital_out(Brain.ThreeWirePort.A);
+    digital_out frontClaw = digital_out(Brain.ThreeWirePort.G);
 
     controller* robotController;
 
