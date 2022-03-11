@@ -135,7 +135,7 @@ int vcat300Skills() {
   //fifteen.driveStraight(7, 50, reverse, 5, 5); // go back a little for better vision alignment
   fifteen.alignToGoalVision(RED, true, forward, 5);
   wait(100, msec);
-  fifteen.goForwardVision(RED, 25, forward, 22.5, 5);
+  fifteen.goForwardVision(RED, 25, forward, 21, 3);
   fifteen.clawDown(); // clamp red
   wait(100, msec);
   fifteen.driveStraightGyro(4, 30, reverse, 3, 3);
@@ -145,12 +145,11 @@ int vcat300Skills() {
   fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
   //wait(300, msec);
 
-  fifteen.driveStraightGyro(33, 50, reverse, 10, 10);
+  fifteen.driveStraightGyro(31.5, 50, reverse, 10, 10);
   fifteen.moveArmTo(200, 60, false);
   fifteen.gyroTurnU(180);
-  fifteen.driveStraightGyroHeading(40, 100, 180, forward, 10, 10, {}, 5);
-  fifteen.gyroTurn(true, 15);
-  fifteen.driveTurn(2, 25, true, 2); // fast slight turn
+  fifteen.driveStraightGyroHeading(40, 100, 180, forward, 10, 10, {}, 5);  
+  fifteen.driveTurn(2.5, 25, true, 2); // fast slight turn
   wait(200, msec);
   fifteen.driveStraightGyroHeading(23.5, 100, 180, forward, 10, 10, {}, 5);
   fifteen.clawUp(); // drop off red
@@ -163,7 +162,7 @@ int vcat300Skills() {
   fifteen.gyroTurnU(90);
 
 // Wait for 24 robot to pass with universal wait until time delta
-  while (!isTimeout(autonStart, 40.0)) wait(20, msec);
+  while (!isTimeout(autonStart, 38.0)) wait(20, msec);
 
   fifteen.driveStraightGyroHeading(40, 100, 90, forward, 10, 5, {}, 5);
   fifteen.goForwardVision(BLUE, 40, forward, 50.5, 5, nullptr);
@@ -273,7 +272,7 @@ int testVision() {
   return 0;
 }
 
-void autonomous() { task auto1(testVision); }
+void autonomous() { task auto1(vcat300Skills); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { task controlLoop1(mainTeleop); }
