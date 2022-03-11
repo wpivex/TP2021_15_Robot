@@ -343,7 +343,7 @@ void Robot::driveStraightFighting(float distInches, float speed, directionType d
 // Move forward/backward with proportional gyro feedback.
 // finalDegrees is the delta yaw angle at the end of the curve
 void Robot::driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, 
-bool resetEncoder, std::function<bool(void)> func, float startUpInches) {
+bool resetEncoder, std::function<bool(void)> func, float startUpInches, bool stopAfter) {
 
   if (slowDownInches > distInches) slowDownInches = distInches;
 
@@ -395,15 +395,18 @@ bool resetEncoder, std::function<bool(void)> func, float startUpInches) {
     wait(20, msec);
   }
 
-  stopLeft();
-  stopRight();
+  if (stopAfter) {
+    stopLeft();
+    stopRight();
+  }
+  
 
   
   
 }
 // drive straight in a specific direction (0-360)
 void Robot::driveStraightGyroHeading(float distInches, float speed, float head, directionType dir, float timeout, float slowDownInches, 
-std::function<bool(void)> func, float startUpInches) {
+std::function<bool(void)> func, float startUpInches, bool stopAfter) {
 
   float correction = gyroSensor.heading() - head;
   if (correction > 180) correction -= 360;
@@ -411,7 +414,7 @@ std::function<bool(void)> func, float startUpInches) {
   logController("correction: %f", correction);
   gyroSensor.setRotation(correction, degrees);
 
-  driveStraightGyro(distInches, speed, dir, timeout, slowDownInches, false, func, startUpInches);
+  driveStraightGyro(distInches, speed, dir, timeout, slowDownInches, false, func, startUpInches, stopAfter);
 
 }
 
@@ -450,9 +453,9 @@ void Robot::gyroTurn(bool clockwise, float angleDegrees) {
 
   if (!clockwise) angleDegrees = -angleDegrees;
 
-  float K_PROPORTIONAL = 0.45;
+  float K_PROPORTIONAL = 0.5;
   float K_DERIVATIVE = 0.01;
-  float tolerance = 1.5;
+  float tolerance = 1.7;
 
   float timeout = 2.5;
   if (angleDegrees < 25){

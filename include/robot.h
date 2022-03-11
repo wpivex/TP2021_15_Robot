@@ -96,9 +96,9 @@ class Robot {
     void updateCamera(Goal goal);
 
     void driveStraightGyro(float distInches, float speed, directionType dir, float timeout, float slowDownInches, bool resetEncoder = true,
-                            std::function<bool(void)> func = {}, float startUpInches = 0);
+                            std::function<bool(void)> func = {}, float startUpInches = 0, bool stopAfter = true);
     void driveStraightGyroHeading(float distInches, float speed, float head, directionType dir, float timeout, float slowDownInches, 
-std::function<bool(void)> func = {}, float startUpInches = 0);
+std::function<bool(void)> func = {}, float startUpInches = 0, bool stopAfter = true);
 
     void gyroTurn(bool clockwise, float angleDegrees);
     void gyroTurnU(float universalAngleDegrees);
