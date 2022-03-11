@@ -157,7 +157,7 @@ int vcat300Skills() {
   fifteen.driveStraightGyro(4, 35, reverse, 10, 5);
   fifteen.gyroTurnU(90);
   fifteen.driveStraightGyroHeading(40, 100, 90, forward, 10, 5, {}, 5);
-  fifteen.goForwardVision(BLUE, 40, forward, 50.5, 8, nullptr);
+  fifteen.goForwardVision(BLUE, 40, forward, 50.5, 5, nullptr);
   fifteen.clawDown(); // clamp blue
   wait(100, msec);
 
@@ -193,9 +193,9 @@ int vcat300Skills() {
   fifteen.moveArmTo(100, 100);
 
   fifteen.setBrakeType(hold);
-  fifteen.driveStraightGyroHeading(39, 30, 270, forward, 50, 5);
+  fifteen.driveStraightGyroHeading(41, 30, 270, forward, 50, 5);
   wait(350, msec);
-  fifteen.driveStraightGyroHeading(2.8, 18, 270, forward, 50, 4);
+  fifteen.driveStraightGyroHeading(2.8, 25, 270, forward, 50, 4);
 
   
 

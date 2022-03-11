@@ -125,11 +125,11 @@ void Robot::backLiftTeleop() {
 }
 
 void Robot::clawUp() {
-  frontClaw.set(false);
+  frontClaw.set(true);
 }
 
 void Robot::clawDown() {
-  frontClaw.set(true);
+  frontClaw.set(false);
 }
 
 void Robot::moveArmTo(double degr, double speed, bool blocking) {
@@ -450,23 +450,53 @@ std::function<bool(void)> func, float startUpInches) {
 // maxSpeed is the starting speed of the turn. Will slow down once past startSlowDownDegrees theshhold
 void Robot::gyroTurn(bool clockwise, float angleDegrees) {
 
-  PID anglePID(2, 0, 0.13, 1.5, 5, 12, 75);
-  gyroSensor.resetRotation();
+  float K_PROPORTIONAL = 0.42;
+  float K_DERIVATIVE = 0.003;
+  float tolerance = 4.5;
+
+  float timeout = 3;
+  if (angleDegrees < 25){
+    timeout = 2;
+  }
 
   float speed;
 
+  log("initing");
   int startTime = vex::timer::system();
-  while (!anglePID.isCompleted() && vex::timer::system() - startTime < 3000) {
-    float ang = (angleDegrees - gyroSensor.rotation()) * (clockwise ? 1 : -1);
-    speed = anglePID.tick(ang);
+  leftMotorA.resetPosition();
+  rightMotorA.resetPosition();
+  gyroSensor.resetRotation();
+  log("about to loop");
 
-    //log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
-    //log("heading: %f", GPS11.heading());
+  float currDegrees = 0; // always positive with abs
+  float delta = 0;
+  float delta_prev = 0;
+  float delta_dir = 0;
 
-    setLeftVelocity(forward, speed);
-    setRightVelocity(reverse, speed);
+  int NUM_VALID_THRESHOLD = 8;
+  int numValid = 0;
+
+  while (numValid < NUM_VALID_THRESHOLD && !isTimeout(startTime, timeout) && Competition.isAutonomous()) {
+
+    currDegrees = fabs(gyroSensor.rotation());
+
+    delta = angleDegrees - currDegrees;
+    delta_dir = (delta - delta_prev)/0.02;
+
+    speed = delta * K_PROPORTIONAL + delta_dir * K_DERIVATIVE;
+    
+
+    //logController("%d %f %f", clockwise? 1:0, speed, delta);
+    logController("%f %f", delta*K_PROPORTIONAL, delta_dir*K_DERIVATIVE);
+    setLeftVelocity(clockwise ? forward : reverse, speed);
+    setRightVelocity(clockwise ? reverse : forward, speed);
+
+    delta_prev = delta;
 
     wait(20, msec);
+    if (fabs(currDegrees - angleDegrees) < tolerance) numValid++;
+    else numValid = 0;
+    //logController("%d %f", numValid, delta);
   }
 
   stopLeft();
@@ -500,6 +530,14 @@ void Robot::gyroTurnU(float universalAngleDegrees) {
 //   */
 // }
 
+void Robot::startIntake(directionType dir) {
+  intake.spin(dir, 100, pct);
+}
+
+void Robot::stopIntake() {
+  intake.stop();
+}
+
 void Robot::updateCamera(Goal goal) {
   frontCamera = vision(PORT13, goal.bright, goal.sig);
 }
@@ -510,7 +548,7 @@ void Robot::goForwardVision(Goal goal, float speed, directionType dir, float max
 digital_in* limitSwitch, std::function<bool(void)> func) {
 
   // The proportion to turn in relation to how offset the goal is. Is consistent through all speeds
-  const float PMOD_MULTIPLIER = 0.3;
+  const float PMOD_MULTIPLIER = 0.27; // was 0.3
 
   int pMod = speed * PMOD_MULTIPLIER;
   float baseSpeed = fmin(speed, 100 - pMod);

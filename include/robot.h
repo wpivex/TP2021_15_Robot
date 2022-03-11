@@ -14,7 +14,6 @@
 #include <stdio.h>      /* printf, fgets */
 #include <unistd.h>
 #include "Buttons.cpp"
-#include "PIDController.cpp"
 #include <constants.h>
 
 using namespace vex;
@@ -72,6 +71,9 @@ class Robot {
 
     void clawUp();
     void clawDown();
+
+    void startIntake(directionType dir = forward);
+    void stopIntake();
 
     void moveArmTo(double degr, double speed, bool blocking = true);
 
