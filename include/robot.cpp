@@ -359,7 +359,7 @@ bool resetEncoder, std::function<bool(void)> func, float startUpInches) {
   rightMotorA.resetPosition();
   if (resetEncoder) gyroSensor.resetRotation();
 
-  const float GYRO_CONSTANT = 0.008;
+  const float GYRO_CONSTANT = 1;
   bool hasSetToDone = false;
 
   // finalDist is 0 if we want driveTimed instead of drive some distance
@@ -388,11 +388,8 @@ bool resetEncoder, std::function<bool(void)> func, float startUpInches) {
     float gyroCorrection = gyroSensor.rotation() * GYRO_CONSTANT;
 
 
-    // reduce baseSpeed so that the faster motor always capped at max speed
-    baseSpeed = fmin(baseSpeed, 100 - baseSpeed*gyroCorrection);
-
-    float left = baseSpeed*(1 - gyroCorrection);
-    float right = baseSpeed*(1 + gyroCorrection);
+    float left = baseSpeed - gyroCorrection;
+    float right = baseSpeed + gyroCorrection;
     setLeftVelocity(dir, left);
     setRightVelocity(dir, right);
     //log("%f %f %f", gyroCorrection, left, right);
@@ -450,9 +447,9 @@ std::function<bool(void)> func, float startUpInches) {
 // maxSpeed is the starting speed of the turn. Will slow down once past startSlowDownDegrees theshhold
 void Robot::gyroTurn(bool clockwise, float angleDegrees) {
 
-  float K_PROPORTIONAL = 0.42;
-  float K_DERIVATIVE = 0.003;
-  float tolerance = 4.5;
+  float K_PROPORTIONAL = 2;
+  float K_DERIVATIVE = 0.13;
+  float tolerance = 1.5;
 
   float timeout = 3;
   if (angleDegrees < 25){
@@ -473,8 +470,9 @@ void Robot::gyroTurn(bool clockwise, float angleDegrees) {
   float delta_prev = 0;
   float delta_dir = 0;
 
-  int NUM_VALID_THRESHOLD = 8;
+  int NUM_VALID_THRESHOLD = 5;
   int numValid = 0;
+  float MIN_SPEED = 12;
 
   while (numValid < NUM_VALID_THRESHOLD && !isTimeout(startTime, timeout) && Competition.isAutonomous()) {
 
@@ -484,6 +482,9 @@ void Robot::gyroTurn(bool clockwise, float angleDegrees) {
     delta_dir = (delta - delta_prev)/0.02;
 
     speed = delta * K_PROPORTIONAL + delta_dir * K_DERIVATIVE;
+
+    if (speed > 0 and speed < MIN_SPEED) speed = MIN_SPEED;
+    if (speed < 0 and speed > -MIN_SPEED) speed = -MIN_SPEED;
     
 
     //logController("%d %f %f", clockwise? 1:0, speed, delta);

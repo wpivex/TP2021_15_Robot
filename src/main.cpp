@@ -159,7 +159,7 @@ int vcat300Skills() {
   fifteen.driveStraightGyro(5, 35, reverse, 10, 5);
   fifteen.gyroTurnU(90);
 
-  wait(4000, msec); // WAIT 24
+  wait(3000, msec); // WAIT 24
 
   fifteen.driveStraightGyroHeading(40, 100, 90, forward, 10, 5, {}, 5);
   fifteen.goForwardVision(BLUE, 40, forward, 50.5, 5, nullptr);
@@ -168,9 +168,16 @@ int vcat300Skills() {
 
   // Wall align
   fifteen.driveStraightGyro(4, 30, reverse, 5, 0);
+  fifteen.moveArmTo(600, 100, false);
+  fifteen.gyroTurnU(90);
   fifteen.moveArmTo(600, 100, true);
   fifteen.driveStraightTimed(30, forward, 1.5); // align with wall
-  if (fabs(fifteen.gyroSensor.heading() - 90) < 7) fifteen.gyroSensor.setHeading(90, degrees);
+  float h = fifteen.gyroSensor.heading();
+  if (fabs(h - 90) < 7) {
+    logController("reset heading 90, %f", h);
+    fifteen.gyroSensor.setHeading(90, degrees);
+    
+  }
 
   // multi step turn
   fifteen.startIntake();
