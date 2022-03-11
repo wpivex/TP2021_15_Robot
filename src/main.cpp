@@ -165,6 +165,7 @@ int vcat300Skills() {
   fifteen.driveStraightGyro(4, 20, reverse, 5, 0);
   fifteen.moveArmTo(600, 100, true);
   fifteen.driveStraightTimed(30, forward, 1.5); // align with wall
+  if (fabs(fifteen.gyroSensor.heading() - 90) < 7) fifteen.gyroSensor.setHeading(90, degrees);
 
   // multi step turn
   fifteen.driveStraightGyro(20, 20, reverse, 10, 5);
@@ -184,9 +185,9 @@ int vcat300Skills() {
 
 
   // Wall align to the back
-  fifteen.driveStraightTimed(20, reverse, 1.5);
+  //fifteen.driveStraightTimed(20, reverse, 1.5);
   
-  fifteen.driveStraightGyroHeading(20, 25, 270, forward, 5, 5);
+  fifteen.driveStraightGyroHeading(5, 25, 270, forward, 5, 5);
 
   // climb
   fifteen.moveArmTo(100, 100);

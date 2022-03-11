@@ -450,53 +450,23 @@ std::function<bool(void)> func, float startUpInches) {
 // maxSpeed is the starting speed of the turn. Will slow down once past startSlowDownDegrees theshhold
 void Robot::gyroTurn(bool clockwise, float angleDegrees) {
 
-  float K_PROPORTIONAL = 0.42;
-  float K_DERIVATIVE = 0.003;
-  float tolerance = 4.5;
-
-  float timeout = 3;
-  if (angleDegrees < 25){
-    timeout = 2;
-  }
+  PID anglePID(2, 0, 0.13, 1.5, 5, 12, 75);
+  gyroSensor.resetRotation();
 
   float speed;
 
-  log("initing");
   int startTime = vex::timer::system();
-  leftMotorA.resetPosition();
-  rightMotorA.resetPosition();
-  gyroSensor.resetRotation();
-  log("about to loop");
+  while (!anglePID.isCompleted() && vex::timer::system() - startTime < 3000) {
+    float ang = (angleDegrees - gyroSensor.rotation()) * (clockwise ? 1 : -1);
+    speed = anglePID.tick(ang);
 
-  float currDegrees = 0; // always positive with abs
-  float delta = 0;
-  float delta_prev = 0;
-  float delta_dir = 0;
+    //log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
+    //log("heading: %f", GPS11.heading());
 
-  int NUM_VALID_THRESHOLD = 8;
-  int numValid = 0;
-
-  while (numValid < NUM_VALID_THRESHOLD && !isTimeout(startTime, timeout) && Competition.isAutonomous()) {
-
-    currDegrees = fabs(gyroSensor.rotation());
-
-    delta = angleDegrees - currDegrees;
-    delta_dir = (delta - delta_prev)/0.02;
-
-    speed = delta * K_PROPORTIONAL + delta_dir * K_DERIVATIVE;
-    
-
-    //logController("%d %f %f", clockwise? 1:0, speed, delta);
-    logController("%f %f", delta*K_PROPORTIONAL, delta_dir*K_DERIVATIVE);
-    setLeftVelocity(clockwise ? forward : reverse, speed);
-    setRightVelocity(clockwise ? reverse : forward, speed);
-
-    delta_prev = delta;
+    setLeftVelocity(forward, speed);
+    setRightVelocity(reverse, speed);
 
     wait(20, msec);
-    if (fabs(currDegrees - angleDegrees) < tolerance) numValid++;
-    else numValid = 0;
-    //logController("%d %f", numValid, delta);
   }
 
   stopLeft();
@@ -531,7 +501,7 @@ void Robot::gyroTurnU(float universalAngleDegrees) {
 // }
 
 void Robot::updateCamera(Goal goal) {
-  frontCamera = vision(PORT5, goal.bright, goal.sig);
+  frontCamera = vision(PORT13, goal.bright, goal.sig);
 }
 
 // Go forward until the maximum distance is hit, the timeout is reached, or limitSwitch is turned on (collision with goal)

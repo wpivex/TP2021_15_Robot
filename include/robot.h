@@ -14,6 +14,7 @@
 #include <stdio.h>      /* printf, fgets */
 #include <unistd.h>
 #include "Buttons.cpp"
+#include "PIDController.cpp"
 #include <constants.h>
 
 using namespace vex;
