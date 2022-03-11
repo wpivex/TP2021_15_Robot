@@ -205,9 +205,7 @@ void Robot::waitGyroCallibrate() {
   
   initialPitch = gyroSensor.roll(); 
   wait(500, msec);
-  Brain.Screen.setFillColor(green);
-  Brain.Screen.drawRectangle(0, 0, 250, 250);
-  Brain.Screen.render();
+  log("calibrated");
 }
 
 void Robot::driveStraightTimed(float speed, directionType dir, float timeout, bool stopAfter, std::function<bool(void)> func) {
@@ -447,16 +445,22 @@ std::function<bool(void)> func, float startUpInches) {
 // maxSpeed is the starting speed of the turn. Will slow down once past startSlowDownDegrees theshhold
 void Robot::gyroTurn(bool clockwise, float angleDegrees) {
 
+  brakeType prev = currentBrakeType;
+  setBrakeType(hold);
+
   if (!clockwise) angleDegrees = -angleDegrees;
 
-  float K_PROPORTIONAL = 2;
-  float K_DERIVATIVE = 0.13;
-  float tolerance = 1.5;
+  float K_PROPORTIONAL = 0.5;
+  float K_DERIVATIVE = 0.01;
+  float tolerance = 1.7;
 
-  float timeout = 3;
+  float timeout = 2.5;
   if (angleDegrees < 25){
     timeout = 2;
   }
+
+  // TESTING
+  timeout = 1000;
 
   float speed;
 
@@ -472,9 +476,9 @@ void Robot::gyroTurn(bool clockwise, float angleDegrees) {
   float prev_error = 0;
   float delta_dir = 0;
 
-  int NUM_VALID_THRESHOLD = 5;
+  int NUM_VALID_THRESHOLD = 8;
   int numValid = 0;
-  float MIN_SPEED = 12;
+  float MIN_SPEED = 4;
   float MAX_SPEED = 75;
 
   while (numValid < NUM_VALID_THRESHOLD && !isTimeout(startTime, timeout) && Competition.isAutonomous()) {
@@ -494,7 +498,7 @@ void Robot::gyroTurn(bool clockwise, float angleDegrees) {
     
 
     //logController("%d %f %f", clockwise? 1:0, speed, delta);
-    logController("%f %f", error*K_PROPORTIONAL, delta_dir*K_DERIVATIVE);
+    log("P: %f\nD: %f\nSpeed: %f", error*K_PROPORTIONAL, delta_dir*K_DERIVATIVE, speed);
     setLeftVelocity(forward, speed);
     setRightVelocity(reverse, speed);
 
@@ -508,6 +512,8 @@ void Robot::gyroTurn(bool clockwise, float angleDegrees) {
 
   stopLeft();
   stopRight();
+
+  setBrakeType(prev);
 }
 
 void Robot::gyroTurnU(float universalAngleDegrees) {
@@ -684,6 +690,7 @@ void Robot::stopRight() {
 }
 
 void Robot::setBrakeType(brakeType b) {
+  currentBrakeType = b;
   leftMotorA.setBrake(b);
   leftMotorB.setBrake(b);
   leftMotorC.setBrake(b);

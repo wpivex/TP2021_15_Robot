@@ -147,6 +147,7 @@ int vcat300Skills() {
   fifteen.moveArmTo(200, 60, false);
   fifteen.gyroTurnU(180);
   fifteen.driveStraightGyroHeading(40, 100, 180, forward, 10, 10, {}, 5);
+  fifteen.gyroTurn(true, 15);
   fifteen.driveTurn(2, 25, true, 2); // fast slight turn
   wait(200, msec);
   fifteen.driveStraightGyroHeading(23.5, 100, 180, forward, 10, 10, {}, 5);
@@ -244,43 +245,26 @@ int logDistance() {
 
 int testTurn() {
 
-
-  fifteen.waitGyroCallibrate();
-  fifteen.gyroTurn(true, 90);
-  logController("done");
-  return 0;
-
-}
-
-
-
-int testTurn2() {
-  fifteen.waitGyroCallibrate();
-  fifteen.driveTurn(0.75, 15, true, 2); // fast slight turn
-  wait(200, msec);
-  return 0;
-}
-
-int testTurn3() {
-  fifteen.waitGyroCallibrate();
-  fifteen.backLiftL.resetRotation();
-  fifteen.backLiftR.resetRotation();
-  fifteen.gyroSensor.resetRotation();
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
   wait(1000, msec);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
-  wait(500, msec);
-  fifteen.driveStraight(3, 30, forward, 3, 3);
-  fifteen.gyroTurn(180, true);
-  logController("done");
+  fifteen.clawUp();
+  wait(2000, msec);
+  fifteen.clawDown();
 
+  fifteen.gyroTurn(true, 90);
+  logController("done");
+  wait(1000, msec);
+  fifteen.gyroTurn(false, 90);
+  wait(1000, msec);
+  fifteen.gyroTurn(true, 180);
+  wait(1000, msec);
+  fifteen.gyroTurn(false, 30);
   return 0;
 
 }
 
-
-
-void autonomous() { task auto1(vcat300Skills); }
+void autonomous() { task auto1(testTurn); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { task controlLoop1(mainTeleop); }

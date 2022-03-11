@@ -119,8 +119,10 @@ std::function<bool(void)> func = {}, float startUpInches = 0);
     void waitGyroCallibrate();
     void setBrakeType(brakeType b);
 
+
   private:
     void driveTeleop();
     void checkLowerLimit(std::function<void(void)> doInstead);
+    brakeType currentBrakeType;
 
 };

@@ -55,12 +55,22 @@ static inline bool isTimeout(int startTime, float timeout) {
 
 // log output to brain display the way you would with printf
 template <class ... Args>
-static inline void log(const char *format, Args ... args) {
+static inline void log(const char *f, Args ... args) {
 
   Brain.Screen.clearScreen();
-  Brain.Screen.setCursor(1, 1);
-  Brain.Screen.print(format, args...);
+  int row = 1;
 
+  char buffer[200];
+  sprintf(buffer, f, args...);
+
+  char* pch = strtok (buffer,"\n");
+  while (pch != NULL)
+  {
+    Brain.Screen.setCursor(row, 1);
+    Brain.Screen.print(pch);
+    pch = strtok (NULL, "\n");
+    row++;
+  }
 }
 
 // log output to controller display the way you would with printf
