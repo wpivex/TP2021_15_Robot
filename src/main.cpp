@@ -145,7 +145,7 @@ int vcat300Skills() {
   fifteen.gyroSensor.setHeading(270, deg); // recallibrate initial heading since squared with wall
   //wait(300, msec);
 
-  fifteen.driveStraightGyro(31.5, 50, reverse, 10, 10);
+  fifteen.driveStraightGyro(31, 50, reverse, 10, 10);
   //fifteen.moveArmTo(200, 60, false);
   fifteen.gyroTurnU(180);
   fifteen.driveStraightGyroHeading(40, 100, 180, forward, 10, 10, {}, 5);  
@@ -177,7 +177,7 @@ int vcat300Skills() {
   wait(100, msec);
 
   // Wall align
-  fifteen.driveStraightGyro(4, 35, reverse, 5, 0);
+  fifteen.driveStraightGyro(5.5, 35, reverse, 5, 0);
   fifteen.moveArmTo(650, 100, false);
   fifteen.gyroTurnU(90);
   fifteen.moveArmTo(650, 100, true);
@@ -193,12 +193,12 @@ int vcat300Skills() {
   fifteen.startIntake();
   fifteen.driveStraightGyro(20, 50, reverse, 3, 3);
   fifteen.gyroTurnU(70);
-  fifteen.driveStraightGyro(10, 50, forward, 3, 3);
+  fifteen.driveStraightGyro(9, 50, forward, 3, 3);
 
   // Head to blue platform areas
   fifteen.gyroTurnU(0);
   fifteen.driveStraightGyroHeading(80, 100, 0, forward, 10, 10, {}, 5, false); // drive to platform side
-  fifteen.driveStraightTimed(30, forward, 1.2);
+  fifteen.driveStraightTimed(30, forward, 1);
 
   // align to platform
   fifteen.driveStraightGyro(4, 20, reverse, 2, 2);
