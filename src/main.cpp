@@ -66,6 +66,8 @@ int testGPS() {
 
 int middleSchoolSkills() {
 
+  int autonStart = vex::timer::system();
+
   float lowArmAngle = -20;
   float highArmAngle = 670;
 
@@ -76,6 +78,8 @@ int middleSchoolSkills() {
   fifteen.backLiftR.resetRotation();
   fifteen.frontArmL.resetRotation();
   fifteen.frontArmR.resetRotation();
+
+  fifteen.gyroSensor.setHeading(0, degrees);
 
 
   //fifteen.backLiftL.spin(forward, 0, pct);
@@ -97,7 +101,7 @@ int middleSchoolSkills() {
   fifteen.goForward(11, 25, 2, 2);
   
   // get yellow
-  float turnAngle = 25;
+  float turnAngle = 17;
   fifteen.stopIntake();
   fifteen.moveArmTo(lowArmAngle, 80, false);
   fifteen.goTurnU(turnAngle);
@@ -120,7 +124,7 @@ int middleSchoolSkills() {
   // get red
   fifteen.goTurnU(270, false, 2, true);
   fifteen.goAlignVision(RED, 2);
-  fifteen.goVision(10.5, 40, RED, 1, 3, true, 2);
+  fifteen.goVision(15, 40, RED, 1, 3, true, 3);
   fifteen.clawDown(); // clamp red
   wait(100, msec);
   fifteen.goForward(-3, 30, 1, 0, false); // start going backward
@@ -152,11 +156,15 @@ int middleSchoolSkills() {
   fifteen.clawUp(); // drop off red
   fifteen.goForwardU(-4, 50, 180, 0, 5, true); // back up for clearance from red goal
 
-  // get blue across field
+  // Go to blue across field
   fifteen.moveArmTo(lowArmAngle, 60, false);
   fifteen.goTurnU(90);
   fifteen.goForwardU(40, 100, 90, 3, 10);
-  wait(1000, msec); // WAIT FOR 24 TO PASS
+
+  // Wait for 24 robot to pass with universal wait until time delta
+  while (!isTimeout(autonStart, 42.0)) wait(20, msec);
+  
+  // Grab blue
   fifteen.goForwardU(7, 100, 90, 3, 4, false, 20, 50);
   fifteen.goVision(38, 40, BLUE, 2, 3);
   fifteen.clawDown(); // clamp blue
@@ -230,11 +238,8 @@ void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTele
 int main() {
 
   wait(500, msec);
-  GPS11.calibrate();
   fifteen.gyroSensor.calibrate();
-  fifteen.waitGpsCallibrate();
-  fifteen.gyroSensor.setHeading(0, degrees);
-  log("calibrated gyro");
+  fifteen.waitGyroCallibrate();
 
   Competition.bStopAllTasksBetweenModes = true;
   fifteen.clawDown();

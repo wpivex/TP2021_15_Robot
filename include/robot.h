@@ -116,8 +116,9 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 12, flo
     void stopIntake();
     void stopLeft();
     void stopRight();
-    void waitGpsCallibrate();
     void setBrakeType(brakeType b);
+
+    void waitGyroCallibrate();
 
   private:
     void driveTeleop();

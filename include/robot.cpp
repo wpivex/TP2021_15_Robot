@@ -59,11 +59,6 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 
 }
 
-void Robot::waitGpsCallibrate() {
-  while (GPS11.isCalibrating() || gyroSensor.isCalibrating()) wait(20, msec);
-  log("calibrated");
-}
-
 
 void Robot::driveTeleop() {
 
@@ -204,12 +199,21 @@ void Robot::teleop() {
   buttons.updateButtonState();
 }
 
-void Robot::waitForGPS() {
-  while (GPS11.quality() < 90) {
-    logController("Quality: %d", GPS11.quality());
-    wait(20, msec);
+void Robot::waitGyroCallibrate() {
+  if (gyroSensor.isCalibrating()) {
+    int i = 0;
+    while (gyroSensor.isCalibrating()) {
+      wait(20, msec);
+      i++;
+    }
+    gyroSensor.resetRotation();
+    wait(1000, msec);
   }
-  logController("Quality: %d", GPS11.quality());
+  
+  wait(500, msec);
+  Brain.Screen.setFillColor(green);
+  Brain.Screen.drawRectangle(0, 0, 250, 250);
+  Brain.Screen.render();
 }
 
 // return in inches
