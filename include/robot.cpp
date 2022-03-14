@@ -211,9 +211,7 @@ void Robot::waitGyroCallibrate() {
   }
   
   wait(500, msec);
-  Brain.Screen.setFillColor(green);
-  Brain.Screen.drawRectangle(0, 0, 250, 250);
-  Brain.Screen.render();
+  log("done calibration");
 }
 
 // return in inches
@@ -336,7 +334,8 @@ bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout, bool 
     setLeftVelocity(forward, speed + correction);
     setRightVelocity(forward, speed - correction);
 
-    log("Target: %f\nActual:%f\nLeft:%f\nRight:%f\n", universalAngle, getAngle(), speed+correction, speed-correction);
+    //log("Target: %f\nActual:%f\nLeft:%f\nRight:%f\n", universalAngle, getAngle(), speed+correction, speed-correction);
+    log("%f", gyroSensor.heading());
 
     wait(20, msec);
   }
@@ -437,6 +436,7 @@ void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, 
 
     //log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
     //log("heading: %f", GPS11.heading());
+    log("%f", gyroSensor.heading());
 
     setLeftVelocity(forward, speed);
     setRightVelocity(reverse, speed);

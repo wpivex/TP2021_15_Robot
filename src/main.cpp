@@ -37,6 +37,14 @@ int armStartup() {
   return 0;
 }
 
+int logGyro() {
+  while (true) {
+    log("%f", fifteen.gyroSensor.heading());
+    task::sleep(100);
+  }
+  return 0;
+}
+
 int logDistance() {
 
   fifteen.leftMotorA.resetRotation();
@@ -66,6 +74,7 @@ int testGPS() {
 
 int middleSchoolSkills() {
 
+
   int autonStart = vex::timer::system();
 
   float lowArmAngle = -20;
@@ -79,7 +88,6 @@ int middleSchoolSkills() {
   fifteen.frontArmL.resetRotation();
   fifteen.frontArmR.resetRotation();
 
-  fifteen.gyroSensor.setHeading(0, degrees);
 
 
   //fifteen.backLiftL.spin(forward, 0, pct);
@@ -184,13 +192,13 @@ int middleSchoolSkills() {
   fifteen.goForwardU(10, 40, 70, 1, 2);
 
   // Head to blue platform area
-  fifteen.goTurnU(357); // slight angle to left to avoid brushing against right wall when turning
-  fifteen.goForwardU(80, 100, 357, 3, 8, false, 20, 30);
+  fifteen.goTurnU(358); // slight angle to left to avoid brushing against right wall when turning
+  fifteen.goForwardU(80, 100, 358, 3, 8, false, 20, 30);
   fifteen.goForwardTimed(1.5, 30);
   fifteen.possiblyResetGyro(0);
 
   // align to platform
-  fifteen.goForwardU(-3, 30, 0, 0, 0.5);
+  fifteen.goForwardU(-5, 30, 0, 0, 0.5);
   fifteen.goTurnU(285); // aim platform side
   fifteen.goForwardU(11, 40, 285, 1, 2);
   fifteen.goTurnU(270);
@@ -198,7 +206,7 @@ int middleSchoolSkills() {
 
   // climb
   fifteen.moveArmTo(100, 100, true);
-  fifteen.goForwardU(41, 40, 270, 1, 1);
+  fifteen.goForwardU(39.5, 40, 270, 1, 1);
   wait(350, msec);
   fifteen.goForwardU(2, 30, 270, 0.5, 0.5);
 

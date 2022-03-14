@@ -94,6 +94,7 @@ template <class ... Args>
 static inline void log(const char *f, Args ... args) {
 
   Brain.Screen.clearScreen();
+  Brain.Screen.setFont(vex::mono60);
   int row = 1;
 
   char buffer[200];
