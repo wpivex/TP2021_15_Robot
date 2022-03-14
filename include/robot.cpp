@@ -245,6 +245,31 @@ float angleToPointU(float dx, float dy) {
   return 90 - (180 / PI * atan2(dy, dx));
 }
 
+void Robot::balancePlatform(float startPitch) {
+
+  float SPEED = 45;
+  float UNIVERSAL_ANGLE = 270;
+
+  PID turnPID(0.5, 0.00, 0);
+  while (gyroSensor.roll() - startPitch < -18) {
+
+    float correction = turnPID.tick(getAngleDiff(UNIVERSAL_ANGLE, getAngle()));
+
+    log("%f", gyroSensor.roll());
+
+    setLeftVelocity(forward, SPEED + correction);
+    setRightVelocity(forward, SPEED - correction);
+    wait(15, msec);
+  }
+  log("%f", gyroSensor.roll());
+  stopLeft();
+  stopRight();
+
+  // Reverse immedaitely to finish balance
+  goForward(-3.0, 60, 0, 0);
+
+}
+
 // If the robot is known to have a given heading (i.e. from wall align) and the gyro heading is close enough to heading, recalibrate gyro heading
 void Robot::possiblyResetGyro(float targetAngle) {
 

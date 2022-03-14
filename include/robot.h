@@ -101,6 +101,8 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 12, flo
 
     void driveStraightFighting(float distInches, float speed, directionType dir);
 
+    void balancePlatform(float startPitch);
+
 
     float normalize(float axis);
     void updateCamera(Goal goal);

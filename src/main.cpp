@@ -158,9 +158,10 @@ int middleSchoolSkills() {
   // Drop off red
   fifteen.goForwardU(-5, 50, 180, 2, 0, false);
   fifteen.moveArmTo(300, 100, false);
-  fifteen.goForwardU(-13, 50, 180, 0, 0, false);
+  fifteen.goForwardU(-13, 50, 180, 0, 1, true);
   fifteen.clawUp(); // drop off red
-  fifteen.goForwardU(-4, 50, 180, 0, 5, true); // back up for clearance from red goal
+  wait(100, msec);
+  fifteen.goForwardU(-4, 50, 180, 1, 5, true); // back up for clearance from red goal
 
   // Go to blue across field
   fifteen.moveArmTo(lowArmAngle, 60, false);
@@ -168,7 +169,7 @@ int middleSchoolSkills() {
   fifteen.goForwardU(40, 100, 90, 3, 10);
 
   // Wait for 24 robot to pass with universal wait until time delta
-  while (!isTimeout(autonStart, 36.0)) wait(20, msec);
+  while (!isTimeout(autonStart, 38.0)) wait(20, msec);
   
   // Grab blue
   fifteen.goForwardU(7, 100, 90, 3, 4, false, 20, 50);
@@ -198,20 +199,18 @@ int middleSchoolSkills() {
   fifteen.possiblyResetGyro(0);
 
   // align to platform
-  fifteen.goForwardU(-6, 30, 0, 0, 0.5);
+  fifteen.goForwardU(-7, 30, 0, 0, 0.5);
   fifteen.goTurnU(300); // aim platform side
   fifteen.goForwardU(5, 40, 300, 1, 2);
   fifteen.goTurnU(270);
-  fifteen.goForwardU(-5, 50, 270, 0.5, 1, false, 20, 30);
-  fifteen.goForwardTimed(1, -30);
-  fifteen.goForwardU(15, 60, 270, 1, 3);
+  fifteen.goForwardU(8, 50, 270, 1, 1);
   fifteen.stopIntake();
 
   // climb
   fifteen.moveArmTo(100, 100, true);
-  fifteen.goForwardU(41.5, 40, 270, 0, 0);
-  wait(350, msec);
-  fifteen.goForwardU(2.5, 40, 270, 0, 0);
+  float startPitch = fifteen.gyroSensor.roll();
+  fifteen.goForwardU(37, 70, 270, 0, 0);
+  fifteen.balancePlatform(startPitch);
 
   return 0;
 
