@@ -168,21 +168,21 @@ int middleSchoolSkills() {
   fifteen.goForwardU(40, 100, 90, 3, 10);
 
   // Wait for 24 robot to pass with universal wait until time delta
-  while (!isTimeout(autonStart, 42.0)) wait(20, msec);
+  while (!isTimeout(autonStart, 36.0)) wait(20, msec);
   
   // Grab blue
   fifteen.goForwardU(7, 100, 90, 3, 4, false, 20, 50);
-  fifteen.goVision(38, 40, BLUE, 2, 3);
+  fifteen.goVision(38.5, 50, BLUE, 2, 3);
   fifteen.clawDown(); // clamp blue
   wait(100, msec);
 
   // Wall align
-  fifteen.goForwardU(-7, 40, 90, 1, 1);
+  fifteen.goForwardU(-7, 60, 90, 1, 1);
   fifteen.moveArmTo(highArmAngle, 100, false); // start the arm movement
   fifteen.goTurnU(90);
   fifteen.moveArmTo(highArmAngle, 100, true); // finish arm movement
   fifteen.goForwardU(13, 60, 90, 1, 2, false, 20, 30);
-  fifteen.goForwardTimed(1, 30);
+  fifteen.goForwardTimed(0.7, 30);
   fifteen.possiblyResetGyro(90);
 
   // multi step turn
@@ -192,23 +192,26 @@ int middleSchoolSkills() {
   fifteen.goForwardU(10, 40, 70, 1, 2);
 
   // Head to blue platform area
-  fifteen.goTurnU(358); // slight angle to left to avoid brushing against right wall when turning
-  fifteen.goForwardU(80, 100, 358, 3, 8, false, 20, 30);
+  fifteen.goTurnU(357); // slight angle to left to avoid brushing against right wall when turning
+  fifteen.goForwardU(80, 90, 357, 3, 8, false, 20, 30);
   fifteen.goForwardTimed(1.5, 30);
   fifteen.possiblyResetGyro(0);
 
   // align to platform
-  fifteen.goForwardU(-5, 30, 0, 0, 0.5);
-  fifteen.goTurnU(285); // aim platform side
-  fifteen.goForwardU(11, 40, 285, 1, 2);
+  fifteen.goForwardU(-6, 30, 0, 0, 0.5);
+  fifteen.goTurnU(300); // aim platform side
+  fifteen.goForwardU(5, 40, 300, 1, 2);
   fifteen.goTurnU(270);
+  fifteen.goForwardU(-5, 50, 270, 0.5, 1, false, 20, 30);
+  fifteen.goForwardTimed(1, -30);
+  fifteen.goForwardU(15, 60, 270, 1, 3);
   fifteen.stopIntake();
 
   // climb
   fifteen.moveArmTo(100, 100, true);
-  fifteen.goForwardU(39.5, 40, 270, 1, 1);
+  fifteen.goForwardU(41.5, 40, 270, 0, 0);
   wait(350, msec);
-  fifteen.goForwardU(2, 30, 270, 0.5, 0.5);
+  fifteen.goForwardU(2.5, 40, 270, 0, 0);
 
   return 0;
 
