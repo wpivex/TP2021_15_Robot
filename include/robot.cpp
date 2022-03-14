@@ -251,22 +251,22 @@ void Robot::balancePlatform(float startPitch) {
   float UNIVERSAL_ANGLE = 270;
 
   PID turnPID(0.5, 0.00, 0);
-  while (gyroSensor.roll() - startPitch < -18) {
+  while (gyroSensor.roll() - startPitch < -19) {
 
     float correction = turnPID.tick(getAngleDiff(UNIVERSAL_ANGLE, getAngle()));
 
-    log("%f", gyroSensor.roll());
+    //log("%f", gyroSensor.roll());
 
     setLeftVelocity(forward, SPEED + correction);
     setRightVelocity(forward, SPEED - correction);
-    wait(15, msec);
+    wait(10, msec);
   }
   log("%f", gyroSensor.roll());
   stopLeft();
   stopRight();
 
   // Reverse immedaitely to finish balance
-  goForward(-3.0, 60, 0, 0);
+  goForward(-2.75, 65, 0, 0);
 
 }
 

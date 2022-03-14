@@ -105,12 +105,13 @@ int middleSchoolSkills() {
   fifteen.goForward(15, 22, 2, 2);
   fifteen.goForward(-15, 35, 2, 2.5);
   fifteen.goForward(11, 22, 2, 2);
+  fifteen.stopIntake();
   
   // get yellow
   float turnAngle = 17;
-  fifteen.stopIntake();
-  fifteen.moveArmTo(lowArmAngle, 80, false);
   fifteen.goTurnU(turnAngle);
+  fifteen.moveArmTo(lowArmAngle, 80, false);
+  
   fifteen.clawUp();
   wait(300, msec);
   fifteen.goForwardU(7, 50, turnAngle, 2, 0, false); // go forward a little to make sure vision sees left yellow goal as biggest object
@@ -118,12 +119,16 @@ int middleSchoolSkills() {
   fifteen.goForwardU(12, 40, turnAngle, 0, 4);
   fifteen.clawDown(); // grab yellow
   fifteen.moveArmTo(250, 100, false);
+  wait(300, msec);
+  fifteen.startIntake();
   fifteen.goTurnU(0);
+  
 
   // drop yellow off
   fifteen.goForwardU(46, 100, 0, 3, 10);
   fifteen.clawUp();
   fifteen.goTurnU(330);
+  fifteen.stopIntake();
   fifteen.moveArmTo(lowArmAngle, 100, false);
   fifteen.goForwardU(-5, 40, 0, 0.5, 0.5);
 
@@ -132,7 +137,7 @@ int middleSchoolSkills() {
   fifteen.goAlignVision(RED, 2);
   fifteen.goVision(15, 40, RED, 1, 3, true, 3);
   fifteen.clawDown(); // clamp red
-  wait(100, msec);
+  wait(300, msec);
   fifteen.goForward(-3, 30, 1, 0, false); // start going backward
   fifteen.moveArmTo(highArmAngle, 100, false); // halfway going backward, start raising arm
   fifteen.goForward(-4, 30, 0, 1, true); // finish going backward
@@ -173,7 +178,7 @@ int middleSchoolSkills() {
   
   // Grab blue
   fifteen.goForwardU(7, 100, 90, 3, 4, false, 20, 50);
-  fifteen.goVision(38.5, 50, BLUE, 2, 3);
+  fifteen.goVision(39, 50, BLUE, 2, 3);
   fifteen.clawDown(); // clamp blue
   wait(100, msec);
 
