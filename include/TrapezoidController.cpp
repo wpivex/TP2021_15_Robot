@@ -24,9 +24,9 @@ float Trapezoid::tick(float currDistance) {
   float delta, speed;
 
 
-  if (dist < rampUp) speed = rampMinSpeed + (maxSpeed - rampMinSpeed) * dist / rampUp;
+  if (dist < rampUp && rampUp > 0) speed = rampMinSpeed + (maxSpeed - rampMinSpeed) * dist / rampUp;
   else {
-    if (finalDist - dist < slowDown) delta = (finalDist - dist) / slowDown;
+    if (finalDist - dist < slowDown && slowDown > 0) delta = fabs(finalDist - dist) / slowDown;
     else delta = 1;
 
     speed = minSpeed + (maxSpeed - minSpeed) * delta;
