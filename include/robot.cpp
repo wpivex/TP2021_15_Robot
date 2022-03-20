@@ -69,7 +69,7 @@ void Robot::driveTeleop() {
     setRightVelocity(forward,buttons.axis(Buttons::RIGHT_VERTICAL));
   } else {
     float drive = cMapping == BRIAN_MAPPING ? buttons.axis(Buttons::RIGHT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
-    float turn = buttons.axis(Buttons::RIGHT_HORIZONTAL) / 2.0;
+    float turn = buttons.axis(Buttons::RIGHT_HORIZONTAL) / 1.0;
     float max = std::max(1.0, std::max(fabs(drive+turn), fabs(drive-turn)));
     setLeftVelocity(forward,100 * (drive+turn)/max);
     setRightVelocity(forward,100 * (drive-turn)/max);
@@ -218,6 +218,11 @@ void Robot::waitGyroCallibrate() {
 // return in inches
 float Robot::getEncoderDistance() {
   return degreesToDistance((leftMotorA.rotation(deg) + rightMotorA.rotation(deg)) / 2);
+}
+
+void Robot::resetEncoderDistance() {
+  leftMotorA.resetRotation();
+  rightMotorA.resetRotation();
 }
 
 float Robot::getAngle() {
@@ -570,46 +575,30 @@ void Robot::goVision(float distInches, float speed, Goal goal, float rampUpInche
 // Will use gyro sensor
 // distAlongCirc is positive if forward, negative if reverse
 // curveDirection is true for right, false for left
-void Robot::goRadiusCurve(float radius, float distAlongCircum, bool curveDirection, float maxSpeed, float rampUp, float slowDown, float timeout) {
+void Robot::goRadiusCurve(float radius, float numRotations, bool curveDirection, float maxSpeed, float rampUp, float slowDown, float timeout) {
+
+  float distAlongCircum = numRotations * 2 * M_PI;
 
   Trapezoid trap(distAlongCircum, maxSpeed, 12,rampUp,slowDown);
   //      kp, kd, ki
   PID anglepid(0.025, 0, 0); //definitely no kd imo
 
-  // different per robot
-  float distanceBetweenWheels = 13;
 
   int startTime = vex::timer::system();
-  leftMotorA.resetPosition();
-  rightMotorA.resetPosition();
-  gyroSensor.resetRotation();
-
+  resetEncoderDistance();
 
   // Repeat until either arrived at target or timed out
-  while (!((trap.isCompleted() && anglepid.isCompleted()) || isTimeout(startTime, timeout))) {
+  while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
 
-    // // if there is a concurrent function to run, run it
-    // if (func) {
-    //   bool done = func();
-    //   if (done) {
-    //     // if func is done, make it empty
-    //     func = {};
-    //   }
-    // }
-
-    float distSoFar =  degreesToDistance((leftMotorA.position(degrees) + rightMotorA.position(degrees)) / 2);
+    float distSoFar =  getEncoderDistance();
 
     float v_avg = trap.tick(distSoFar); 
-    float difference = v_avg*distanceBetweenWheels/(2*radius);
+    float v_ratio = fabs((radius+DISTANCE_BETWEEN_WHEELS)/(radius-DISTANCE_BETWEEN_WHEELS));
 
-    float expectedAngle = (distSoFar/radius) * 360 / (atan(1)*4)*(curveDirection?-1:1);
-    float angleError = expectedAngle - gyroSensor.rotation();
-    float angleCorrection = anglepid.tick(angleError);
+    log("V_avg: %f\nV_diff: %f", v_avg, v_ratio);
 
-    logController("Expected Angle: %f\nActual Angle: %f\nV_avg: %f", expectedAngle, gyroSensor.rotation(), v_avg);
-
-    float lPower = v_avg - difference*(curveDirection ? 1:-1) + angleCorrection;
-    float rPower =  v_avg + difference*(curveDirection ? 1:-1) - angleCorrection;
+    float lPower = v_avg * sqrt(curveDirection ? v_ratio:1/v_ratio);
+    float rPower =  v_avg * sqrt(curveDirection ? 1/v_ratio:v_ratio);
 
     setLeftVelocity(forward, lPower);
     setRightVelocity(forward, rPower);
@@ -618,8 +607,7 @@ void Robot::goRadiusCurve(float radius, float distAlongCircum, bool curveDirecti
   }
   stopLeft();
   stopRight();
-  wait(3000, msec);
-  logController("done");
+  log("done");
 
 }
 

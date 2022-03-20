@@ -67,6 +67,8 @@ class Robot {
     void setControllerMapping(ControllerMapping mapping);
 
     float getEncoderDistance();
+    void resetEncoderDistance();
+
     float getAngle();
     float getX(int numSamples = 1);
     float getY(int numSamples = 1);
@@ -85,7 +87,7 @@ class Robot {
     void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, bool fast = false);
 
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 10, bool angleCorrection = true);
+bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10, bool angleCorrection = true);
     void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, 
     float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 5);
 
@@ -98,7 +100,7 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 12, flo
     void goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
     void goAlignVision(Goal goal, float timeout);
 
-    void goRadiusCurve(float radius, float distAlongCircum, bool curveDirection, float maxSpeed, float rampUp, float slowDown, float timeout);
+    void goRadiusCurve(float radius, float numRotations, bool curveDirection, float maxSpeed, float rampUp, float slowDown, float timeout = 5);
 
     void moveArmTo(double degr, double speed, bool blocking = true);
 
