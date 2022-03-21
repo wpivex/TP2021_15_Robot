@@ -65,8 +65,8 @@ int worldSkills() {
   
   // Wall align
   fifteen.goTurnU(180);
-  fifteen.goForwardU(6, 50, 180, 1, 2, false, 20, 30);
-  fifteen.goForwardTimed(1, 30);
+  fifteen.goForwardU(5, 50, 180, 1, 2, false, 20, 30);
+  fifteen.goForwardTimed(0.7, 30);
   fifteen.possiblyResetGyro(180);
 
   // Go to blue
@@ -95,7 +95,7 @@ int worldSkills() {
   // Move front blue goal to platform
   fifteen.goTurnU(290);
   fifteen.goForwardU(36, 80, 290, 3, 5, false, 20, 40);
-  fifteen.goForwardU(12, 40, 290, 0, 3);
+  fifteen.goForwardU(15, 40, 290, 0, 3);
 
   // Do sweep maneuver
   fifteen.moveArmTo(500, 50);
@@ -111,15 +111,16 @@ int worldSkills() {
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
   fifteen.goForwardU(7, 60, 270, 1, 2);
   fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
-  fifteen.moveArmTo(lowArmAngle, 100);
+  fifteen.moveArmTo(lowArmAngle, 100, false);
+  wait(1000, msec);
   fifteen.goTurnU(90);
-  fifteen.goForwardU(11, 40, 90, 1, 1);
+  fifteen.goForwardU(10, 40, 90, 1, 1);
   fifteen.clawDown();
   wait(100, msec);
 
   // Elevate other goal
   fifteen.moveArmTo(highArmAngle, 100, false); // start movement upwards, concurrency
-  fifteen.goForwardU(-8, 50, 90, 1, 2);
+  fifteen.goForwardU(-15, 50, 90, 1, 2);
   fifteen.moveArmTo(highArmAngle, 100, true);
   fifteen.goTurnU(0);
   fifteen.goForwardU(5, 40, 0, 1, 1);
@@ -135,12 +136,13 @@ int worldSkills() {
   fifteen.possiblyResetGyro(270);
 
   // Get red by first aiming with vision then 180, pick up with 1dof
-  fifteen.goCurve(15, 50, 0.3, 2, 5);
-  fifteen.goAlignVision(RED, 3);
+  fifteen.goCurve(10, 50, 0.3, 2, 5);
+  fifteen.goAlignVision(RED, 2);
+  fifteen.goVision(5, 30, RED, 1, 1);
   float head = fmod((fifteen.getAngle() + 180),360.0);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   fifteen.goTurnU(head);
-  fifteen.goForwardU(-22, 40, head, 1, 3);
+  fifteen.goForwardU(-21, 40, head, 1, 3, true, 20, 10, 3);
   fifteen.setBackLift(fifteen.BACK_LIFT_SLIGHT, true);
   fifteen.goForwardU(15, 50, head, 1, 3);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
@@ -150,11 +152,11 @@ int worldSkills() {
   fifteen.goVision(35, 50, YELLOW, 1, 5);
   fifteen.clawDown();
   wait(100, msec);
-  fifteen.moveArmTo(200, 100, false);
+  fifteen.moveArmTo(highArmAngle, 60, false);
   fifteen.goTurnU(180);
 
   // Get  rings
-  fifteen.goCurve(15, 60, -0.3, 2, 5);
+  fifteen.goCurve(18, 60, -0.3, 2, 5);
   fifteen.goTurnU(180);
   fifteen.startIntake();
   fifteen.goForwardU(72, 95, 180, 3, 5, false, 20, 30);
