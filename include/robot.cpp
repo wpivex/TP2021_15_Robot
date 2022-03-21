@@ -266,7 +266,7 @@ void Robot::possiblyResetGyro(float targetAngle) {
 void Robot::goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed) {
   float timeout = 5;
 
-  Trapezoid trap(distInches, maxSpeed, 4, rampUpInches, slowDownInches, rampMinSpeed);
+  Trapezoid trap(fabs(distInches), maxSpeed, 4, rampUpInches, slowDownInches, rampMinSpeed);
 
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();
