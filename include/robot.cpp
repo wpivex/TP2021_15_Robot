@@ -557,7 +557,8 @@ void Robot::goVision(float distInches, float speed, Goal goal, float rampUpInche
     camera.takeSnapshot(goal.sig);
     
     float correction = camera.largestObject.exists ? pidTurn.tick((VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X) : 0;
-    float speed = trapDist.tick(getEncoderDistance());
+    float distDegrees = fmin(leftMotorA.rotation(deg), rightMotorA.rotation(deg)); // take smaller of two distances because arcs
+    float speed = trapDist.tick(degreesToDistance(distDegrees));
 
     setLeftVelocity(forward, speed - correction);
     setRightVelocity(forward, speed + correction);
