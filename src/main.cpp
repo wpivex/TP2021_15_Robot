@@ -92,38 +92,38 @@ int worldSkills() {
   // Head to blue zone
   fifteen.goForwardU(-4.5, 50, 90, 1, 3);
   fifteen.goTurnU(0);
-  fifteen.goForwardU(57, 90, 0, 3, 10);
+  fifteen.goForwardU(63, 90, 0, 3, 10);
 
   // Move front blue goal to platform
-  fifteen.goTurnU(290);
-  fifteen.goForwardU(36, 80, 290, 3, 5, false, 20, 40);
-  fifteen.goForwardU(15, 40, 290, 0, 3);
+  fifteen.goTurnU(270);
+  fifteen.goForwardU(47, 95, 270, 3, 10);
+  wait(100, msec);
+  fifteen.goTurnU(0);
 
   // Do sweep maneuver
   fifteen.moveArmTo(450, 50);
   fifteen.moveArmTo(highArmAngle, 100);
-  fifteen.goTurnU(310);
-  fifteen.goForwardU(3, 40, 310, 1, 1);
+  fifteen.goForwardU(4, 40, 0, 1, 1, true, 20, 10, 2);
   fifteen.clawUp();
   wait(100, msec);
 
   // Swap goal from back to front
-  fifteen.goForwardU(-4, 40, 310, 1, 1);
-  fifteen.goTurnU(270);
+  fifteen.goForwardU(-4, 40, 0, 1, 1);
+  fifteen.goTurnU(90);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
-  fifteen.goForwardU(7, 60, 270, 1, 2);
+  fifteen.goForwardU(7, 60, 90, 1, 2);
   fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
   fifteen.stopIntake();
   fifteen.moveArmTo(lowArmAngle, 100, false);
   wait(1000, msec);
-  fifteen.goTurnU(90);
-  fifteen.goForwardU(10, 40, 90, 1, 1);
+  fifteen.goTurnU(270);
+  fifteen.goForwardU(12, 50, 270, 1, 1, true, 20, 10, 3);
   fifteen.clawDown();
   wait(100, msec);
 
   // Elevate other goal
   fifteen.moveArmTo(highArmAngle, 100, false); // start movement upwards, concurrency
-  fifteen.goForwardU(-13, 70, 90, 2, 5);
+  fifteen.goForwardU(-14, 70, 270, 2, 5);
   fifteen.moveArmTo(highArmAngle, 100, true);
   fifteen.startIntake();
   fifteen.goTurnU(0);
