@@ -173,7 +173,7 @@ int worldSkills() {
   float *x, *y, *headingAngle;
   fifteen.getGPSData(x, y, headingAngle);
   fifteen.gyroSensor.setHeading(*headingAngle, degrees);
-  fifteen.goTurnU(180);
+  fifteen.goTurnU(180); // redo angle to 180 after gps localization
 
   // Use known current position to get to (x = -33, y = 0)
   fifteen.goForwardU(*x + 33, 60, 180, 3, 12);

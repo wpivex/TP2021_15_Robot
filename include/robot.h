@@ -73,7 +73,7 @@ class Robot {
     float getX(int numSamples = 1);
     float getY(int numSamples = 1);
     void possiblyResetGyro(float targetAngle);
-    getGPSData(float *x, float *y, float *headingAngle, int numSamples = 5);
+    void getGPSData(float *x, float *y, float *headingAngle, int numSamples = 5);
 
     void setBackLift(Buttons::Button b, bool blocking);
     void backLiftTeleop();
