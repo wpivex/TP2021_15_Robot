@@ -260,7 +260,27 @@ void Robot::possiblyResetGyro(float targetAngle) {
   } else {
     logController("NO set heading\nfrom:%f\nto:%f", getAngle(), targetAngle);
   }
+}
 
+void Robot::getGPSData(float *x, float *y, float *headingAngle, int numSamples) {
+
+  // Get averaged gps value
+  float startH = GPS11.heading();
+  float sumH = 0;
+  float sumX = 0;
+  float sumY = 0;
+  for (int i = 1; i < numSamples; i++) {
+      wait(20, msec);
+      sumH += getAngleDiff(GPS11.heading(), startH);
+      sumX += GPS11.xPosition(inches);
+      sumY += GPS11.yPosition(inches);
+  }
+  float avgH = GPS11.heading() + sumH / numSamples;
+  *headingAngle = fmod(avgH + 270, 360);
+  *x = sumX / numSamples;
+  *y = sumY /numSamples;
+
+  logController("head gps/curr: %.2f %.2f\nx: %f\ny: %f", *headingAngle, getAngle(), *x, *y);
 }
 
 void Robot::goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed) {
@@ -427,7 +447,7 @@ void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, f
 void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, bool fast) {
 
   PID anglePID(2, 0, 0.13, 1.5, 5, 12, 75);
-  if (fast) anglePID = PID(2, 0, 0.13, 3, 3, 12, 80);
+  if (fast) anglePID = PID(2., 0, 0.13, 3, 3, 12, 80);
 
   float speed;
 
