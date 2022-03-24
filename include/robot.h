@@ -101,7 +101,7 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, flo
     void goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
     void goAlignVision(Goal goal, float timeout);
 
-    void goRadiusCurve(float radius, float numRotations, bool curveDirection, float maxSpeed, float rampUp, float slowDown, float timeout = 5);
+    void goRadiusCurve(float radius, float numRotations, bool curveDirection, float maxSpeed, float rampUp, float slowDown, bool stopAfter = true, float timeout = 5);
 
     void moveArmTo(double degr, double speed, bool blocking = true);
 

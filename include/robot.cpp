@@ -596,7 +596,7 @@ void Robot::goVision(float distInches, float speed, Goal goal, float rampUpInche
 // Will use gyro sensor
 // distAlongCirc is positive if forward, negative if reverse
 // curveDirection is true for right, false for left
-void Robot::goRadiusCurve(float radius, float numRotations, bool curveDirection, float maxSpeed, float rampUp, float slowDown, float timeout) {
+void Robot::goRadiusCurve(float radius, float numRotations, bool curveDirection, float maxSpeed, float rampUp, float slowDown, bool stopAfter, float timeout) {
 
   float distAlongCircum = numRotations * 2 * M_PI;
 
@@ -626,8 +626,11 @@ void Robot::goRadiusCurve(float radius, float numRotations, bool curveDirection,
 
     wait(20, msec);
   }
-  stopLeft();
-  stopRight();
+  if (stopAfter) {
+    stopLeft();
+    stopRight();
+  }
+  
   log("done");
 
 }
