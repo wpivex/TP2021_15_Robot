@@ -58,38 +58,28 @@ int worldSkills() {
   wait(200, msec);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
   fifteen.goForwardU(25, 30, 270, 5, 5);
-  fifteen.goForwardU(-15, 35, 270, 5, 5); // go three passes to pick up rings
-  fifteen.goForwardU(25, 30, 270, 5, 5);
-  fifteen.goForwardU(-15, 35, 270, 5, 5);
+  fifteen.goForwardU(-20, 35, 270, 5, 5); // go three passes to pick up rings
+  fifteen.goForwardU(20, 30, 270, 5, 5);
 
   // Go to blue
-  fifteen.goRadiusCurve(9, 0.5, true, 60, 3, 0, false); // wide 180 deg turn
-  fifteen.moveArmTo(lowArmAngle, 100, false);
-  fifteen.goForwardU(50, 90, 90, 3, 5, false, 50, 50);
+  fifteen.goCurve(-30, 100, 0.3, 3, 3, false);
   fifteen.stopIntake();
-  fifteen.goVision(30, 60, BLUE, 2, 10);
+  float ang = 88;
+  fifteen.moveArmTo(lowArmAngle, 100, false);
+  fifteen.goTurnU(ang);
+  fifteen.goForwardU(75, 95, ang, 0, 10, false, 20, 40);
+  fifteen.goForwardU(10, 40, ang, 0, 3);
   fifteen.clawDown(); // clamp blue
-  wait(100, msec);
 
-  // Wall align
-  fifteen.goForwardU(-7, 50, 90, 2, 4);
-  fifteen.moveArmTo(highArmAngle, 100, false); // start the arm movement
-  fifteen.goTurnU(90);
-  fifteen.moveArmTo(highArmAngle, 100, true); // finish arm movement
-  fifteen.startIntake();
-  fifteen.goForwardU(13, 60, 90, 2, 5, false, 20, 30);
-  fifteen.goForwardTimed(0.7, 30);
-  fifteen.possiblyResetGyro(90);
+  // Turn to blue zone
+  fifteen.goTurnU(45);
+  fifteen.moveArmTo(highArmAngle, 100, false);
+  fifteen.goCurve(10, 100, -0.4, 3, 0, false);
 
-  // Head to blue zone
-  fifteen.goForwardU(-4.5, 50, 90, 2, 4);
-  fifteen.goTurnU(0);
-  fifteen.goForwardU(65, 90, 0, 5, 15);
-
-  // Move front blue goal to platform
-  fifteen.goTurnU(270);
-  fifteen.goForwardU(46, 95, 270, 5, 15);
-  wait(100, msec);
+  // Head to blue platform with curvy path
+  fifteen.goForwardU(40, 95, 0, 0, 0, false);
+  fifteen.goCurve(20, 100, -0.35, 0, 0, false);
+  fifteen.goForwardU(48, 95, 270, 0, 15);
   fifteen.goTurnU(0);
 
   // Do sweep maneuver
@@ -98,18 +88,18 @@ int worldSkills() {
   fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.goTurnU(0);
   fifteen.moveArmTo(highArmAngle, 100, true); // finish arm movement
-  fifteen.goForwardU(4, 40, 0, 1, 2, true, 20, 10, 2);
+  fifteen.goForwardU(5, 40, 0, 1, 2, true, 20, 10, 2);
   fifteen.clawUp();
   fifteen.stopIntake();
   wait(100, msec);
 
   // Swap goal from back to front
-  fifteen.goForwardU(-4, 40, 0, 1, 2);
+  fifteen.goForwardU(-3, 30, 0, 0.5, 0.5);
   float angle = 330;
-  fifteen.goTurnU(angle);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
+  fifteen.goTurnU(angle);
   fifteen.moveArmTo(lowArmAngle, 100, false);
-  fifteen.goForwardU(-6, 50, angle, 0, 4);
+  fifteen.goForwardU(-6, 60, angle, 1, 3);
   fifteen.goForwardU(7, 60, angle, 1, 3);
   fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
 
@@ -118,6 +108,8 @@ int worldSkills() {
   fifteen.goForwardU(10, 50, angle - 180, 1, 0, false);
   fifteen.clawDown(); // slam into goal and claw down so momentum will lessen chance of rings blocking claw
   fifteen.goForwardU(3, 50, angle - 180, 0, 3);
+
+  // not changed yet
 
   // Elevate other goal
   fifteen.goTurnU(315);
