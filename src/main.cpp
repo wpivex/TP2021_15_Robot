@@ -107,29 +107,24 @@ int worldSkills() {
   fifteen.goTurnU(angle - 180);
   fifteen.goForwardU(10, 50, angle - 180, 1, 0, false);
   fifteen.clawDown(); // slam into goal and claw down so momentum will lessen chance of rings blocking claw
+  fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.goForwardU(3, 50, angle - 180, 0, 3);
 
-  // not changed yet
-
   // Elevate other goal
-  fifteen.goTurnU(315);
-  fifteen.moveArmTo(highArmAngle, 100, false); // start movement upwards, concurrency
-  fifteen.goForwardU(-14, 90, 315, 4, 12);
-  fifteen.startIntake();
+  fifteen.goCurve(10, 100, 0.45, 5, 0, false);
   fifteen.goTurnU(0);
-  fifteen.goForwardU(5, 40, 0, 1, 1);
   fifteen.clawUp();
-  wait(100, msec);
-
-  // Wall align right side
   fifteen.goForwardU(-5, 40, 0, 1, 2);
+
+  // Get to red
   fifteen.goTurnU(90);
   fifteen.stopIntake();
   fifteen.moveArmTo(lowArmAngle, 100, false);
-  fifteen.goForwardU(-40, 80, 90, 2, 5);
+  fifteen.goForwardU(48, 95, 90, 5, 15);
 
   // Get red with 1dof
   angle = 160;
+  fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
   fifteen.goTurnU(angle);
   fifteen.goForwardU(-15, 50, angle, 2, 5, true, 20, 10, 3);
   fifteen.setBackLift(fifteen.BACK_LIFT_SLIGHT, true);
@@ -152,8 +147,9 @@ int worldSkills() {
   fifteen.goTurnU(180); // redo angle to 180 after gps localization
 
   // Use known current position to get to y = 0
-  fifteen.goForwardU(*x + 50, 60, 180, 3, 12); // get field then match rings
-  fifteen.goForwardTimed(1.5, 30);
+  fifteen.goForwardU(75, 60, 180, 3, 12, false, 20, 30); // get field then match rings
+  fifteen.goForwardTimed(1.5, 30); // wall align
+  fifteen.possiblyResetGyro(180);
   fifteen.goForwardU(-26, 80, 180, 3, 10);
   fifteen.goTurnU(270);
   fifteen.goForwardU(0 - *y, 80, 270, 3, 20);
