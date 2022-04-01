@@ -2,6 +2,7 @@
 #define MYLIB_CONSTANTS_H 1
 
 #include "vex.h"
+#include <string>
 
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
@@ -24,8 +25,7 @@ const float PI = 3.1415;
 
 const float DISTANCE_BETWEEN_WHEELS = 15; // in inches
 
-
-const struct Goal YELLOW = {0, 13, vex::vision::signature (1, 1849, 2799, 2324, -3795, -3261, -3528, 2.500, 0)};
+const struct Goal YELLOW = {0, 13, vex::vision::signature (1, 979, 1701, 1340, -4143, -3541, -3842, 6.000, 0)};
 const struct Goal RED = {1, 56, vex::vision::signature (1, 5767, 9395, 7581, -685, 1, -342, 3.000, 0)};
 const struct Goal BLUE = {2, 67, vex::vision::signature (1, -2675, -1975, -2324, 8191, 14043, 11116, 3.000, 0)};
 
@@ -71,6 +71,15 @@ static inline bool isTimeout(int startTime, float timeout) {
   return timeout != -1 && vex::timer::system() >= startTime + timeout*1000;
 }
 
+std::string to_string( int x ) {
+  int length = snprintf( NULL, 0, "%d", x );
+  char* buf = new char[length + 1];
+  snprintf( buf, length + 1, "%d", x );
+  std::string str( buf );
+  delete[] buf;
+  return str;
+}
+
 // log output to controller
 template <class ... Args>
 static inline void logController(const char *f, Args ... args) {
@@ -96,7 +105,7 @@ template <class ... Args>
 static inline void log(const char *f, Args ... args) {
 
   Brain.Screen.clearScreen();
-  Brain.Screen.setFont(vex::mono60);
+  Brain.Screen.setFont(vex::mono20);
   int row = 1;
 
   char buffer[200];
@@ -111,5 +120,7 @@ static inline void log(const char *f, Args ... args) {
     row++;
   }
 }
+
+
 
 #endif

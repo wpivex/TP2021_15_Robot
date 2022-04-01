@@ -14,8 +14,6 @@ PID::PID(float kp, float ki, float kd, float TOLERANCE, int REPEATED, float mini
   max = maximum;
 }
 
-
-
 // bound is // max/min value of output. Useful for stuff like capping speed
 float PID::tick(float error, float bound) {
   float integral = prevIntegral + error * 0.02;

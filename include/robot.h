@@ -69,6 +69,8 @@ class Robot {
     float getEncoderDistance();
     void resetEncoderDistance();
 
+    void goalAI();
+
     float getAngle();
     float getX(int numSamples = 1);
     float getY(int numSamples = 1);
@@ -88,7 +90,7 @@ class Robot {
     void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, bool fast = false);
 
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10, bool angleCorrection = true);
+bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
     void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, 
     float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 5);
 
@@ -100,6 +102,8 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, flo
 
     void goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
     void goAlignVision(Goal goal, float timeout);
+
+    void drawVision();
 
     void goRadiusCurve(float radius, float numRotations, bool curveDirection, float maxSpeed, float rampUp, float slowDown, bool stopAfter = true, float timeout = 5);
 

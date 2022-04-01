@@ -122,11 +122,11 @@ void Robot::backLiftTeleop() {
 }
 
 void Robot::clawUp() {
-  frontClaw.set(true);
+  frontClaw.set(false);
 }
 
 void Robot::clawDown() {
-  frontClaw.set(false);
+  frontClaw.set(true);
 }
 
 void Robot::moveArmTo(double degr, double speed, bool blocking) {
@@ -336,7 +336,7 @@ void Robot::goForwardTimed(float duration, float speed) {
 
 // Go forward a number of inches, maintaining a specific heading if angleCorrection = true
 void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout, bool angleCorrection) {
+bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
 
   Trapezoid trap(distInches, maxSpeed, slowDownMinSpeed, rampUpInches, slowDownInches, rampMinSpeed);
   PID turnPID(1, 0.00, 0);
@@ -355,13 +355,13 @@ bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout, bool 
     
     float speed = trap.tick(currDist);
     float ang = getAngleDiff(universalAngle, getAngle());
-    if (angleCorrection) correction = turnPID.tick(ang);
+    correction = turnPID.tick(ang);
  
     setLeftVelocity(forward, speed + correction);
     setRightVelocity(forward, speed - correction);
 
-    //log("Target: %f\nActual:%f\nLeft:%f\nRight:%f\n", universalAngle, getAngle(), speed+correction, speed-correction);
-    log("%f", gyroSensor.heading());
+    log("Target: %f\nActual:%f\nLeft:%f\nRight:%f\n", universalAngle, getAngle(), speed+correction, speed-correction);
+    //log("%f", gyroSensor.heading());
 
     wait(20, msec);
   }
@@ -375,7 +375,7 @@ bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout, bool 
 // Go forward with standard internal encoder wheels for distance, and no angle correction
 void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed, 
 float slowDownMinSpeed, float timeout) {
-  goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout, false);
+  goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
 }
 
 // Go at specified direction and approach given x position with PID motion profiling using GPS absolute positioning
@@ -508,28 +508,27 @@ void Robot::goPointGPS(float x, float y, directionType dir) {
 
 // Detect whether the robot is fighting another robot based on measuring current.
 // If current is always above the threshold, never stop backing up or releasing claw (because fighting other robot in mid)
-void Robot::driveStraightFighting(float distInches, float speed, directionType dir) {
+void Robot::driveStraightFighting(float maxInches, float speed, directionType dir) {
 
   float CURRENT_THRESHHOLD = 1.0; // The threshhold in which "fighting" is detecting
-  int NUM_CURRENT_NEEDED = 4; // The number of times the current must be below threshold in a row to count as stopped fighting
+  int NUM_CURRENT_NEEDED = 3; // The number of times the current must be below threshold in a row to count as stopped fighting
 
   int numCurrentReached = 0;
 
-  float finalDist = fabs(distanceToDegrees(distInches));
   float currentDist = 0;
 
   leftMotorA.resetRotation();
   rightMotorA.resetRotation();
 
   // Keep running while distance is not reached or the current has not dipped below threshold for a significant period of time
-  while ((currentDist < finalDist || numCurrentReached < NUM_CURRENT_NEEDED)) {
+  while ((currentDist < fabs(maxInches) || numCurrentReached < NUM_CURRENT_NEEDED)) {
 
     float c = (leftMotorA.current() + rightMotorA.current()) / 2.0;
 
     if (c <= CURRENT_THRESHHOLD) {
       numCurrentReached++;
     } else numCurrentReached = 0;
-    logController("%d %f", numCurrentReached, c);
+    log("%d %f", numCurrentReached, c);
 
     currentDist = fabs(getEncoderDistance());
     setLeftVelocity(dir, speed);
@@ -539,7 +538,8 @@ void Robot::driveStraightFighting(float distInches, float speed, directionType d
   }
 
   // take four inches to slow down to not break motors
-  Trapezoid trap(4, speed, 0, 0, 4);
+  float slowDownInches = 5;
+  Trapezoid trap(slowDownInches, speed, 10, 0, slowDownInches);
   while (!trap.isCompleted()) {
 
     float speed = trap.tick(getEncoderDistance());
@@ -555,7 +555,7 @@ void Robot::driveStraightFighting(float distInches, float speed, directionType d
 
 
 void Robot::updateCamera(Goal goal) {
-  camera = vision(PORT13, goal.bright, goal.sig);
+  camera = vision(PORT17, goal.bright, goal.sig);
 }
 
 // Go forward until the maximum distance is hit or the timeout is reached
@@ -659,6 +659,143 @@ void Robot::goAlignVision(Goal goal, float timeout) {
 
   stopLeft();
   stopRight();
+}
+
+void Robot::goalAI() {
+  Goal g = YELLOW;
+  updateCamera(g);
+
+  PID pid(1, 0, 0, -1, -1, 3, 50);
+  PID turnPID(1, 0, 0);
+
+  
+  while (true) {
+
+    
+    camera.takeSnapshot(g.sig);
+
+    int location = camera.largestObject.centerX - VISION_CENTER_X;
+    int speed = pid.tick(-location);
+
+    float ang = getAngleDiff(0, getAngle());
+    float correction = turnPID.tick(ang);
+
+    log("speed: %f\ncorrection:%f", speed, correction);
+ 
+    setLeftVelocity(forward, speed + correction);
+    setRightVelocity(forward, speed - correction);
+
+    wait(20, msec);
+  }
+}
+
+float oArea(vision::object o) {
+  return o.width * o.height;
+}
+
+typedef struct GoalPosition {
+  int ox, cx, oy, cy, w, h;
+  int id;
+  int unlinkedTime = 0;
+  color col;
+  bool newlyAdded = true;
+  GoalPosition(int ID, int OX, int CX, int OY, int CY, int W, int H) {
+    id = ID;
+    ox = OX;
+    cx = CX;
+    oy = OY;
+    cy = CY;
+    w = W;
+    h = H;
+    col = color(id*100%255, id*200%255, id*300%255);
+  }
+} GoalPosition;
+
+float oArea(GoalPosition g) {
+  return g.h * g.w;
+}
+
+void Robot::drawVision() {
+
+  Goal g = YELLOW;
+  updateCamera(g);
+  Brain.Screen.setFont(mono20);
+
+  std::vector<GoalPosition> goals;
+  int nextAvailableID = 0;
+  int a = 0;
+
+  while (true) {
+    Brain.Screen.clearScreen();
+    camera.takeSnapshot(g.sig);
+
+    // Reset goal positions
+    for (int i = 0; i < goals.size(); i++) {
+      goals[i].newlyAdded = false;
+    }
+    
+    for (int i = 0; i < camera.objectCount; i++) {
+
+      vision::object o = camera.objects[i];
+
+      if (oArea(o) < 300) continue; 
+      //if (o.originX == 0 && o.originY == 0) continue;
+
+      // Find the matching goal from the previous frame
+      int closestDist = 60;
+      int closestIndex = 0;
+      for (int j = 0; j < goals.size(); j++) {
+        int dist = (int) distanceFormula(o.centerX - goals[j].cx, o.centerY - goals[j].cy);
+        if (!goals[j].newlyAdded && dist < closestDist) {
+          closestDist = dist;
+          closestIndex = j;
+        }
+      }
+
+      if (closestIndex == -1) {
+        // No matching goal, create new GoalPosition
+        goals.push_back(GoalPosition(nextAvailableID++, o.originX, o.centerX, o.originY, o.centerY, o.width, o.height));
+      } else {
+        goals[closestIndex].newlyAdded = true; // link the goal, in that it persisted across this frame
+        // Now modify the goals' location
+        goals[closestIndex].ox = o.originX;
+        goals[closestIndex].cx = o.centerX;
+        goals[closestIndex].oy = o.originY;
+        goals[closestIndex].cy = o.centerY;
+        goals[closestIndex].w = o.width;
+        goals[closestIndex].h = o.height;
+      }
+    }
+
+    // Now that we've linked all the available goals, delete any that didn't show up in this frame
+    // Also, draw the one's that were linked
+    for (int i = 0; i < goals.size(); i++) {
+      if (!goals[i].newlyAdded) {
+        if (goals[i].unlinkedTime > 20) {
+          goals.erase(goals.begin() + i); // remove element at index i
+          i--;
+        } else {
+          goals[i].unlinkedTime++;
+        }
+        
+      } else {
+        Brain.Screen.setFillColor(goals[i].col);
+        Brain.Screen.drawRectangle(goals[i].cx, goals[i].cy, goals[i].w, goals[i].h);
+      }
+    }
+
+    Brain.Screen.setFillColor(red);
+    Brain.Screen.printAt(50, 50, "size %d %d %d %d", goals.size(), nextAvailableID, camera.objectCount, a);
+    for (int i = 0; i < goals.size(); i++) {
+      Brain.Screen.printAt(50, 70+i*20, "%d %.2f", goals[i].id, oArea(goals[i]));
+
+    }
+    
+    
+    Brain.Screen.render();
+    wait(20, msec);
+
+  }
 }
 
 

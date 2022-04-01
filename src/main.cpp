@@ -5,6 +5,8 @@
 // DigitalInE           digital_in    E               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 #include "robot.cpp"
+#include <string>
+#include <sstream>
 
 // CODE FOR 15" ROBOT
 
@@ -57,17 +59,17 @@ int worldSkills() {
   fifteen.startIntake();
   wait(200, msec);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
-  fifteen.goForwardU(25, 30, 270, 5, 5);
-  fifteen.goForwardU(-20, 35, 270, 5, 5); // go three passes to pick up rings
-  fifteen.goForwardU(20, 30, 270, 5, 5);
+  fifteen.goForwardU(23, 30, 270, 2, 5, true, 20, 10, 3);
+  fifteen.goForwardU(-19, 35, 270, 2, 5, true, 20, 10, 3); // go three passes to pick up rings
+  fifteen.goForwardU(19, 30, 270, 2, 5);
 
   // Go to blue
-  fifteen.goCurve(-30, 100, 0.3, 3, 3, false);
+  fifteen.goCurve(-28, 85, 0.33, 3, 4, false);
   fifteen.stopIntake();
   float ang = 88;
   fifteen.moveArmTo(lowArmAngle, 100, false);
   fifteen.goTurnU(ang);
-  fifteen.goForwardU(75, 95, ang, 0, 10, false, 20, 40);
+  fifteen.goForwardU(76, 95, ang, 0, 10, false, 20, 40);
   fifteen.goForwardU(10, 40, ang, 0, 3);
   fifteen.clawDown(); // clamp blue
 
@@ -159,13 +161,61 @@ int worldSkills() {
 }
 
 int testForward() {
-  fifteen.goForward(24, 80, 5, 15);
+  fifteen.goForward(100, 80, 5, 15);
   return 0;
 }
 
+int worldsAuton() {
+
+  int autonStart = vex::timer::system();
+
+  float lowArmAngle = -20;
+  float highArmAngle = 680;
+
+  fifteen.clawUp();
+  fifteen.backLiftL.resetRotation();
+  fifteen.backLiftR.resetRotation();
+  fifteen.frontArmL.resetRotation();
+  fifteen.frontArmR.resetRotation();
+
+  // go forward and grab goal
+  // go backwards fighting
+
+  // Relocalize with wall aligns
+  fifteen.goForwardTimed(2, 30); // wall align back wall
+  fifteen.moveArmTo(highArmAngle, 100, false);
+  fifteen.goForwardU(4, 40, 0, 1, 1);
+  fifteen.goTurnU(270);
+  fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
+  fifteen.goForwardTimed(3, 40);
+
+  // Get blue goal
+  fifteen.goForwardU(32, 60, 270, 2, 5);
+  fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
+
+  // do match load rings
+  fifteen.goForwardU(23, 30, 270, 2, 5, true, 20, 10, 3);
+  fifteen.goForwardU(-19, 35, 270, 2, 5, true, 20, 10, 3); // go three passes to pick up rings
+  fifteen.goForwardU(19, 30, 270, 2, 5);
+
+  // Get to strafe position
+  fifteen.goCurve(-28, 50, 0.33, 3, 4, false);
+  fifteen.goTurnU(90);
+
+  // run AI until 30 second mark
 
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(testForward); }
+  return 0;
+}
+
+int visionTest() {
+  fifteen.goalAI();
+  return 0;
+
+}
+
+
+void autonomous() { fifteen.setBrakeType(coast); task auto1(visionTest); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
@@ -174,6 +224,9 @@ void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTele
 
 int main() {
 
+  fifteen.drawVision();
+
+  /*
   wait(500, msec);
   fifteen.gyroSensor.calibrate();
   fifteen.waitGyroCallibrate();
@@ -193,6 +246,9 @@ int main() {
 
   Competition.autonomous(autonomous);
   Competition.drivercontrol(userControl);
+  */
+
+  
 
 
   //platformClimb2();
