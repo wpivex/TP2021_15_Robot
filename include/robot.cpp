@@ -661,141 +661,124 @@ void Robot::goAlignVision(Goal goal, float timeout) {
   stopRight();
 }
 
-void Robot::goalAI() {
-  Goal g = YELLOW;
-  updateCamera(g);
+// Track each yellow goal across time, and label each with an id
+void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals) {
 
-  PID pid(1, 0, 0, -1, -1, 3, 50);
-  PID turnPID(1, 0, 0);
+  static int nextAvailableID = 0;
 
+  // Reset goal linking status to false
+  for (int i = 0; i < goals.size(); i++) {
+    goals[i].isLinkedThisFrame = false;
+  }
   
-  while (true) {
+  // Go through all of the current frame's detected objects and link with persistent goals vector
+  Brain.Screen.setFillColor(transparent);
+  for (int i = 0; i < camera.objectCount; i++) {
+    vision::object o = camera.objects[i];
 
-    
-    camera.takeSnapshot(g.sig);
+    if (oArea(o) < 230) continue; 
 
-    int location = camera.largestObject.centerX - VISION_CENTER_X;
-    int speed = pid.tick(-location);
+    // Find the matching goal from the previous frame
+    int closestDist = 60;
+    int closestIndex = -1;
+    for (int j = 0; j < goals.size(); j++) {
+      int dist = (int) distanceFormula(o.centerX - goals[j].cx, o.centerY - goals[j].cy);
+      if (!goals[j].isLinkedThisFrame && dist < closestDist) {
+        closestDist = dist;
+        closestIndex = j;
+      }
+    }
 
-    float ang = getAngleDiff(0, getAngle());
-    float correction = turnPID.tick(ang);
+    if (closestIndex == -1) {
+      // No matching goal, create new GoalPosition
+      goals.push_back(GoalPosition(nextAvailableID++, o.originX, o.centerX, o.originY, o.centerY, o.width, o.height));
+    } else {
+      // Now update the goals' location
+      goals[closestIndex].update(o.originX, o.centerX, o.originY, o.centerY, o.width, o.height);
+    }
 
-    log("speed: %f\ncorrection:%f", speed, correction);
- 
-    setLeftVelocity(forward, speed + correction);
-    setRightVelocity(forward, speed - correction);
-
-    wait(20, msec);
+    Brain.Screen.printAt(50, 70+i*20, "%d %.2f", closestIndex == -1 ? -1 : goals[closestIndex].id, oArea(o));
   }
-}
 
-float oArea(vision::object o) {
-  return o.width * o.height;
-}
+  // Now that we've linked all the available goals, delete any that didn't show up in this frame
+  // For those who showed up, increment lifetime.
+  // Also, draw a helpful UI
+  for (int i = 0; i < goals.size(); i++) {
+    if (!goals[i].isLinkedThisFrame) {
+      if (goals[i].unlinkedTime > 20) {
+        goals.erase(goals.begin() + i); // remove element at index i
+        i--;
+      } else {
+        goals[i].unlinkedTime++;
+      }
+      
+    } else {
+      goals[i].lifetime++;
 
-typedef struct GoalPosition {
-  int ox, cx, oy, cy, w, h;
-  int id;
-  int unlinkedTime = 0;
-  color col;
-  bool newlyAdded = true;
-  int lifetime = 1; // number of linked frames since spawn
-  GoalPosition(int ID, int OX, int CX, int OY, int CY, int W, int H) {
-    id = ID;
-    ox = OX;
-    cx = CX;
-    oy = OY;
-    cy = CY;
-    w = W;
-    h = H;
-    col = color(id*100%255, id*200%255, id*300%255);
+      if (goals[i].isPersistent()) { // draw goals on screen
+        Brain.Screen.setFillColor(goals[i].col);
+        Brain.Screen.drawRectangle(goals[i].cx, goals[i].cy, goals[i].w, goals[i].h);
+      }
+    }
   }
-} GoalPosition;
 
-float oArea(GoalPosition g) {
-  return g.h * g.w;
+  // goal UI
+  Brain.Screen.setFillColor(red);
+  Brain.Screen.printAt(50, 50, "size %d %d %d %d", goals.size(), nextAvailableID, camera.objectCount, camera.objects[0].centerY);
+
 }
 
 
-void Robot::drawVision() {
+/* Initial box rush, grab left yellow goal with front clamp, go back and wall align. Then wall align with left wall forwards.
+Back up, grab alliance goal with 1dof, do match loads. Wall align with side, drop yellow goal, then curve to strafe position.
+
+At the start of AI, 1dof is holding alliance goal with rings, front claw is free.
+This AI consists of a cyclic four-state machine:
+
+1. Detection phase. Keep moving forward until any goal is seen. Ignore any goals to the left of the centerline
+A goal is seen when an object with a size > 1000 is detected. Set target to its id.
+2. Strafing phase. Forward PID until perpendicular to target. 
+3. Attack phase. Turn 90 and go towards goal until limit switch is activated or hard limit (to avoid crossing line) is reached.
+Grab yellow goal with front claw. Intake the whole time. Then, back up and align with blue goal with side camera
+4. Undocking phase. Drop the yellow goal behind, and then turn so that 1dof faces other alliance goal again to reset. Go back to step 1.
+
+Keep repeating until timer threshold. Once that is reached, move on to the next step of the auton.
+Go to a measured distance close to second alliance goal. Turn 180 and do swap maneuever so front claw holds first alliance goal.
+Turn 180, and grab with 1dof. Do more match loads. */
+
+// search through goals list to find persistent goal with size > 1200, and on the right side of screen.
+// return -1 if does not exist
+int Robot::findGoal(std::vector<GoalPosition> &goals) {
+
+  for (int i = 0; i < goals.size(); i++) {
+
+    if (!goals[i].isPersistent()) continue;
+    if (goals[i].cx < VISION_CENTER_X) continue;
+    if (goals[i].averageArea() < 1200) continue;
+
+    return i;
+  }
+
+   return -1;
+
+}
+
+void Robot::detectAndStrafeToGoal() {
 
   Goal g = YELLOW;
   updateCamera(g);
   Brain.Screen.setFont(mono20);
 
   std::vector<GoalPosition> goals;
-  int nextAvailableID = 0;
-  int a = 0;
-
+  
   while (true) {
-    Brain.Screen.clearScreen();
+
     camera.takeSnapshot(g.sig);
-
-    // Reset goal positions
-    for (int i = 0; i < goals.size(); i++) {
-      goals[i].newlyAdded = false;
-    }
+    Brain.Screen.clearScreen();
     
-    for (int i = 0; i < camera.objectCount; i++) {
-      vision::object o = camera.objects[i];
+    trackObjectsForCurrentFrame(goals);
 
-      if (oArea(o) < 300) continue; 
-      //if (o.originX == 0 && o.originY == 0) continue;
 
-      // Find the matching goal from the previous frame
-      int closestDist = 60;
-      int closestIndex = -1;
-      for (int j = 0; j < goals.size(); j++) {
-        int dist = (int) distanceFormula(o.centerX - goals[j].cx, o.centerY - goals[j].cy);
-        if (!goals[j].newlyAdded && dist < closestDist) {
-          closestDist = dist;
-          closestIndex = j;
-        }
-      }
-
-      if (closestIndex == -1) {
-        // No matching goal, create new GoalPosition
-        goals.push_back(GoalPosition(nextAvailableID++, o.originX, o.centerX, o.originY, o.centerY, o.width, o.height));
-      } else {
-        goals[closestIndex].newlyAdded = true; // link the goal, in that it persisted across this frame
-        // Now modify the goals' location
-        goals[closestIndex].ox = o.originX;
-        goals[closestIndex].cx = o.centerX;
-        goals[closestIndex].oy = o.originY;
-        goals[closestIndex].cy = o.centerY;
-        goals[closestIndex].w = o.width;
-        goals[closestIndex].h = o.height;
-      }
-    }
-
-    // Now that we've linked all the available goals, delete any that didn't show up in this frame
-    // Also, draw the one's that were linked
-    for (int i = 0; i < goals.size(); i++) {
-      if (!goals[i].newlyAdded) {
-        if (goals[i].unlinkedTime > 20) {
-          goals.erase(goals.begin() + i); // remove element at index i
-          i--;
-        } else {
-          goals[i].unlinkedTime++;
-        }
-        
-      } else {
-        goals[i].lifetime++;
-
-        if (goals[i].lifetime < 5) continue;
-
-        Brain.Screen.setFillColor(goals[i].col);
-        Brain.Screen.drawRectangle(goals[i].cx, goals[i].cy, goals[i].w, goals[i].h);
-      }
-    }
-
-    Brain.Screen.setFillColor(red);
-    Brain.Screen.printAt(50, 50, "size %d %d %d %d", goals.size(), nextAvailableID, camera.objectCount, camera.objects[0].centerY);
-    for (int i = 0; i < goals.size(); i++) {
-      Brain.Screen.printAt(50, 70+i*20, "%d %.2f", goals[i].id, oArea(goals[i]));
-
-    }
-    
     
     Brain.Screen.render();
     wait(20, msec);

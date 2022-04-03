@@ -208,14 +208,9 @@ int worldsAuton() {
   return 0;
 }
 
-int visionTest() {
-  fifteen.goalAI();
-  return 0;
-
-}
 
 
-void autonomous() { fifteen.setBrakeType(coast); task auto1(visionTest); }
+void autonomous() { fifteen.setBrakeType(coast); task auto1(worldsAuton); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
@@ -224,7 +219,7 @@ void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTele
 
 int main() {
 
-  fifteen.drawVision();
+  fifteen.runAI();
 
   /*
   wait(500, msec);

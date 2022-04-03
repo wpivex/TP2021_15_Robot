@@ -17,6 +17,7 @@
 #include "Buttons.cpp"
 #include "PIDController.cpp"
 #include "TrapezoidController.cpp"
+#include "GoalPosition.h"
 #include <constants.h>
 
 using namespace vex;
@@ -69,8 +70,6 @@ class Robot {
     float getEncoderDistance();
     void resetEncoderDistance();
 
-    void goalAI();
-
     float getAngle();
     float getX(int numSamples = 1);
     float getY(int numSamples = 1);
@@ -82,7 +81,7 @@ class Robot {
 
     void clawUp();
     void clawDown();
-    
+
     void goForwardTimed(float duration, float speed);
 
     void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter = true, float rampMinSpeed = 20);
@@ -129,6 +128,12 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, flo
     void setBrakeType(brakeType b);
 
     void waitGyroCallibrate();
+
+    void trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals);
+    int findGoal(std::vector<GoalPosition> &goals);
+    void detectAndStrafeToGoal();
+    void runAI();
+
 
   private:
     void driveTeleop();

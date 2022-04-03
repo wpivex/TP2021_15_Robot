@@ -3,6 +3,8 @@
 
 #include "vex.h"
 #include <string>
+#include <queue>
+#include "FixedRingQueue.cpp"
 
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
@@ -35,6 +37,10 @@ namespace BackLift {
 
 static const float VISION_CENTER_X = 157.0;
 const float MAX_VOLTS = 12.0; // maximum volts for vex motors
+
+float oArea(vex::vision::object o) {
+  return o.width * o.height;
+}
 
 
 static inline float distanceToDegrees(float distInches) {
