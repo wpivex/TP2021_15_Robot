@@ -697,9 +697,9 @@ typedef struct GoalPosition {
   int ox, cx, oy, cy, w, h;
   int id;
   int unlinkedTime = 0;
-  //int lifetime = 0; // number of frames since spawn
   color col;
   bool newlyAdded = true;
+  int lifetime = 1; // number of linked frames since spawn
   GoalPosition(int ID, int OX, int CX, int OY, int CY, int W, int H) {
     id = ID;
     ox = OX;
@@ -715,6 +715,7 @@ typedef struct GoalPosition {
 float oArea(GoalPosition g) {
   return g.h * g.w;
 }
+
 
 void Robot::drawVision() {
 
@@ -735,9 +736,7 @@ void Robot::drawVision() {
       goals[i].newlyAdded = false;
     }
     
-    // Loop through each seen object in this specific frame
     for (int i = 0; i < camera.objectCount; i++) {
-
       vision::object o = camera.objects[i];
 
       if (oArea(o) < 300) continue; 
@@ -745,7 +744,7 @@ void Robot::drawVision() {
 
       // Find the matching goal from the previous frame
       int closestDist = 60;
-      int closestIndex = 0;
+      int closestIndex = -1;
       for (int j = 0; j < goals.size(); j++) {
         int dist = (int) distanceFormula(o.centerX - goals[j].cx, o.centerY - goals[j].cy);
         if (!goals[j].newlyAdded && dist < closestDist) {
@@ -774,22 +773,24 @@ void Robot::drawVision() {
     for (int i = 0; i < goals.size(); i++) {
       if (!goals[i].newlyAdded) {
         if (goals[i].unlinkedTime > 20) {
-          //goals.erase(goals.begin() + i); // remove element at index i
-          //i--;
+          goals.erase(goals.begin() + i); // remove element at index i
+          i--;
         } else {
           goals[i].unlinkedTime++;
         }
         
       } else {
-        //goals[i].lifetime++; // goal was linked this frame; increment lifetime
-        //if (goals[i].lifetime < 5) continue; // newly-spawned goals are not drawn until they are matured
+        goals[i].lifetime++;
+
+        if (goals[i].lifetime < 5) continue;
+
         Brain.Screen.setFillColor(goals[i].col);
         Brain.Screen.drawRectangle(goals[i].cx, goals[i].cy, goals[i].w, goals[i].h);
       }
     }
 
     Brain.Screen.setFillColor(red);
-    Brain.Screen.printAt(50, 50, "size %d %d %d %d", goals.size(), nextAvailableID, camera.objectCount, a);
+    Brain.Screen.printAt(50, 50, "size %d %d %d %d", goals.size(), nextAvailableID, camera.objectCount, camera.objects[0].centerY);
     for (int i = 0; i < goals.size(); i++) {
       Brain.Screen.printAt(50, 70+i*20, "%d %.2f", goals[i].id, oArea(goals[i]));
 

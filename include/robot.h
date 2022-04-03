@@ -82,7 +82,7 @@ class Robot {
 
     void clawUp();
     void clawDown();
-
+    
     void goForwardTimed(float duration, float speed);
 
     void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter = true, float rampMinSpeed = 20);
