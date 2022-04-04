@@ -3,7 +3,7 @@
 
 RingQueue::RingQueue(int sizeP) {
   capacity = sizeP;
-  arr = new int[size];
+  arr = new int[capacity];
 }
 
 // If at capacity, the first element is popped

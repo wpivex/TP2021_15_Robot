@@ -221,7 +221,23 @@ int main() {
 
   int matchStartTime = timer::system();
 
-  fifteen.runAI(matchStartTime);
+  //fifteen.runAI(matchStartTime);
+
+  Goal g = YELLOW;
+  fifteen.updateCamera(g);
+  Brain.Screen.setFont(mono20);
+
+  std::vector<GoalPosition> goals;
+
+  while (true) {
+    Brain.Screen.clearScreen();
+    fifteen.camera.takeSnapshot(g.sig);
+    fifteen.trackObjectsForCurrentFrame(goals);
+
+    //Brain.Screen.render();
+    wait(20, msec);
+  }
+  
 
   /*
   wait(500, msec);

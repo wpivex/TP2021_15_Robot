@@ -725,7 +725,7 @@ void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int ta
         color c = (targetID == -1) ? goals[i].col : (goals[i].id == targetID ? green : red); // show red/green if in strafe phase, otherwise display mapped color
         Brain.Screen.setFillColor(c);
         Brain.Screen.drawRectangle(goals[i].cx, goals[i].cy, goals[i].w, goals[i].h);
-        Brain.Screen.printAt(50, 70+i*20, "%d %.2f", goals[i].id, goals[i].averageArea());
+        Brain.Screen.printAt(50, 70+i*20, "%d %d", goals[i].id, goals[i].averageArea());
       }
     }
   }
@@ -764,13 +764,13 @@ void Robot::detectionAndStrafePhase(std::vector<GoalPosition> &goals) {
   Goal g = YELLOW;
   int targetID = -1;
 
-  PID strafePID(1, 0, 0, 5, 5, 10, 60);
+  PID strafePID(1, 0, 0, 5, 5, 10, 30);
   PID anglePID(1, 0, 0);
   float speed, ang, correction;
 
   while (targetID == -1 || !strafePID.isCompleted()) {
 
-    speed = 40; // if no target goal detected, this is default speed
+    speed = 20; // if no target goal detected, this is default speed
 
     camera.takeSnapshot(g.sig);
     Brain.Screen.clearScreen();
