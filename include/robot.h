@@ -17,7 +17,7 @@
 #include "Buttons.cpp"
 #include "PIDController.cpp"
 #include "TrapezoidController.cpp"
-#include "GoalPosition.h"
+#include "GoalPosition.cpp"
 #include <constants.h>
 
 using namespace vex;
@@ -129,10 +129,10 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, flo
 
     void waitGyroCallibrate();
 
-    void trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals);
-    int findGoal(std::vector<GoalPosition> &goals);
-    void detectAndStrafeToGoal();
-    void runAI();
+    void trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int targetID = -1);
+    int findGoalID(std::vector<GoalPosition> &goals);
+    void detectionAndStrafePhase(std::vector<GoalPosition> &goals);
+    void runAI(int matchStartTime);
 
 
   private:

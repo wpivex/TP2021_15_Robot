@@ -219,7 +219,9 @@ void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTele
 
 int main() {
 
-  fifteen.runAI();
+  int matchStartTime = timer::system();
+
+  fifteen.runAI(matchStartTime);
 
   /*
   wait(500, msec);

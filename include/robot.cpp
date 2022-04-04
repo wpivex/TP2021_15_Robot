@@ -661,8 +661,16 @@ void Robot::goAlignVision(Goal goal, float timeout) {
   stopRight();
 }
 
+GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID) {
+  for (int i = 0; i < goals.size(); i++) {
+    if (goals[i].id == targetID) return &goals[i];
+  }
+  return nullptr;
+}
+
 // Track each yellow goal across time, and label each with an id
-void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals) {
+// targetID only for visual purposes to highlight target goal, if targetID != -1
+void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int targetID) {
 
   static int nextAvailableID = 0;
 
@@ -693,11 +701,9 @@ void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals) {
       // No matching goal, create new GoalPosition
       goals.push_back(GoalPosition(nextAvailableID++, o.originX, o.centerX, o.originY, o.centerY, o.width, o.height));
     } else {
-      // Now update the goals' location
+      // If found link to persistent goal, update the goal's location
       goals[closestIndex].update(o.originX, o.centerX, o.originY, o.centerY, o.width, o.height);
     }
-
-    Brain.Screen.printAt(50, 70+i*20, "%d %.2f", closestIndex == -1 ? -1 : goals[closestIndex].id, oArea(o));
   }
 
   // Now that we've linked all the available goals, delete any that didn't show up in this frame
@@ -716,8 +722,10 @@ void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals) {
       goals[i].lifetime++;
 
       if (goals[i].isPersistent()) { // draw goals on screen
-        Brain.Screen.setFillColor(goals[i].col);
+        color c = (targetID == -1) ? goals[i].col : (goals[i].id == targetID ? green : red); // show red/green if in strafe phase, otherwise display mapped color
+        Brain.Screen.setFillColor(c);
         Brain.Screen.drawRectangle(goals[i].cx, goals[i].cy, goals[i].w, goals[i].h);
+        Brain.Screen.printAt(50, 70+i*20, "%d %.2f", goals[i].id, goals[i].averageArea());
       }
     }
   }
@@ -728,6 +736,79 @@ void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals) {
 
 }
 
+// search through goals list to find persistent goal with size > 1200, and on the right side of screen.
+// return -1 if does not exist
+int Robot::findGoalID(std::vector<GoalPosition> &goals) {
+
+  // Find the left-most goal
+
+  int leftmostValidGoalIndex = -1;
+  for (int i = 0; i < goals.size(); i++) {
+
+    if (!goals[i].isPersistent()) continue;
+    if (goals[i].cx < VISION_CENTER_X) continue; // disregard goals to the left of robot
+    if (goals[i].averageArea() < 1200) continue;
+
+    // Since met all pre-conditions, goal is valid. Check if the left-most one.
+    if (leftmostValidGoalIndex == -1 || goals[i].cx < goals[leftmostValidGoalIndex].cx) {
+        leftmostValidGoalIndex = i;
+    }
+  }
+  return (leftmostValidGoalIndex == -1) ? leftmostValidGoalIndex : goals[leftmostValidGoalIndex].id;
+}
+
+void Robot::detectionAndStrafePhase(std::vector<GoalPosition> &goals) {
+
+  float ANGLE = 0;
+
+  Goal g = YELLOW;
+  int targetID = -1;
+
+  PID strafePID(1, 0, 0, 5, 5, 10, 60);
+  PID anglePID(1, 0, 0);
+  float speed, ang, correction;
+
+  while (targetID == -1 || !strafePID.isCompleted()) {
+
+    speed = 40; // if no target goal detected, this is default speed
+
+    camera.takeSnapshot(g.sig);
+    Brain.Screen.clearScreen();
+    
+    trackObjectsForCurrentFrame(goals);
+
+    if (targetID == -1) {
+      targetID = findGoalID(goals);
+    }
+
+    // if there's a target goal, make sure it still exists
+    if (targetID != -1) {
+      GoalPosition *goal = getGoalFromID(goals, targetID);
+      if (goal != nullptr) {
+        // Perform strafe towards goal
+        speed = strafePID.tick(goal->cx - VISION_CENTER_X);
+
+      } else {
+        // Tracked goal was lost, abort target and find new
+        targetID = -1;
+      }
+    }
+
+    ang = getAngleDiff(ANGLE, getAngle());
+    correction = anglePID.tick(ang);
+
+    setLeftVelocity(forward, -speed + correction);
+    setRightVelocity(forward, -speed - correction);
+    
+    Brain.Screen.render();
+    wait(20, msec);
+
+  }
+
+  stopLeft();
+  stopRight();
+
+}
 
 /* Initial box rush, grab left yellow goal with front clamp, go back and wall align. Then wall align with left wall forwards.
 Back up, grab alliance goal with 1dof, do match loads. Wall align with side, drop yellow goal, then curve to strafe position.
@@ -745,45 +826,24 @@ Grab yellow goal with front claw. Intake the whole time. Then, back up and align
 Keep repeating until timer threshold. Once that is reached, move on to the next step of the auton.
 Go to a measured distance close to second alliance goal. Turn 180 and do swap maneuever so front claw holds first alliance goal.
 Turn 180, and grab with 1dof. Do more match loads. */
-
-// search through goals list to find persistent goal with size > 1200, and on the right side of screen.
-// return -1 if does not exist
-int Robot::findGoal(std::vector<GoalPosition> &goals) {
-
-  for (int i = 0; i < goals.size(); i++) {
-
-    if (!goals[i].isPersistent()) continue;
-    if (goals[i].cx < VISION_CENTER_X) continue;
-    if (goals[i].averageArea() < 1200) continue;
-
-    return i;
-  }
-
-   return -1;
-
-}
-
-void Robot::detectAndStrafeToGoal() {
+void Robot::runAI(int matchStartTime) {
 
   Goal g = YELLOW;
   updateCamera(g);
   Brain.Screen.setFont(mono20);
 
   std::vector<GoalPosition> goals;
-  
+
+  detectionAndStrafePhase(goals);
+
+  /*
   while (true) {
 
-    camera.takeSnapshot(g.sig);
-    Brain.Screen.clearScreen();
-    
-    trackObjectsForCurrentFrame(goals);
+    goals.clear();
+  }*/
 
 
-    
-    Brain.Screen.render();
-    wait(20, msec);
 
-  }
 }
 
 
