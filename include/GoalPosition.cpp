@@ -22,11 +22,11 @@ GoalPosition::GoalPosition(int ID, int OX, int CX, int OY, int CY, int W, int H)
   col = vex::color(id*100%255, id*200%255, id*300%255); // cheap way to map each id to some color
 }
 
-float GoalPosition::area() {
+int GoalPosition::area() {
   return w * h;
 }
 
-float GoalPosition::averageArea() {
+int GoalPosition::averageArea() {
   return sizeQueue.getAverage();
 }
 

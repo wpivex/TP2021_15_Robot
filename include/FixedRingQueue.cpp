@@ -3,14 +3,14 @@
 
 RingQueue::RingQueue(int sizeP) {
   capacity = sizeP;
-  arr = new int[capacity];
+  arr = std::vector<int>(sizeP);
 }
 
 // If at capacity, the first element is popped
 void RingQueue::push(int value) {
-
   if (size < capacity) {
-    arr[size++] = value;
+    arr[size] = value;
+    size++;
   } else {
     arr[firstElement] = value;
     firstElement = (firstElement + 1) % capacity;
@@ -25,8 +25,4 @@ int RingQueue::getAverage() {
   for (int i = 0; i < size; i++) sum += arr[i];
   
   return sum / size;
-}
-
-RingQueue::~RingQueue() {
-  delete[] arr;
 }

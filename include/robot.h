@@ -14,6 +14,7 @@
 #include <math.h>       /* sin */
 #include <stdio.h>      /* printf, fgets */
 #include <unistd.h>
+#include <algorithm>
 #include "Buttons.cpp"
 #include "PIDController.cpp"
 #include "TrapezoidController.cpp"

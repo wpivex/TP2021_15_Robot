@@ -678,16 +678,17 @@ void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int ta
   for (int i = 0; i < goals.size(); i++) {
     goals[i].isLinkedThisFrame = false;
   }
+
+  
   
   // Go through all of the current frame's detected objects and link with persistent goals vector
-  Brain.Screen.setFillColor(transparent);
   for (int i = 0; i < camera.objectCount; i++) {
     vision::object o = camera.objects[i];
 
     if (oArea(o) < 230) continue; 
 
     // Find the matching goal from the previous frame
-    int closestDist = 60;
+    int closestDist = 60; // maximum distance from previous frame location that can link
     int closestIndex = -1;
     for (int j = 0; j < goals.size(); j++) {
       int dist = (int) distanceFormula(o.centerX - goals[j].cx, o.centerY - goals[j].cy);
@@ -706,33 +707,37 @@ void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int ta
     }
   }
 
+
   // Now that we've linked all the available goals, delete any that didn't show up in this frame
   // For those who showed up, increment lifetime.
   // Also, draw a helpful UI
   for (int i = 0; i < goals.size(); i++) {
     if (!goals[i].isLinkedThisFrame) {
       if (goals[i].unlinkedTime > 20) {
-        goals.erase(goals.begin() + i); // remove element at index i
+        std::swap(goals[i], goals.back());
+        goals.pop_back();
         i--;
       } else {
         goals[i].unlinkedTime++;
       }
       
     } else {
-      goals[i].lifetime++;
+      goals[i].lifetime++;        
+    }
+  }
 
-      if (goals[i].isPersistent()) { // draw goals on screen
-        color c = (targetID == -1) ? goals[i].col : (goals[i].id == targetID ? green : red); // show red/green if in strafe phase, otherwise display mapped color
+  for (int i = 0; i < goals.size(); i++) {
+    if (goals[i].isPersistent()) {
+      color c = (targetID == -1) ? goals[i].col : (goals[i].id == targetID ? green : red); // show red/green if in strafe phase, otherwise display mapped color
         Brain.Screen.setFillColor(c);
         Brain.Screen.drawRectangle(goals[i].cx, goals[i].cy, goals[i].w, goals[i].h);
-        Brain.Screen.printAt(50, 70+i*20, "%d %d", goals[i].id, goals[i].averageArea());
-      }
+        Brain.Screen.printAt(50, 70+i*20, "a %d %d", goals[i].id, goals[i].averageArea());
     }
   }
 
   // goal UI
-  Brain.Screen.setFillColor(red);
-  Brain.Screen.printAt(50, 50, "size %d %d %d %d", goals.size(), nextAvailableID, camera.objectCount, camera.objects[0].centerY);
+  Brain.Screen.setFillColor(transparent);
+  Brain.Screen.printAt(50, 50, "size %d %d %d", goals.size(), nextAvailableID, camera.objectCount);
 
 }
 

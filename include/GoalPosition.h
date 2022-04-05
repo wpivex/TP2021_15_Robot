@@ -9,8 +9,8 @@ class GoalPosition {
   void update(int OX, int CX, int OY, int CY, int W, int H);
 
   bool isPersistent();
-  float area();
-  float averageArea();
+  int area();
+  int averageArea();
     
   int ox, cx, oy, cy, w, h;
   int id;
