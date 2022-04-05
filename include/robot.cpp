@@ -798,6 +798,7 @@ int Robot::detectionAndStrafePhase() {
 
     if (targetID == -1) {
       targetID = findGoalID(goals);
+      if (targetID != -1) clawUp(); // New goal detected, so on first frame of starting to get new goal, drop current yellow goal
     }
 
     // if there's a target goal, make sure it still exists
@@ -857,9 +858,7 @@ A goal is seen when an object with a size > 1000 is detected. Set target to its 
 Grab yellow goal with front claw. Intake the whole time. Then, back up and align with blue goal with side camera
 4. Undocking phase. Drop the yellow goal behind, and then turn so that 1dof faces other alliance goal again to reset. Go back to step 1.
 
-Keep repeating until timer threshold. Once that is reached, move on to the next step of the auton.
-Go to a measured distance close to second alliance goal. Turn 180 and do swap maneuever so front claw holds first alliance goal.
-Turn 180, and grab with 1dof. Do more match loads. */
+Keep repeating until timer threshold. */
 void Robot::runAI(int matchStartTime) {
 
   Goal g = YELLOW;
@@ -887,19 +886,9 @@ void Robot::runAI(int matchStartTime) {
     
     goForwardU(-dist, 85, 0, 7, 12);
     goTurnU(270, true, 2);
-    clawUp(); // drop collected goal
     moveArmTo(-20, 50, false);
   }
   logController("timer done");
-  
-
-  /*
-  while (true) {
-
-    goals.clear();
-  }*/
-
-
 
 }
 
