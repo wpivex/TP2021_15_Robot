@@ -208,17 +208,7 @@ int worldsAuton() {
   return 0;
 }
 
-
-
-void autonomous() { fifteen.setBrakeType(coast); task auto1(worldsAuton); }
-//void autonomous() { thread auto1(mainAuto); }
-
-void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
-//void userControl(void) { task controlLoop1(logDistance); }
-
-
-int main() {
-
+void testTracking() {
   int matchStartTime = timer::system();
 
   //fifteen.runAI(matchStartTime);
@@ -237,9 +227,22 @@ int main() {
     //Brain.Screen.render();
     wait(20, msec);
   }
+}
+
+
+
+void autonomous() { fifteen.setBrakeType(coast); task auto1(worldsAuton); }
+//void autonomous() { thread auto1(mainAuto); }
+
+void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
+//void userControl(void) { task controlLoop1(logDistance); }
+
+
+int main() {
+  
   
 
-  /*
+  
   wait(500, msec);
   fifteen.gyroSensor.calibrate();
   fifteen.waitGyroCallibrate();
@@ -252,11 +255,16 @@ int main() {
   fifteen.rightMotorA.resetRotation();
   fifteen.backLiftL.resetRotation();
   fifteen.backLiftR.resetRotation();
+
+  wait(5000, msec);
+
+  fifteen.gyroSensor.setHeading(270, degrees);
+  fifteen.runAI(0);
   
   
   // DRIVER SKILLS TRUE, OTHERWISE FALSE
   //fifteen.setTransmission(false);
-
+  /*
   Competition.autonomous(autonomous);
   Competition.drivercontrol(userControl);
   */

@@ -3,7 +3,7 @@
 
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c), gyroSensor(PORT14) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c), gyroSensor(PORT13) {
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);
@@ -685,7 +685,7 @@ void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int ta
   for (int i = 0; i < camera.objectCount; i++) {
     vision::object o = camera.objects[i];
 
-    if (oArea(o) < 230) continue; 
+    if (oArea(o) < 160) continue; 
 
     // Find the matching goal from the previous frame
     int closestDist = 60; // maximum distance from previous frame location that can link
@@ -752,7 +752,7 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
 
     if (!goals[i].isPersistent()) continue;
     if (goals[i].cx < VISION_CENTER_X) continue; // disregard goals to the left of robot
-    if (goals[i].averageArea() < 1200) continue;
+    if (goals[i].averageArea() < 1100) continue;
 
     // Since met all pre-conditions, goal is valid. Check if the left-most one.
     if (leftmostValidGoalIndex == -1 || goals[i].cx < goals[leftmostValidGoalIndex].cx) {
@@ -764,23 +764,33 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
 
 void Robot::detectionAndStrafePhase(std::vector<GoalPosition> &goals) {
 
-  float ANGLE = 0;
+  resetEncoderDistance();
+  float rampUpInches = 3;
+
+  float ANGLE = 270;
+  float MIN_SPEED = 15;
+  float COAST_SPEED = 40;
 
   Goal g = YELLOW;
   int targetID = -1;
 
-  PID strafePID(1, 0, 0, 5, 5, 10, 30);
+  PID strafePID(0.75, 0, 0.01, 5, 5, 8, 40);
   PID anglePID(1, 0, 0);
-  float speed, ang, correction;
+  float speed, offset, ang, correction;
 
   while (targetID == -1 || !strafePID.isCompleted()) {
 
-    speed = 20; // if no target goal detected, this is default speed
+    // Initial ramp up for idle
+    speed = COAST_SPEED; // if no target goal detected, this is default speed
+    float dist = fabs(getEncoderDistance());
+    if (dist < rampUpInches) speed = MIN_SPEED + (COAST_SPEED - MIN_SPEED) * (dist / rampUpInches);
+
+    offset = -1;
 
     camera.takeSnapshot(g.sig);
     Brain.Screen.clearScreen();
     
-    trackObjectsForCurrentFrame(goals);
+    trackObjectsForCurrentFrame(goals, targetID);
 
     if (targetID == -1) {
       targetID = findGoalID(goals);
@@ -791,7 +801,8 @@ void Robot::detectionAndStrafePhase(std::vector<GoalPosition> &goals) {
       GoalPosition *goal = getGoalFromID(goals, targetID);
       if (goal != nullptr) {
         // Perform strafe towards goal
-        speed = strafePID.tick(goal->cx - VISION_CENTER_X);
+        offset = goal->cx - VISION_CENTER_X;
+        speed = strafePID.tick(offset);
 
       } else {
         // Tracked goal was lost, abort target and find new
@@ -804,11 +815,15 @@ void Robot::detectionAndStrafePhase(std::vector<GoalPosition> &goals) {
 
     setLeftVelocity(forward, -speed + correction);
     setRightVelocity(forward, -speed - correction);
+
+    Brain.Screen.printAt(20, 20, "Speed: %.1f Offset: %f", -speed, offset);
     
     Brain.Screen.render();
     wait(20, msec);
 
   }
+
+  Brain.Screen.printAt(20, 20, "Speed: 0");
 
   stopLeft();
   stopRight();
@@ -838,8 +853,21 @@ void Robot::runAI(int matchStartTime) {
   Brain.Screen.setFont(mono20);
 
   std::vector<GoalPosition> goals;
-
-  detectionAndStrafePhase(goals);
+  moveArmTo(-20, 50, false);
+  
+  while (!isTimeout(matchStartTime, 25)) {
+    clawUp();
+    detectionAndStrafePhase(goals);
+    wait(500, msec);
+    goTurnU(0);
+    clawUp();
+    
+    goForwardU(49, 70, 0, 5, 12);
+    clawDown();
+    goForwardU(-49, 70, 0, 5, 12);
+    goTurnU(270);
+  }
+  
 
   /*
   while (true) {
