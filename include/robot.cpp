@@ -751,7 +751,7 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
   for (int i = 0; i < goals.size(); i++) {
 
     if (!goals[i].isPersistent()) continue;
-    if (goals[i].cx < VISION_CENTER_X) continue; // disregard goals to the left of robot
+    //if (goals[i].cx < VISION_CENTER_X) continue; // disregard goals to the left of robot
     if (goals[i].averageArea() < 1100) continue;
 
     // Since met all pre-conditions, goal is valid. Check if the left-most one.
@@ -762,19 +762,21 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
   return (leftmostValidGoalIndex == -1) ? leftmostValidGoalIndex : goals[leftmostValidGoalIndex].id;
 }
 
-void Robot::detectionAndStrafePhase(std::vector<GoalPosition> &goals) {
+void Robot::detectionAndStrafePhase() {
+
+  std::vector<GoalPosition> goals;
 
   resetEncoderDistance();
   float rampUpInches = 3;
 
   float ANGLE = 270;
   float MIN_SPEED = 15;
-  float COAST_SPEED = 40;
+  float COAST_SPEED = 50;
 
   Goal g = YELLOW;
   int targetID = -1;
 
-  PID strafePID(0.75, 0, 0.01, 5, 5, 8, 40);
+  PID strafePID(0.75, 0, 0.01, 5, 5, 8, 50);
   PID anglePID(1, 0, 0);
   float speed, offset, ang, correction;
 
@@ -850,22 +852,28 @@ void Robot::runAI(int matchStartTime) {
 
   Goal g = YELLOW;
   updateCamera(g);
+  clawUp();
   Brain.Screen.setFont(mono20);
 
-  std::vector<GoalPosition> goals;
+  
   moveArmTo(-20, 50, false);
   
-  while (!isTimeout(matchStartTime, 25)) {
-    clawUp();
-    detectionAndStrafePhase(goals);
-    wait(500, msec);
-    goTurnU(0);
-    clawUp();
+  while (!isTimeout(matchStartTime, 35)) {
+
+    // Detection phase
+    detectionAndStrafePhase();
+    goTurnU(0); // point to goal
     
-    goForwardU(49, 70, 0, 5, 12);
+    // Attack phase
+    goForwardU(49, 85, 0, 5, 12);
     clawDown();
-    goForwardU(-49, 70, 0, 5, 12);
+    moveArmTo(100, 100, false);
+    wait(100, msec);
+    
+    goForwardU(-49, 85, 0, 5, 12);
     goTurnU(270);
+    clawUp(); // drop collected goal
+    moveArmTo(-20, 50, false);
   }
   
 
