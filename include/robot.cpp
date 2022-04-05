@@ -752,7 +752,7 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
 
     if (!goals[i].isPersistent()) continue;
     //if (goals[i].cx < VISION_CENTER_X) continue; // disregard goals to the left of robot
-    if (goals[i].averageArea() < 1100) continue;
+    if (goals[i].averageArea() < 1150) continue;
 
     // Since met all pre-conditions, goal is valid. Check if the left-most one.
     if (leftmostValidGoalIndex == -1 || goals[i].cx < goals[leftmostValidGoalIndex].cx) {
@@ -762,7 +762,8 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
   return (leftmostValidGoalIndex == -1) ? leftmostValidGoalIndex : goals[leftmostValidGoalIndex].id;
 }
 
-void Robot::detectionAndStrafePhase() {
+// return area of object when arrived
+int Robot::detectionAndStrafePhase() {
 
   std::vector<GoalPosition> goals;
 
@@ -779,6 +780,7 @@ void Robot::detectionAndStrafePhase() {
   PID strafePID(0.75, 0, 0.01, 5, 5, 8, 50);
   PID anglePID(1, 0, 0);
   float speed, offset, ang, correction;
+  int area = -1;
 
   while (targetID == -1 || !strafePID.isCompleted()) {
 
@@ -804,6 +806,7 @@ void Robot::detectionAndStrafePhase() {
       if (goal != nullptr) {
         // Perform strafe towards goal
         offset = goal->cx - VISION_CENTER_X;
+        area = goal->averageArea();
         speed = strafePID.tick(offset);
 
       } else {
@@ -830,6 +833,15 @@ void Robot::detectionAndStrafePhase() {
   stopLeft();
   stopRight();
 
+  return area;
+}
+
+// Get distance to goal from area of goal using empirical formula: https://www.desmos.com/calculator/pvbkwhu5lc
+float Robot::getDistanceFromArea(int area) {
+  if (area > 6000) return 24;
+  else if (area > 2200) return 36 - 12.0 * (area - 2200.0) / (6000.0 - 2200);
+  else if (area > 1150) return 48 - 12.0 * (area - 1150.0) / (2200.0 - 1150);
+  else return 48;
 }
 
 /* Initial box rush, grab left yellow goal with front clamp, go back and wall align. Then wall align with left wall forwards.
@@ -861,20 +873,24 @@ void Robot::runAI(int matchStartTime) {
   while (!isTimeout(matchStartTime, 35)) {
 
     // Detection phase
-    detectionAndStrafePhase();
+    int area = detectionAndStrafePhase();
+    int dist = getDistanceFromArea(area);
+    logController("Area: %d\nDist: %d", area, dist);
     goTurnU(0); // point to goal
     
     // Attack phase
-    goForwardU(49, 85, 0, 5, 12);
+
+    goForwardU(dist, 85, 0, 7, 12);
     clawDown();
     moveArmTo(100, 100, false);
     wait(100, msec);
     
-    goForwardU(-49, 85, 0, 5, 12);
-    goTurnU(270);
+    goForwardU(-dist, 85, 0, 7, 12);
+    goTurnU(270, true, 2);
     clawUp(); // drop collected goal
     moveArmTo(-20, 50, false);
   }
+  logController("timer done");
   
 
   /*

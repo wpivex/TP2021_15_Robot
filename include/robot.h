@@ -132,7 +132,8 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, flo
 
     void trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int targetID = -1);
     int findGoalID(std::vector<GoalPosition> &goals);
-    void detectionAndStrafePhase();
+    int detectionAndStrafePhase();
+    float getDistanceFromArea(int area);
     void runAI(int matchStartTime);
 
 
