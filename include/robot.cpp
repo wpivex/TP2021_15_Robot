@@ -672,6 +672,7 @@ GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID) {
 // targetID only for visual purposes to highlight target goal, if targetID != -1
 void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int targetID) {
 
+
   static int nextAvailableID = 0;
 
   // Reset goal linking status to false
@@ -752,7 +753,7 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
 
     if (!goals[i].isPersistent()) continue;
     //if (goals[i].cx < VISION_CENTER_X) continue; // disregard goals to the left of robot
-    if (goals[i].averageArea() < 1150) continue;
+    if (goals[i].averageArea() < 1200) continue;
 
     // Since met all pre-conditions, goal is valid. Check if the left-most one.
     if (leftmostValidGoalIndex == -1 || goals[i].cx < goals[leftmostValidGoalIndex].cx) {
@@ -763,7 +764,7 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
 }
 
 // return area of object when arrived
-int Robot::detectionAndStrafePhase() {
+int Robot::detectionAndStrafePhase(float *horizonalDistance) {
 
   std::vector<GoalPosition> goals;
 
@@ -834,6 +835,8 @@ int Robot::detectionAndStrafePhase() {
   stopLeft();
   stopRight();
 
+  *horizonalDistance = -getEncoderDistance() + *horizonalDistance; // increment horizontal distance throughout AI
+
   return area;
 }
 
@@ -841,8 +844,8 @@ int Robot::detectionAndStrafePhase() {
 float Robot::getDistanceFromArea(int area) {
   if (area > 6000) return 24;
   else if (area > 2200) return 36 - 12.0 * (area - 2200.0) / (6000.0 - 2200);
-  else if (area > 1150) return 48 - 12.0 * (area - 1150.0) / (2200.0 - 1150);
-  else return 48;
+  else if (area > 1200) return 47 - 11.0 * (area - 1200.0) / (2200.0 - 1200);
+  else return 47;
 }
 
 /* Initial box rush, grab left yellow goal with front clamp, go back and wall align. Then wall align with left wall forwards.
@@ -868,18 +871,35 @@ void Robot::runAI(int matchStartTime) {
 
   
   moveArmTo(-20, 50, false);
+
+  float hDist = 0;
+  float distDelta = 0;
   
   while (!isTimeout(matchStartTime, 35)) {
 
     // Detection phase
-    int area = detectionAndStrafePhase();
+    int area = detectionAndStrafePhase(&hDist);
     int dist = getDistanceFromArea(area);
     logController("Area: %d\nDist: %d", area, dist);
     goTurnU(0); // point to goal
+
+    // At these locations, there is ring flower blocking the way, so deal with it
+    if ((hDist > 32  && hDist < 38) || (hDist > 56 && hDist < 62)) {
+      logController("flower: %.2f", hDist);
+      moveArmTo(200, 100, true);
+      startIntake();
+      goForwardU(12, 50, 0, 3, 4);
+      goForwardU(-3, 50, 0, 1.25, 1.25);
+      stopIntake();
+      moveArmTo(-20, 100, true);
+      distDelta = 9;
+    } else {
+      logController("no flower: %.2f", hDist);
+      distDelta = 0;
+    }
     
     // Attack phase
-
-    goForwardU(dist, 85, 0, 7, 12);
+    goForwardU(dist - distDelta, 85, 0, 7, 12);
     clawDown();
     moveArmTo(100, 100, false);
     wait(100, msec);
