@@ -86,7 +86,7 @@ class Robot {
 
     void goForwardTimed(float duration, float speed);
 
-    void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter = true, float rampMinSpeed = 20);
+    void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter = true, float rampMinSpeed = 20, float slowMinSpeed = 12);
 
     void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, bool fast = false);
 
@@ -110,7 +110,7 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, flo
 
     void moveArmTo(double degr, double speed, bool blocking = true);
 
-    void driveStraightFighting(float distInches, float speed, directionType dir);
+    void goFightBackwards();
 
 
     float normalize(float axis);

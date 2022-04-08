@@ -7,7 +7,6 @@
 #include "robot.cpp"
 #include <string>
 #include <sstream>
-#include <stdlib.h> 
 
 // CODE FOR 15" ROBOT
 
@@ -232,30 +231,60 @@ void testTracking() {
 
 int autonAI() {
 
-  fifteen.gyroSensor.setHeading(270, degrees);
-  fifteen.runAI(0);
+  int matchStartTime = timer::system();
 
-  return 0;
-}
+  float lowArmAngle = -20;
+  float highArmAngle = 680;
 
-int testGraph() {
+  // Initial go rush
+  fifteen.goForward(43, 100, 4, 6, false, 20, 50);
+  fifteen.goForward(6, 50, 0, 4, true);
+  fifteen.clawDown();
+  fifteen.goFightBackwards();
 
-  VisualGraph g(0, 100, 3, 100);
-  while (true) {
+  // Get back to wall align but avoiding platform
+  fifteen.moveArmTo(200, 100, false);
+  fifteen.goTurnU(50);
+  fifteen.goForwardU(-20, 70, 50, 3, 7, false);
+  fifteen.goTurnU(0);
+  fifteen.goForwardU(-8, 60, 0, 3, 1, false);
+  fifteen.moveArmTo(highArmAngle, 100, false);
+  fifteen.goForwardTimed(2, -35); // wall align back
+  fifteen.gyroSensor.setHeading(0, deg);
 
-    g.push(rand() % 100);
+  // Align with left wall
+  fifteen.goForwardU(4, 40, 0, 2, 2);
+  fifteen.goTurnU(270);
+  fifteen.goForwardU(15, 70, 270, 3, 5, false, 20, 35);
+  fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
+  fifteen.goForwardTimed(1.5, 35);
 
-    g.display();
-    wait(50, msec);
-  }
-
+  // Get alliance goal
   
+  fifteen.goForwardU(-25, 70, 270, 5, 5, false, 20, 40);
+  fifteen.goForwardU(-10, 40, 270, 0, 4, true);
+  fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
+
+  // do match load rings
+  fifteen.startIntake();
+  fifteen.goForwardU(23, 30, 270, 2, 5, true, 20, 10, 3);
+  fifteen.goForwardU(-18, 35, 270, 2, 5, true, 20, 10, 3); // go three passes to pick up rings
+  fifteen.goForwardU(16, 30, 270, 2, 0, false);
+  fifteen.goForwardTimed(0.7, 30);
+
+  // Get into AI strafe position
+  fifteen.goCurve(15, 50, -0.35, 3, 0, false);
+  fifteen.moveArmTo(0, 100);
+  fifteen.goCurve(15, 50, -0.35, 0, 5, true);
+  fifteen.goTurnU(270);
+
+  //fifteen.runAI(matchStartTime);
 
   return 0;
 }
 
 
-void autonomous() { fifteen.setBrakeType(coast); task auto1(testGraph); }
+void autonomous() { fifteen.setBrakeType(coast); task auto1(autonAI); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
@@ -263,11 +292,8 @@ void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTele
 
 
 int main() {
-
-  testGraph();
   
-  /*
-  
+  fifteen.clawUp();
   wait(500, msec);
   fifteen.gyroSensor.calibrate();
   fifteen.waitGyroCallibrate();
@@ -276,13 +302,19 @@ int main() {
   // fifteen.clawDown();
 
   fifteen.resetEncoderDistance();
+
+  wait(2500, msec);
+  log("set heading");
+  fifteen.gyroSensor.setHeading(0, deg);
+  wait(3000, msec);
+
+  autonAI();
   
-  Competition.autonomous(autonomous);
-  Competition.drivercontrol(userControl);
+  //Competition.autonomous(autonomous);
+  //Competition.drivercontrol(userControl);
 
   //platformClimb2();
 
-  */
 
   while (true) {
     wait(20, msec);

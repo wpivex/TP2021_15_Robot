@@ -3,7 +3,7 @@
 
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c), gyroSensor(PORT13) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c), gyroSensor(PORT5) {
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);
@@ -283,10 +283,10 @@ void Robot::getGPSData(float *x, float *y, float *headingAngle, int numSamples) 
   logController("head gps/curr: %.2f %.2f\nx: %f\ny: %f", *headingAngle, getAngle(), *x, *y);
 }
 
-void Robot::goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed) {
+void Robot::goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed, float slowMinSpeed) {
   float timeout = 5;
 
-  Trapezoid trap(fabs(distInches), maxSpeed, 4, rampUpInches, slowDownInches, rampMinSpeed);
+  Trapezoid trap(fabs(distInches), maxSpeed, slowMinSpeed, rampUpInches, slowDownInches, rampMinSpeed);
 
   int startTime = vex::timer::system();
   leftMotorA.resetPosition();
@@ -355,12 +355,12 @@ bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
     
     float speed = trap.tick(currDist);
     float ang = getAngleDiff(universalAngle, getAngle());
-    correction = turnPID.tick(ang);
+    correction = (universalAngle == -1) ? 0 : turnPID.tick(ang);
  
     setLeftVelocity(forward, speed + correction);
     setRightVelocity(forward, speed - correction);
 
-    log("Target: %f\nActual:%f\nLeft:%f\nRight:%f\n", universalAngle, getAngle(), speed+correction, speed-correction);
+    //log("Target: %f\nActual:%f\nLeft:%f\nRight:%f\n", universalAngle, getAngle(), speed+correction, speed-correction);
     //log("%f", gyroSensor.heading());
 
     wait(20, msec);
@@ -369,10 +369,10 @@ bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
     stopLeft();
     stopRight();
   }
-  log("straight done");
+  //log("straight done");
 }
 
-// Go forward with standard internal encoder wheels for distance, and no angle correction
+// Go forward with standard internal encoder wheels for distance, maintain current heading
 void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed, 
 float slowDownMinSpeed, float timeout) {
   goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
@@ -506,51 +506,29 @@ void Robot::goPointGPS(float x, float y, directionType dir) {
   }
 }
 
-// Detect whether the robot is fighting another robot based on measuring current.
-// If current is always above the threshold, never stop backing up or releasing claw (because fighting other robot in mid)
-void Robot::driveStraightFighting(float maxInches, float speed, directionType dir) {
+void Robot::goFightBackwards() {
 
-  float CURRENT_THRESHHOLD = 1.0; // The threshhold in which "fighting" is detecting
-  int NUM_CURRENT_NEEDED = 3; // The number of times the current must be below threshold in a row to count as stopped fighting
+  VisualGraph g(-0.1, 2.9, 8, 50);
 
-  int numCurrentReached = 0;
-
-  float currentDist = 0;
-
-  leftMotorA.resetRotation();
-  rightMotorA.resetRotation();
-
-  // Keep running while distance is not reached or the current has not dipped below threshold for a significant period of time
-  while ((currentDist < fabs(maxInches) || numCurrentReached < NUM_CURRENT_NEEDED)) {
-
-    float c = (leftMotorA.current() + rightMotorA.current()) / 2.0;
-
-    if (c <= CURRENT_THRESHHOLD) {
-      numCurrentReached++;
-    } else numCurrentReached = 0;
-    log("%d %f", numCurrentReached, c);
-
-    currentDist = fabs(getEncoderDistance());
-    setLeftVelocity(dir, speed);
-    setRightVelocity(dir, speed);
-
+  setLeftVelocity(reverse, 100);
+  setRightVelocity(reverse, 100);
+  wait(500, msec);
+  //int startTime = vex::timer::system();
+  float curr = 3;
+  bool display = true;
+  while (curr > 0.9) {
+    
+    curr = (leftMotorA.current() + rightMotorA.current()) / 2;
+    g.push(curr);
+    if (display) g.display();
+    display = !display;
+    
     wait(20, msec);
   }
+  g.push(curr);
+  g.display();
+  goForward(-5, 100, 0, 5);
 
-  // take four inches to slow down to not break motors
-  float slowDownInches = 5;
-  Trapezoid trap(slowDownInches, speed, 10, 0, slowDownInches);
-  while (!trap.isCompleted()) {
-
-    float speed = trap.tick(getEncoderDistance());
-
-    setLeftVelocity(dir, speed);
-    setRightVelocity(dir, speed);
-
-    wait(20, msec);
-  }
-  stopLeft();
-  stopRight();
 }
 
 
@@ -884,7 +862,7 @@ void Robot::runAI(int matchStartTime) {
     goTurnU(0); // point to goal
 
     // At these locations, there is ring flower blocking the way, so deal with it
-    if ((hDist > 32  && hDist < 38) || (hDist > 56 && hDist < 62)) {
+    if (false && ((hDist > 32  && hDist < 38) || (hDist > 56 && hDist < 62))) {
       logController("flower: %.2f", hDist);
       moveArmTo(200, 100, true);
       startIntake();
