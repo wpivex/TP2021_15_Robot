@@ -7,6 +7,7 @@
 #include "robot.cpp"
 #include <string>
 #include <sstream>
+#include <stdlib.h> 
 
 // CODE FOR 15" ROBOT
 
@@ -237,8 +238,24 @@ int autonAI() {
   return 0;
 }
 
+int testGraph() {
 
-void autonomous() { fifteen.setBrakeType(coast); task auto1(autonAI); }
+  VisualGraph g(0, 100, 3, 100);
+  while (true) {
+
+    g.push(rand() % 100);
+
+    g.display();
+    wait(50, msec);
+  }
+
+  
+
+  return 0;
+}
+
+
+void autonomous() { fifteen.setBrakeType(coast); task auto1(testGraph); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
@@ -246,6 +263,10 @@ void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTele
 
 
 int main() {
+
+  testGraph();
+  
+  /*
   
   wait(500, msec);
   fifteen.gyroSensor.calibrate();
@@ -261,7 +282,10 @@ int main() {
 
   //platformClimb2();
 
+  */
+
   while (true) {
     wait(20, msec);
   }
+
 }

@@ -19,6 +19,7 @@
 #include "PIDController.cpp"
 #include "TrapezoidController.cpp"
 #include "GoalPosition.cpp"
+#include "VisualGraph.cpp"
 #include <constants.h>
 
 using namespace vex;
