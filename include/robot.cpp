@@ -91,8 +91,8 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
     backLiftR.rotateTo(130, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_DOWN) {
     log("down");
-    backLiftL.rotateTo(350, degrees, 60, velocityUnits::pct, false); // gentler set down
-    backLiftR.rotateTo(350, degrees, 60, velocityUnits::pct, false);
+    backLiftL.rotateTo(360, degrees, 60, velocityUnits::pct, false); // gentler set down
+    backLiftR.rotateTo(360, degrees, 60, velocityUnits::pct, false);
     if (blocking) wait(400, msec);
   } else if (b == BACK_LIFT_SLIGHT) {
     backLiftL.rotateTo(260, degrees, SPEED, velocityUnits::pct, false);
@@ -742,7 +742,7 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
 }
 
 // return area of object when arrived
-int Robot::detectionAndStrafePhase(float *horizonalDistance) {
+int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime) {
 
   std::vector<GoalPosition> goals;
 
@@ -762,6 +762,11 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance) {
   int area = -1;
 
   while (targetID == -1 || !strafePID.isCompleted()) {
+
+    if (isTimeout(matchStartTime, 38) || (*horizonalDistance - getEncoderDistance()) > 72) {
+      area = -1;
+      break;
+    };
 
     // Initial ramp up for idle
     speed = COAST_SPEED; // if no target goal detected, this is default speed
@@ -848,35 +853,24 @@ void Robot::runAI(int matchStartTime) {
   Brain.Screen.setFont(mono20);
 
   
-  moveArmTo(-20, 50, false);
+  //moveArmTo(-20, 50, false);
 
   float hDist = 0;
   float distDelta = 0;
   
-  while (!isTimeout(matchStartTime, 35)) {
+  while (true) {
 
     // Detection phase
-    int area = detectionAndStrafePhase(&hDist);
+    moveArmTo(200, 100, false);
+    int area = detectionAndStrafePhase(&hDist, matchStartTime);
+    if (area == -1) break; // exit if timeout or exceed x value
     int dist = getDistanceFromArea(area);
     logController("Area: %d\nDist: %d", area, dist);
     goTurnU(0); // point to goal
 
-    // At these locations, there is ring flower blocking the way, so deal with it
-    if (false && ((hDist > 32  && hDist < 38) || (hDist > 56 && hDist < 62))) {
-      logController("flower: %.2f", hDist);
-      moveArmTo(200, 100, true);
-      startIntake();
-      goForwardU(12, 50, 0, 3, 4);
-      goForwardU(-3, 50, 0, 1.25, 1.25);
-      stopIntake();
-      moveArmTo(-20, 100, true);
-      distDelta = 9;
-    } else {
-      logController("no flower: %.2f", hDist);
-      distDelta = 0;
-    }
     
     // Attack phase
+    moveArmTo(-20, 100, false);
     goForwardU(dist - distDelta, 85, 0, 7, 12);
     clawDown();
     moveArmTo(100, 100, false);
@@ -887,6 +881,10 @@ void Robot::runAI(int matchStartTime) {
     moveArmTo(-20, 50, false);
   }
   logController("timer done");
+
+  // Go to final horizontal distance
+  goForwardU(hDist - 35, 70, 270, 5, 10);
+  goTurnU(0);
 
 }
 
