@@ -768,7 +768,7 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
   while (targetID == -1 || !strafePID.isCompleted()) {
 
     pt = (pt + 1) % 10;
-    if (pt == 0) logController("Dist: %.f", *horizonalDistance);
+    if (pt == 0) logController("Dist: %.1f", *horizonalDistance);
 
     if (isTimeout(matchStartTime, 42) || (*horizonalDistance - getEncoderDistance()) > MAX_TRAVEL_DISTANCE) {
       area = -1;
@@ -877,10 +877,10 @@ void Robot::runAI(int matchStartTime) {
     goTurnU(0); // point to goal
 
     // Attack phase
-    goForwardU(initialForward, 40, 0, 2, 3);
+    goForwardU(dist * 2.0 / 3.0, 40, 0, 2, 3);
     moveArmTo(-20, 100, true);
     stopIntake();
-    goForwardU(dist - initialForward, 85, 0, 7, 12);
+    goForwardU(dist / 3.0, 85, 0, 7, 12);
     clawDown();
     moveArmTo(100, 100, false);
     wait(100, msec);

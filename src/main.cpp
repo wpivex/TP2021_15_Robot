@@ -286,7 +286,7 @@ int autonAI() {
   fifteen.clawUp();
   fifteen.moveArmTo(200, 100, false);
   fifteen.goCurve(-15.5, 50, 0.365, 0, 0, false);
-  fifteen.goForward(-3, 50, 0, 3, true);
+  fifteen.goForward(-4, 50, 0, 3, true);
   fifteen.goTurnU(270);
 
   fifteen.runAI(matchStartTime);
