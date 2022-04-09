@@ -3,7 +3,7 @@
 
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c), gyroSensor(PORT5) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c), gyroSensor(PORT16) {
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);
@@ -740,8 +740,11 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
   return (leftmostValidGoalIndex == -1) ? leftmostValidGoalIndex : goals[leftmostValidGoalIndex].id;
 }
 
+
 // return area of object when arrived
 int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime) {
+
+  static const float MAX_TRAVEL_DISTANCE = 60;
 
   std::vector<GoalPosition> goals;
 
@@ -760,9 +763,14 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
   float speed, offset, ang, correction;
   int area = -1;
 
+  int pt = 0;
+
   while (targetID == -1 || !strafePID.isCompleted()) {
 
-    if (isTimeout(matchStartTime, 38) || (*horizonalDistance - getEncoderDistance()) > 72) {
+    pt = (pt + 1) % 10;
+    if (pt == 0) logController("Dist: %.f", *horizonalDistance);
+
+    if (isTimeout(matchStartTime, 38) || (*horizonalDistance - getEncoderDistance()) > MAX_TRAVEL_DISTANCE) {
       area = -1;
       break;
     };
