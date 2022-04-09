@@ -257,7 +257,7 @@ int autonAI() {
   //fifteen.gyroSensor.setHeading(0, deg);
 
   // Align with left wall
-  fifteen.goForwardU(3, 30, 0, 0.5, 2);
+  fifteen.goForwardU(2, 30, 0, 0.5, 2);
   wait(150, msec);
   fifteen.goTurnU(270);
   fifteen.goForwardU(15, 70, 270, 3, 5, false, 20, 35);
@@ -273,7 +273,7 @@ int autonAI() {
   // do match load rings
   //fifteen.startIntake();
   fifteen.goForwardU(23, 30, 270, 2, 5, true, 20, 10, 3);
-  fifteen.goForwardU(-18, 35, 270, 2, 5, true, 20, 10, 3); // go three passes to pick up rings
+  fifteen.goForwardU(-17, 35, 270, 2, 5, true, 20, 10, 3); // go three passes to pick up rings
   fifteen.goForwardU(16, 30, 270, 2, 0, false);
   fifteen.goForwardTimed(0.7, 30);
 
