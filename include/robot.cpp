@@ -744,7 +744,7 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
 // return area of object when arrived
 int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime) {
 
-  static const float MAX_TRAVEL_DISTANCE = 75;
+  static const float MAX_TRAVEL_DISTANCE = 80;
 
   std::vector<GoalPosition> goals;
 
@@ -770,7 +770,7 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
     pt = (pt + 1) % 10;
     if (pt == 0) logController("Dist: %.f", *horizonalDistance);
 
-    if (isTimeout(matchStartTime, 41) || (*horizonalDistance - getEncoderDistance()) > MAX_TRAVEL_DISTANCE) {
+    if (isTimeout(matchStartTime, 42) || (*horizonalDistance - getEncoderDistance()) > MAX_TRAVEL_DISTANCE) {
       area = -1;
       break;
     };
@@ -863,7 +863,7 @@ void Robot::runAI(int matchStartTime) {
   //moveArmTo(-20, 50, false);
 
   float hDist = 0;
-  float initialForward = 12;
+  float initialForward = 11;
   
   while (true) {
 

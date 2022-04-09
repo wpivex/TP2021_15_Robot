@@ -165,6 +165,8 @@ int testForward() {
   return 0;
 }
 
+/*
+
 int worldsAuton() {
 
   int autonStart = vex::timer::system();
@@ -228,6 +230,8 @@ void testTracking() {
     wait(20, msec);
   }
 }
+*/
+
 
 int autonAI() {
 
@@ -273,7 +277,7 @@ int autonAI() {
   // do match load rings
   //fifteen.startIntake();
   fifteen.goForwardU(23, 30, 270, 2, 5, true, 20, 10, 3);
-  fifteen.goForwardU(-17, 35, 270, 2, 5, true, 20, 10, 3); // go three passes to pick up rings
+  fifteen.goForwardU(-17, 35, 270, 2, 5, true, 20, 10, 2.5); // go three passes to pick up rings
   fifteen.goForwardU(16, 30, 270, 2, 0, false);
   fifteen.goForwardTimed(0.7, 30);
 
