@@ -275,7 +275,7 @@ int autonAI() {
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
 
   // do match load rings
-  //fifteen.startIntake();
+  fifteen.startIntake();
   fifteen.goForwardU(23, 30, 270, 2, 5, true, 20, 10, 3);
   fifteen.goForwardU(-17, 35, 270, 2, 5, true, 20, 10, 2.5); // go three passes to pick up rings
   fifteen.goForwardU(16, 30, 270, 2, 0, false);

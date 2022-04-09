@@ -753,7 +753,7 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
 
   float ANGLE = 270;
   float MIN_SPEED = 15;
-  float COAST_SPEED = 50;
+  float COAST_SPEED = 65;
 
   Goal g = YELLOW;
   int targetID = -1;
