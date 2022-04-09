@@ -249,9 +249,9 @@ int autonAI() {
   // Get back to wall align but avoiding platform
   fifteen.moveArmTo(200, 100, false);
   fifteen.goTurnU(50);
-  fifteen.goForwardU(-15, 70, 50, 3, 7, false);
+  fifteen.goForwardU(-13, 70, 50, 3, 7, false);
   fifteen.goTurnU(0);
-  fifteen.goForwardU(-10, 60, 0, 3, 1, false);
+  fifteen.goForwardU(-11, 60, 0, 3, 1, false);
   fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.goForwardTimed(2, -35); // wall align back
   //fifteen.gyroSensor.setHeading(0, deg);
@@ -281,7 +281,7 @@ int autonAI() {
   fifteen.goCurve(-10, 50, 0.365, 3, 0, false);
   fifteen.clawUp();
   fifteen.moveArmTo(200, 100, false);
-  fifteen.goCurve(-15, 50, 0.365, 0, 0, false);
+  fifteen.goCurve(-15.5, 50, 0.365, 0, 0, false);
   fifteen.goForward(-3, 50, 0, 3, true);
   fifteen.goTurnU(270);
 

@@ -744,7 +744,7 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
 // return area of object when arrived
 int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime) {
 
-  static const float MAX_TRAVEL_DISTANCE = 60;
+  static const float MAX_TRAVEL_DISTANCE = 68;
 
   std::vector<GoalPosition> goals;
 
