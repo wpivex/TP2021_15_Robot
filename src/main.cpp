@@ -284,9 +284,8 @@ int autonAI() {
   fifteen.goCurve(-16, 50, 0.365, 0, 0, false);
   fifteen.goForward(-3, 50, 0, 3, true);
   fifteen.goTurnU(270);
-  
 
-  //fifteen.runAI(matchStartTime);
+  fifteen.runAI(matchStartTime);
 
   return 0;
 }
