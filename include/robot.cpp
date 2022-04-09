@@ -770,7 +770,7 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
     pt = (pt + 1) % 10;
     if (pt == 0) logController("Dist: %.1f", *horizonalDistance);
 
-    if (isTimeout(matchStartTime, 42) || (*horizonalDistance - getEncoderDistance()) > MAX_TRAVEL_DISTANCE) {
+    if (isTimeout(matchStartTime, 43) || (*horizonalDistance - getEncoderDistance()) > MAX_TRAVEL_DISTANCE) {
       area = -1;
       break;
     };
@@ -863,7 +863,7 @@ void Robot::runAI(int matchStartTime) {
   //moveArmTo(-20, 50, false);
 
   float hDist = 0;
-  float initialForward = 11;
+  //float initialForward = 11;
   
   while (true) {
 
