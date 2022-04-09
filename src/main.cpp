@@ -266,8 +266,8 @@ int autonAI() {
 
   // Get alliance goal
   
-  fifteen.goForwardU(-25, 70, 270, 5, 5, false, 20, 40);
-  fifteen.goForwardU(-8, 40, 270, 0, 4, true);
+  fifteen.goForwardU(-26, 70, 270, 5, 5, false, 20, 40);
+  fifteen.goForwardU(-9, 40, 270, 0, 4, true);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
 
   // do match load rings
@@ -278,10 +278,11 @@ int autonAI() {
   fifteen.goForwardTimed(0.7, 30);
 
   // Get into AI strafe position
-  fifteen.goCurve(-5, 50, 0.38, 3, 0, false);
+  fifteen.goCurve(-10, 50, 0.365, 3, 0, false);
   fifteen.clawUp();
   fifteen.moveArmTo(200, 100, false);
-  fifteen.goCurve(-11, 50, 0.38, 0, 5, true);
+  fifteen.goCurve(-16, 50, 0.365, 0, 0, false);
+  fifteen.goForward(-3, 50, 0, 3, true);
   fifteen.goTurnU(270);
   
 

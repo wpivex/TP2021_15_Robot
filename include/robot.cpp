@@ -444,10 +444,9 @@ void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, f
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
-void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, bool fast) {
+void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
 
-  PID anglePID(2, 0, 0.13, 1.5, 5, 12, 75);
-  if (fast) anglePID = PID(2., 0, 0.13, 3, 3, 12, 80);
+  PID anglePID(2, 0, 0.13, 1.5, 5, 12, maxSpeed);
 
   float speed;
 
@@ -856,7 +855,7 @@ void Robot::runAI(int matchStartTime) {
   //moveArmTo(-20, 50, false);
 
   float hDist = 0;
-  float distDelta = 0;
+  float initialForward = 12;
   
   while (true) {
 
@@ -866,12 +865,14 @@ void Robot::runAI(int matchStartTime) {
     if (area == -1) break; // exit if timeout or exceed x value
     int dist = getDistanceFromArea(area);
     logController("Area: %d\nDist: %d", area, dist);
+    startIntake();
     goTurnU(0); // point to goal
 
-    
     // Attack phase
-    moveArmTo(-20, 100, false);
-    goForwardU(dist - distDelta, 85, 0, 7, 12);
+    goForwardU(initialForward, 40, 0, 2, 3);
+    moveArmTo(-20, 100, true);
+    stopIntake();
+    goForwardU(dist - initialForward, 85, 0, 7, 12);
     clawDown();
     moveArmTo(100, 100, false);
     wait(100, msec);
