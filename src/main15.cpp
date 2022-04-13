@@ -12,6 +12,20 @@ int mainTeleop() {
   return 0;
 }
 
+int test() {
+  //fifteen.goForwardPID(48, 100, fifteen.getAngle(), 20, 10);
+  // fifteen.goForward(24, 80, 20, 12);
+  // wait(1000, msec);
+  // fifteen.goForward(-24, 80, 20, 12);
+  fifteen.goTurnU(180);
+
+  // wait(1000, msec);
+
+  // fifteen.goFightBackwards();
+
+  return 0;
+}
+
 int autonAI() {
 
   int matchStartTime = timer::system();
@@ -71,7 +85,7 @@ int autonAI() {
 }
 
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(autonAI); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(test); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }

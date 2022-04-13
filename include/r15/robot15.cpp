@@ -204,21 +204,26 @@ float Robot15::getRightEncoderDistance() {
 
 void Robot15::resetEncoderDistance() {
   leftMotorA.resetRotation();
+  leftMotorB.resetRotation();
+  leftMotorC.resetRotation();
+  leftMotorD.resetRotation();
   rightMotorA.resetRotation();
+  rightMotorB.resetRotation();
+  rightMotorC.resetRotation();
+  rightMotorD.resetRotation();
 }
-
 
 // Go forward a number of inches, maintaining a specific heading
 // Calling general function with 15-specifc params
-void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
+void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
 bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
-  BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
+  BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
 // Calling general function with 15-specifc params
 void Robot15::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
-  BaseRobot::goTurnU_Abstract(2, 0, 0.13, 1.5, 5, 12, universalAngleDegrees, stopAfter, timeout, maxSpeed);
+  BaseRobot::goTurnU_Abstract(2, 0, 0.13, 1, 5, 12, universalAngleDegrees, stopAfter, timeout, maxSpeed);
 }
 
 void Robot15::goFightBackwards() {
@@ -248,8 +253,8 @@ void Robot15::goFightBackwards() {
 
 // Go forward until the maximum distance is hit or the timeout is reached
 // for indefinite timeout, set to -1
-void Robot15::goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
-  BaseRobot::goVision_Abstract(25, 12, CAMERA_PORT, distInches, speed, goal, rampUpInches, slowDownInches, stopAfter, timeout);
+void Robot15::goVision(float distInches, float speed, Goal goal, float rampUpFrames, float slowDownInches, bool stopAfter, float timeout) {
+  BaseRobot::goVision_Abstract(25, 12, CAMERA_PORT, distInches, speed, goal, rampUpFrames, slowDownInches, stopAfter, timeout);
 }
 
 // Align to the goal of specified color with PID
@@ -369,7 +374,7 @@ int Robot15::detectionAndStrafePhase(vision camera, float *horizonalDistance, in
   std::vector<GoalPosition> goals;
 
   resetEncoderDistance();
-  float rampUpInches = 3;
+  float rampUpFrames = 3;
 
   float ANGLE = 270;
   float MIN_SPEED = 15;
@@ -388,7 +393,7 @@ int Robot15::detectionAndStrafePhase(vision camera, float *horizonalDistance, in
   while (targetID == -1 || !strafePID.isCompleted()) {
 
     pt = (pt + 1) % 10;
-    if (pt == 0) logController("Dist: %.1f", *horizonalDistance);
+    if (pt == 0) logController("Dist: %.1f", *horizonalDistance - getEncoderDistance());
 
     if (isTimeout(matchStartTime, 43) || (*horizonalDistance - getEncoderDistance()) > MAX_TRAVEL_DISTANCE) {
       area = -1;
@@ -398,7 +403,7 @@ int Robot15::detectionAndStrafePhase(vision camera, float *horizonalDistance, in
     // Initial ramp up for idle
     speed = COAST_SPEED; // if no target goal detected, this is default speed
     float dist = fabs(getEncoderDistance());
-    if (dist < rampUpInches) speed = MIN_SPEED + (COAST_SPEED - MIN_SPEED) * (dist / rampUpInches);
+    if (dist < rampUpFrames) speed = MIN_SPEED + (COAST_SPEED - MIN_SPEED) * (dist / rampUpFrames);
 
     offset = -1;
 
@@ -509,7 +514,7 @@ void Robot15::runAI(int matchStartTime) {
     goTurnU(270, true, 2);
     moveArmTo(-20, 50, false);
   }
-  logController("timer done");
+  //logController("timer done");
 
   // Go to final horizontal distance
   goForwardU(hDist - 35, 70, 270, 5, 10);

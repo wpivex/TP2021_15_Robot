@@ -42,11 +42,11 @@ void BaseRobot::setMotorVelocity(motor m, directionType d, double percent) {
   m.spin(d, percent / 100.0 * 12.0, voltageUnits::volt);
 }
 
-void BaseRobot::goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, 
+void BaseRobot::goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpFrames, float slowDownInches, 
 bool stopAfter, float rampMinSpeed, float slowMinSpeed) {
   float timeout = 5;
 
-  Trapezoid trap(fabs(distInches), maxSpeed, slowMinSpeed, rampUpInches, slowDownInches, rampMinSpeed);
+  Trapezoid trap(fabs(distInches), maxSpeed, slowMinSpeed, rampUpFrames, slowDownInches, rampMinSpeed);
 
   int startTime = vex::timer::system();
   resetEncoderDistance();
@@ -92,10 +92,10 @@ void BaseRobot::goForwardTimed(float duration, float speed) {
 }
 
 // Go forward a number of inches, maintaining a specific heading
-void BaseRobot::goForwardU_Abstract(float K_P, float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
+void BaseRobot::goForwardU_Abstract(float K_P, float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
 bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
 
-  Trapezoid trap(distInches, maxSpeed, slowDownMinSpeed, rampUpInches, slowDownInches, rampMinSpeed);
+  Trapezoid trap(distInches, maxSpeed, slowDownMinSpeed, rampUpFrames, slowDownInches, rampMinSpeed);
   PID turnPID(K_P, 0.00, 0);
 
   float correction = 0;
@@ -129,9 +129,9 @@ bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
   //log("straight done");
 }
 
-void BaseRobot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, 
+void BaseRobot::goForward(float distInches, float maxSpeed, float rampUpFrames, float slowDownInches, bool stopAfter, 
         float rampMinSpeed, float slowDownMinSpeed, float timeout) {
-  goForwardU(distInches, maxSpeed, getAngle(), rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
+  goForwardU(distInches, maxSpeed, getAngle(), rampUpFrames, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
@@ -171,9 +171,9 @@ float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
 // Go forward until the maximum distance is hit or the timeout is reached
 // for indefinite timeout, set to -1
 void BaseRobot::goVision_Abstract(float K_P, float MIN_SPEED, int32_t CAMERA_PORT, float distInches, float speed, Goal goal,
-  float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
+  float rampUpFrames, float slowDownInches, bool stopAfter, float timeout) {
 
-  Trapezoid trapDist(distInches, speed, MIN_SPEED, rampUpInches, slowDownInches);
+  Trapezoid trapDist(distInches, speed, MIN_SPEED, rampUpFrames, slowDownInches);
   PID pidTurn(K_P, 0, 0);
 
   vision camera(CAMERA_PORT, goal.bright, goal.sig);

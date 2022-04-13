@@ -1,3 +1,4 @@
+#pragma once
 #include "VisualGraph.h"
 
 VisualGraph::VisualGraph(float minY, float maxY, int numMarkersY, int sizeRingQueue, int numFunctions)  {
@@ -5,7 +6,7 @@ VisualGraph::VisualGraph(float minY, float maxY, int numMarkersY, int sizeRingQu
     data.push_back(new RingQueue(sizeRingQueue));
   this->minY = minY;
   this->maxY = maxY;
-  this->numMarkersY = numMarkersY;
+  this->numMarkersY = numMarkersY - 1;
   this->numX = sizeRingQueue;
 
   lineColors[0] = green;
@@ -15,8 +16,16 @@ VisualGraph::VisualGraph(float minY, float maxY, int numMarkersY, int sizeRingQu
   lineColors[4] = purple;
 }
 
+void VisualGraph::configureAutomaticDisplay(int interval) {
+  displayInterval = (interval < 1) ? 1 : interval;
+}
+
 void VisualGraph::push(float dataPoint, int func) {
   data.at(func)->push(dataPoint);
+  if (func == 0 && displayInterval != -1) {
+    xi = (xi + 1) % displayInterval;
+    if (xi == 0) display();
+  }
 }
 
 static int Y_AXIS_XPOS = 50;
