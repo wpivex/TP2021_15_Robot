@@ -2,15 +2,15 @@
 #include "robot.h"
 
 
-Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c), gyroSensor(PORT16) {
+Robot::Robot() : BaseRobot(PORT16), 
+  leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0) {
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);
   leftMotorC = motor(PORT12, ratio6_1, true);
   leftMotorD = motor(PORT10, ratio6_1, true);
   leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
-
 
   rightMotorA = motor(PORT4, ratio6_1, false);
   rightMotorB = motor(PORT18, ratio6_1, false);
@@ -27,8 +27,6 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
 
   intake = motor(PORT7, ratio18_1, false);
   
-  robotController = c; 
-
   frontArmL.setBrake(hold);
   frontArmR.setBrake(hold);
   backLiftL.setBrake(hold);
@@ -208,21 +206,6 @@ void Robot::teleop() {
   buttons.updateButtonState();
 }
 
-void Robot::waitGyroCallibrate() {
-  if (gyroSensor.isCalibrating()) {
-    int i = 0;
-    while (gyroSensor.isCalibrating()) {
-      wait(20, msec);
-      i++;
-    }
-    gyroSensor.resetRotation();
-    wait(1000, msec);
-  }
-  
-  wait(500, msec);
-  log("done calibration");
-}
-
 // return in inches
 float Robot::getEncoderDistance() {
   return degreesToDistance((leftMotorA.rotation(deg) + rightMotorA.rotation(deg)) / 2);
@@ -233,20 +216,6 @@ void Robot::resetEncoderDistance() {
   rightMotorA.resetRotation();
 }
 
-float Robot::getAngle() {
-  return gyroSensor.heading();
-}
-
-// If the robot is known to have a given heading (i.e. from wall align) and the gyro heading is close enough to heading, recalibrate gyro heading
-void Robot::possiblyResetGyro(float targetAngle) {
-
-  if (fabs(getAngleDiff(targetAngle, getAngle())) < 10) {
-    logController("YES set heading\nfrom:%f\nto:%f", getAngle(), targetAngle);
-    gyroSensor.setHeading(targetAngle, degrees);
-  } else {
-    logController("NO set heading\nfrom:%f\nto:%f", getAngle(), targetAngle);
-  }
-}
 
 // Go forward a number of inches, maintaining a specific heading
 void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
@@ -254,45 +223,9 @@ bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
   BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
 }
 
-// Go forward with standard internal encoder wheels for distance, maintain current heading
-void Robot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed, 
-float slowDownMinSpeed, float timeout) {
-  goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
-}
-
-
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
-void Robot::goTurnU(float KP, float KI, float KP, float TOLERANCE, float REPEATED, float MINUMUM,
-float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
-
-  PID anglePID(2, 0, 0.13, 1.5, 5, 12, maxSpeed);
-
-  float speed;
-
-  log("initing");
-  int startTime = vex::timer::system();
-  log("about to loop");
-
-  while (!anglePID.isCompleted() && !isTimeout(startTime, timeout)) {
-
-    float ang = getAngleDiff(universalAngleDegrees, getAngle());
-    speed = anglePID.tick(ang);
-
-    //log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
-    //log("heading: %f", GPS11.heading());
-    log("%f", getAngle());
-
-    setLeftVelocity(forward, speed);
-    setRightVelocity(reverse, speed);
-
-    wait(20, msec);
-  }
-  //log("wtf done");
-
-  if (stopAfter) {
-    stopLeft();
-    stopRight();
-  }  
+void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
+  BaseRobot::goTurnU_Abstract(2, 0, 0.13, 1.5, 5, 12, universalAngleDegrees, stopAfter, timeout, maxSpeed);
 }
 
 void Robot::goFightBackwards() {
@@ -357,7 +290,6 @@ void Robot::goVision(float distInches, float speed, Goal goal, float rampUpInche
   }
   
 }
-
 
 // Align to the goal of specified color with PID
 void Robot::goAlignVision(Goal goal, float timeout) {
@@ -665,13 +597,6 @@ void Robot::setRightVelocity(directionType d, double percent) {
   rightMotorB.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
   rightMotorC.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
   rightMotorD.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
-}
-void Robot::setMotorVelocity(motor m, directionType d, double percent) {
-  if (percent < 0) {
-    d = (d == forward) ? reverse : forward;
-    percent = -percent;
-  }
-  m.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
 }
 
 void Robot::startIntake(directionType dir) {

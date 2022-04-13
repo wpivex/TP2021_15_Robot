@@ -11,7 +11,7 @@
 // CODE FOR 15" ROBOT
 
 
-Robot fifteen = Robot(&Controller1);
+Robot fifteen = Robot();
 
 int mainTeleop() {
   //fifteen.setTransmission(true);

@@ -15,18 +15,18 @@
 #include <stdio.h>      /* printf, fgets */
 #include <unistd.h>
 #include <algorithm>
-#include "Buttons.cpp"
+
 #include "GoalPosition.cpp"
 #include "VisualGraph.cpp"
 #include "BaseRobot.cpp"
-#include <constants.h>
+#include "constants.h"
 
 using namespace vex;
 
 class Robot : public BaseRobot {
   public:
     // four drivebase motors will not be accessible for a while
-    Robot(controller* c);
+    Robot();
     motor leftMotorA;
     motor leftMotorB;
     motor leftMotorC;
@@ -48,18 +48,9 @@ class Robot : public BaseRobot {
     motor backLiftL;
     motor backLiftR;
 
-    inertial gyroSensor;
     vision camera;
 
-
     digital_out frontClaw = digital_out(Brain.ThreeWirePort.G);
-
-    controller* robotController;
-
-    Buttons buttons;
-
-    //enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };
-    //DriveType driveType;
 
     enum ControllerMapping {EZEQUIEL_MAPPING, BRIAN_MAPPING};
     ControllerMapping cMapping;
@@ -68,49 +59,17 @@ class Robot : public BaseRobot {
 
     void setControllerMapping(ControllerMapping mapping);
 
-    float getEncoderDistance();
-    void resetEncoderDistance();
-
-    float getAngle();
-    float getX(int numSamples = 1);
-    float getY(int numSamples = 1);
-    void possiblyResetGyro(float targetAngle);
-    void getGPSData(float *x, float *y, float *headingAngle, int numSamples = 5);
-
+    void moveArmTo(double degr, double speed, bool blocking = true);
     void setBackLift(Buttons::Button b, bool blocking);
     void backLiftTeleop();
 
     void clawUp();
     void clawDown();
 
-    void goForwardTimed(float duration, float speed);
-
-    void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter = true, float rampMinSpeed = 20, float slowMinSpeed = 12);
-
-    void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
-
-    void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
-    void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, 
-    float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 5);
-
-    void goToAxis(axisType axis, bool reverseDirection, float finalValue, float maxSpeed, float timeout = 10);
-    void goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, directionType dir = forward); 
-
-    void waitForGPS();
-    void goPointGPS(float x, float y, directionType dir = forward);
-
     void goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
     void goAlignVision(Goal goal, float timeout);
 
-    void drawVision();
-
-    void goRadiusCurve(float radius, float numRotations, bool curveDirection, float maxSpeed, float rampUp, float slowDown, bool stopAfter = true, float timeout = 5);
-
-    void moveArmTo(double degr, double speed, bool blocking = true);
-
     void goFightBackwards();
-
 
     void updateCamera(Goal goal);
 
@@ -119,16 +78,23 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, flo
     void armTeleop();
     void clawTeleop();
     void intakeTeleop();
-    void setLeftVelocity(directionType d, double percent);
-    void setRightVelocity(directionType d, double percent);
-    void setMotorVelocity(motor m, directionType d, double percent);
+
     void startIntake(directionType dir = forward);
     void stopIntake();
+
+    // Implenting drive functions with params
+    void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
+        bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
+    void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
+
+    // Implementing abstract functions
+    float getEncoderDistance();
+    void resetEncoderDistance();
+    void setLeftVelocity(directionType d, double percent);
+    void setRightVelocity(directionType d, double percent);
     void stopLeft();
     void stopRight();
     void setBrakeType(brakeType b);
-
-    void waitGyroCallibrate();
 
     void trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int targetID = -1);
     int findGoalID(std::vector<GoalPosition> &goals);

@@ -1,5 +1,39 @@
 #include "BaseRobot.h"
 
+BaseRobot::BaseRobot(int32_t gyroPort): gyroSensor(gyroPort) {
+  
+}
+
+float BaseRobot::getAngle() {
+  return gyroSensor.heading();
+}
+
+void BaseRobot::waitGyroCallibrate() {
+  if (gyroSensor.isCalibrating()) {
+    int i = 0;
+    while (gyroSensor.isCalibrating()) {
+      wait(20, msec);
+      i++;
+    }
+    gyroSensor.resetRotation();
+    wait(1000, msec);
+  }
+  
+  wait(500, msec);
+  log("done calibration");
+}
+
+// If the robot is known to have a given heading (i.e. from wall align) and the gyro heading is close enough to heading, recalibrate gyro heading
+void BaseRobot::possiblyResetGyro(float targetAngle, float angleTolerance) {
+
+  if (fabs(getAngleDiff(targetAngle, getAngle())) < angleTolerance) {
+    logController("YES set heading\nfrom:%f\nto:%f", getAngle(), targetAngle);
+    gyroSensor.setHeading(targetAngle, degrees);
+  } else {
+    logController("NO set heading\nfrom:%f\nto:%f", getAngle(), targetAngle);
+  }
+}
+
 void BaseRobot::setMotorVelocity(motor m, directionType d, double percent) {
   if (percent < 0) {
     d = (d == forward) ? reverse : forward;
@@ -95,3 +129,41 @@ bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
   //log("straight done");
 }
 
+void BaseRobot::goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter, 
+        float rampMinSpeed, float slowDownMinSpeed, float timeout) {
+  goForwardU(distInches, maxSpeed, getAngle(), rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
+}
+
+// Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
+void BaseRobot::goTurnU_Abstract(float KP, float KI, float KD, float TOLERANCE, float REPEATED, float MINUMUM,
+float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
+
+  PID anglePID(KP, KI, KD, TOLERANCE, REPEATED, MINUMUM, maxSpeed);
+
+  float speed;
+
+  log("initing");
+  int startTime = vex::timer::system();
+  log("about to loop");
+
+  while (!anglePID.isCompleted() && !isTimeout(startTime, timeout)) {
+
+    float ang = getAngleDiff(universalAngleDegrees, getAngle());
+    speed = anglePID.tick(ang);
+
+    //log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
+    //log("heading: %f", GPS11.heading());
+    log("%f", getAngle());
+
+    setLeftVelocity(forward, speed);
+    setRightVelocity(reverse, speed);
+
+    wait(20, msec);
+  }
+  //log("wtf done");
+
+  if (stopAfter) {
+    stopLeft();
+    stopRight();
+  }  
+}
