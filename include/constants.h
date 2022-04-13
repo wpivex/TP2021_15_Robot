@@ -8,12 +8,7 @@
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
 vex::competition Competition;
-// -33 -3
-typedef struct Point {
-  float x;
-  float y;
-  Point(int X, int Y) {x = X; y = Y;}
-} Point;
+
 
 struct Goal {
   int id;
@@ -21,16 +16,11 @@ struct Goal {
   vex::vision::signature sig;
 };
 
-const float PI = 3.1415;
-
 
 const struct Goal YELLOW = {0, 13, vex::vision::signature (1, 979, 1701, 1340, -4143, -3541, -3842, 6.000, 0)};
 const struct Goal RED = {1, 56, vex::vision::signature (1, 5767, 9395, 7581, -685, 1, -342, 3.000, 0)};
 const struct Goal BLUE = {2, 67, vex::vision::signature (1, -2675, -1975, -2324, 8191, 14043, 11116, 3.000, 0)};
 
-namespace BackLift {
-  enum State {DOWN, MID, UP};
-}
 
 static const float VISION_CENTER_X = 157.0;
 const float MAX_VOLTS = 12.0; // maximum volts for vex motors
@@ -39,19 +29,11 @@ float oArea(vex::vision::object o) {
   return o.width * o.height;
 }
 
-
-static inline float distanceToDegrees(float distInches) {
-  return distInches * (5/3.0) * 360 / 2 / M_PI / (3.25 / 2); // 4 in diameter wheels
-}
-
-static inline float degreesToDistance(float distDegrees) {
-  return distDegrees * (3/5.0) / (360 / 2 / M_PI / (3.25 / 2)); // 4 in diameter wheels
-}
-
 static inline float distanceFormula(float dx, float dy) {
   return sqrt(dx*dx + dy*dy);
 }
 
+// Bound angle to between -180 and 180
 static inline float bound180(float angle) {
   if (angle < -180) angle += 360;
   else if (angle > 180) angle -= 360;
@@ -63,24 +45,9 @@ static inline float getAngleDiff(float targetAngle, float currentAngle) {
   return bound180(targetAngle - currentAngle);
 }
 
-// return distance in inches if wanting to turn turnAngle degrees
-static inline float getTurnAngle(float turnAngle) {
-
-  return fabs(distanceToDegrees(turnAngle / 360 * 2 * M_PI * (15.125 / 2)));
-}
-
 // timeout in seconds
 static inline bool isTimeout(int startTime, float timeout) {
   return timeout != -1 && vex::timer::system() >= startTime + timeout*1000;
-}
-
-std::string to_string( int x ) {
-  int length = snprintf( NULL, 0, "%d", x );
-  char* buf = new char[length + 1];
-  snprintf( buf, length + 1, "%d", x );
-  std::string str( buf );
-  delete[] buf;
-  return str;
 }
 
 // log output to controller
@@ -123,7 +90,5 @@ static inline void log(const char *f, Args ... args) {
     row++;
   }
 }
-
-
 
 #endif

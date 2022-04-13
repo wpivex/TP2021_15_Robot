@@ -60,6 +60,14 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 
 }
 
+float distanceToDegrees(float distInches) {
+  return distInches * (5/3.0) * 360 / 2 / M_PI / (3.25 / 2); // 4 in diameter wheels
+}
+
+float degreesToDistance(float distDegrees) {
+  return distDegrees * (3/5.0) / (360 / 2 / M_PI / (3.25 / 2)); // 4 in diameter wheels
+}
+
 
 void Robot::driveTeleop() {
 

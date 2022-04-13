@@ -22,23 +22,6 @@ int mainTeleop() {
   return 0;
 }
 
-
-int armStartup() {
-
-  fifteen.frontArmL.spin(forward, 100, percentUnits::pct);
-  fifteen.frontArmR.spin(forward, 100, percentUnits::pct);
-  task::sleep(200);
-  fifteen.frontArmL.spin(reverse, 100, percentUnits::pct);
-  fifteen.frontArmR.spin(reverse, 100, percentUnits::pct);
-  task::sleep(350);
-  fifteen.frontArmL.stop();
-  fifteen.frontArmR.stop();
-  fifteen.frontArmL.resetRotation();
-  fifteen.frontArmL.resetRotation();
-
-  return 0;
-}
-
 int worldSkills() {
 
   int autonStart = vex::timer::system();
@@ -160,79 +143,6 @@ int worldSkills() {
 
 }
 
-int testForward() {
-  fifteen.goForward(100, 80, 5, 15);
-  return 0;
-}
-
-/*
-
-int worldsAuton() {
-
-  int autonStart = vex::timer::system();
-
-  float lowArmAngle = -20;
-  float highArmAngle = 680;
-
-  fifteen.clawUp();
-  fifteen.backLiftL.resetRotation();
-  fifteen.backLiftR.resetRotation();
-  fifteen.frontArmL.resetRotation();
-  fifteen.frontArmR.resetRotation();
-
-  // go forward and grab goal
-  // go backwards fighting
-
-  // Relocalize with wall aligns
-  fifteen.goForwardTimed(2, 30); // wall align back wall
-  fifteen.moveArmTo(highArmAngle, 100, false);
-  fifteen.goForwardU(4, 40, 0, 1, 1);
-  fifteen.goTurnU(270);
-  fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
-  fifteen.goForwardTimed(3, 40);
-
-  // Get blue goal
-  fifteen.goForwardU(32, 60, 270, 2, 5);
-  fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
-
-  // do match load rings
-  fifteen.goForwardU(23, 30, 270, 2, 5, true, 20, 10, 3);
-  fifteen.goForwardU(-19, 35, 270, 2, 5, true, 20, 10, 3); // go three passes to pick up rings
-  fifteen.goForwardU(19, 30, 270, 2, 5);
-
-  // Get to strafe position
-  fifteen.goCurve(-28, 50, 0.33, 3, 4, false);
-  fifteen.goTurnU(90);
-
-  // run AI until 30 second mark
-
-
-  return 0;
-}
-
-void testTracking() {
-  int matchStartTime = timer::system();
-
-  //fifteen.runAI(matchStartTime);
-
-  Goal g = YELLOW;
-  fifteen.updateCamera(g);
-  Brain.Screen.setFont(mono20);
-
-  std::vector<GoalPosition> goals;
-
-  while (true) {
-    Brain.Screen.clearScreen();
-    fifteen.camera.takeSnapshot(g.sig);
-    fifteen.trackObjectsForCurrentFrame(goals);
-
-    //Brain.Screen.render();
-    wait(20, msec);
-  }
-}
-*/
-
-
 int autonAI() {
 
   int matchStartTime = timer::system();
@@ -318,7 +228,6 @@ int main() {
   Competition.drivercontrol(userControl);
 
   //platformClimb2();
-
 
   while (true) {
     wait(20, msec);
