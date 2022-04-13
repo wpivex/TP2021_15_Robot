@@ -1,5 +1,10 @@
 #include "TrapezoidController.h"
 
+/*
+A trapezoidal object allows you to approach the targetValue from any starting value.
+The direction is dtermined by starting value (from first tick() call)
+rampUp is determined by numRampUpFrames, which linearly interpolates from 0 to maxSpeed over the number of frames (so over time, not error)
+*/
 Trapezoid::Trapezoid(float targetValue, float maxSpeedP, float minSpeedP, int numRampUpFrames, float slowDownValue, float rampMinSpeedP) {
 
   curr = 0;

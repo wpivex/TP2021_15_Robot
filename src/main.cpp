@@ -22,23 +22,6 @@ int mainTeleop() {
   return 0;
 }
 
-
-int armStartup() {
-
-  fifteen.frontArmL.spin(forward, 100, percentUnits::pct);
-  fifteen.frontArmR.spin(forward, 100, percentUnits::pct);
-  task::sleep(200);
-  fifteen.frontArmL.spin(reverse, 100, percentUnits::pct);
-  fifteen.frontArmR.spin(reverse, 100, percentUnits::pct);
-  task::sleep(350);
-  fifteen.frontArmL.stop();
-  fifteen.frontArmR.stop();
-  fifteen.frontArmL.resetRotation();
-  fifteen.frontArmL.resetRotation();
-
-  return 0;
-}
-
 int worldSkills() {
 
   int autonStart = vex::timer::system();

@@ -60,6 +60,14 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 
 }
 
+float distanceToDegrees(float distInches) {
+  return distInches * (5/3.0) * 360 / 2 / M_PI / (3.25 / 2); // 4 in diameter wheels
+}
+
+float degreesToDistance(float distDegrees) {
+  return distDegrees * (3/5.0) / (360 / 2 / M_PI / (3.25 / 2)); // 4 in diameter wheels
+}
+
 
 void Robot::driveTeleop() {
 
@@ -229,27 +237,6 @@ float Robot::getAngle() {
   return gyroSensor.heading();
 }
 
-// Number of samples in 20ms intervals to average and find more accurate x/y location with GPS
-float getCoordinate(axisType axis, int numSamples) {
-  float total = 0;
-  for (int i = 0; i < numSamples; i++) {
-    total += (axis == xaxis) ? GPS11.xPosition(inches) : GPS11.yPosition(inches);
-  }
-  return total / numSamples;
-}
-
-float Robot::getX(int numSamples) {
-  return getCoordinate(xaxis, numSamples);
-}
-
-float Robot::getY(int numSamples) {
-  return getCoordinate(yaxis, numSamples);
-}
-
-// Essentially return theta for vector [dx, dy]
-float angleToPointU(float dx, float dy) {
-  return 90 - (180 / PI * atan2(dy, dx));
-}
 
 // If the robot is known to have a given heading (i.e. from wall align) and the gyro heading is close enough to heading, recalibrate gyro heading
 void Robot::possiblyResetGyro(float targetAngle) {
@@ -262,26 +249,6 @@ void Robot::possiblyResetGyro(float targetAngle) {
   }
 }
 
-void Robot::getGPSData(float *x, float *y, float *headingAngle, int numSamples) {
-
-  // Get averaged gps value
-  float startH = GPS11.heading();
-  float sumH = 0;
-  float sumX = 0;
-  float sumY = 0;
-  for (int i = 1; i < numSamples; i++) {
-      wait(20, msec);
-      sumH += getAngleDiff(GPS11.heading(), startH);
-      sumX += GPS11.xPosition(inches);
-      sumY += GPS11.yPosition(inches);
-  }
-  float avgH = GPS11.heading() + sumH / numSamples;
-  *headingAngle = fmod(avgH + 270, 360);
-  *x = sumX / numSamples;
-  *y = sumY /numSamples;
-
-  logController("head gps/curr: %.2f %.2f\nx: %f\ny: %f", *headingAngle, getAngle(), *x, *y);
-}
 
 void Robot::goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter, float rampMinSpeed, float slowMinSpeed) {
   float timeout = 5;
@@ -378,70 +345,6 @@ float slowDownMinSpeed, float timeout) {
   goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
 }
 
-// Go at specified direction and approach given x position with PID motion profiling using GPS absolute positioning
-void Robot::goToAxis(axisType axis, bool reverseDirection, float finalValue, float maxSpeed, float timeout) {
-
-  float startDist = axis == axisType::xaxis ? getX() : getY();
-
-  Trapezoid trap(finalValue - startDist, maxSpeed, 12, 3, 8);
-  PID turnPID(1, 0, 0);
-  int startTime = vex::timer::system();
-  float h = getAngle(); // maintain current heading
-
-  while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
-
-    float currDist = axis == axisType::xaxis ? getX() : getY();
-    float speed = trap.tick(currDist - startDist) * (reverseDirection ? -1 : 1);
-    float correction = turnPID.tick(getAngleDiff(h, getAngle()));
-
-    setLeftVelocity(forward, speed + correction);
-    setRightVelocity(forward, speed - correction);
-
-    log("Current: %f \n Final: %f", currDist, finalValue);
-
-    wait(20, msec);
-  }
-  stopLeft();
-  stopRight();
-}
-// Go forward towards point, making corrections to target. Stop angle correction 15 inches before hitting target
-// Uses trapezoidal motion profile for distance and PID for angle corrections
-void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, directionType dir) {
-  float sx = getX();
-  float sy = getY();
-
-  float distInches = distanceFormula(x - sx, y - sy);
-  
-  Trapezoid trap(distInches, maxSpeed, 4, rampUpInches, slowDownInches, 20);
-  PID turnPID(1.2, 0.00, 0);
-
-  float correction = 0;
-  int startTime = vex::timer::system();
-
-  while (!trap.isCompleted() && !isTimeout(startTime, 10)) {
-
-    float cx = getX();
-    float cy = getY();
-
-    float currDist = distanceFormula(cx - sx, cy - sy);
-    
-    float speed = trap.tick(currDist) * (dir == forward ? 1 : -1);
-    float ang = getAngleDiff(angleToPointU(x - cx, y - cy), getAngle());
-    if (distInches - currDist > 10) correction = turnPID.tick(ang); // adjust heading towards target if over 15 inches away
-
-    //log("Error: %f \n CurrDist: %f \n Speed: %f \n Angle: %f \n Correction: %f", distanceFormula(x-cx,y-cy), currDist, speed, ang, correction);
-    //log("Quality: %d", GPS11.quality());
-
-    setLeftVelocity(forward, speed + correction);
-    setRightVelocity(forward, speed - correction);
-
-    wait(20, msec);
-  }
-
-  stopLeft();
-  stopRight();
-  log("done");
-}
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
 void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
@@ -476,35 +379,6 @@ void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, 
   }  
 }
 
-
-// go to (x,y) in inches. First, make a fast point turn, which need not be perfectly accurate
-// Then, it drives aiming at the target, making realtime corrections to any initial error
-// It is more deliberate at close speeds and more aggressive at faster speeds
-void Robot::goPointGPS(float x, float y, directionType dir) {
-
-  waitForGPS();
-
-  float sx = getX();
-  float sy = getY();
-
-  float proj_x = x - sx;
-  float proj_y = y - sy;
-  float distFinal = distanceFormula(proj_x, proj_y);
-
-  // Point turn to orient towards target
-  float angleU = angleToPointU(proj_x, proj_y);
-  if (dir == reverse) angleU = fmod((angleU + 180), 360);
-
-  if (distFinal < 25) { // For closer distances, have a more accurate initial turn and slower approach speed
-    goTurnU(angleU, true, false);
-    goForwardGPS(x, y, 40, 1, 4, dir);
-  }
-  else { // For longer distances, have a faster initial turn and approach speed
-    goTurnU(angleU, true, true);
-    goForwardGPS(x, y, 80, 6, 15, dir);
-  }
-}
-
 void Robot::goFightBackwards() {
 
   VisualGraph g(-0.1, 2.9, 8, 50,1);
@@ -529,7 +403,6 @@ void Robot::goFightBackwards() {
   goForward(-5, 100, 0, 5);
 
 }
-
 
 void Robot::updateCamera(Goal goal) {
   camera = vision(PORT17, goal.bright, goal.sig);
@@ -569,48 +442,6 @@ void Robot::goVision(float distInches, float speed, Goal goal, float rampUpInche
   
 }
 
-// Trapezoidal motion profiling
-// Will use gyro sensor
-// distAlongCirc is positive if forward, negative if reverse
-// curveDirection is true for right, false for left
-void Robot::goRadiusCurve(float radius, float numRotations, bool curveDirection, float maxSpeed, float rampUp, float slowDown, bool stopAfter, float timeout) {
-
-  float distAlongCircum = numRotations * 2 * M_PI;
-
-  Trapezoid trap(distAlongCircum, maxSpeed, 12,rampUp,slowDown);
-  //      kp, kd, ki
-  PID anglepid(0.025, 0, 0); //definitely no kd imo
-
-
-  int startTime = vex::timer::system();
-  resetEncoderDistance();
-
-  // Repeat until either arrived at target or timed out
-  while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
-
-    float distSoFar =  getEncoderDistance();
-
-    float v_avg = trap.tick(distSoFar); 
-    float v_ratio = fabs((radius+DISTANCE_BETWEEN_WHEELS)/(radius-DISTANCE_BETWEEN_WHEELS));
-
-    log("V_avg: %f\nV_diff: %f", v_avg, v_ratio);
-
-    float lPower = v_avg * sqrt(curveDirection ? v_ratio:1/v_ratio);
-    float rPower =  v_avg * sqrt(curveDirection ? 1/v_ratio:v_ratio);
-
-    setLeftVelocity(forward, lPower);
-    setRightVelocity(forward, rPower);
-
-    wait(20, msec);
-  }
-  if (stopAfter) {
-    stopLeft();
-    stopRight();
-  }
-  
-  log("done");
-
-}
 
 // Align to the goal of specified color with PID
 void Robot::goAlignVision(Goal goal, float timeout) {
