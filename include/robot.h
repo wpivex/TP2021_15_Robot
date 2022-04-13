@@ -113,7 +113,6 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, flo
     void goFightBackwards();
 
 
-    float normalize(float axis);
     void updateCamera(Goal goal);
 
     void userControl( void );
@@ -123,6 +122,7 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, flo
     void intakeTeleop();
     void setLeftVelocity(directionType d, double percent);
     void setRightVelocity(directionType d, double percent);
+    void setMotorVelocity(motor m, directionType d, double percent);
     void startIntake(directionType dir = forward);
     void stopIntake();
     void stopLeft();

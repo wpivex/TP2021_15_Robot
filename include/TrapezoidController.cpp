@@ -1,16 +1,14 @@
 #include "TrapezoidController.h"
 
-Trapezoid::Trapezoid(float distInches, float maxSpeedP, float minSpeedP, float rampUpInches, float slowDownInches, float rampMinSpeedP) {
+Trapezoid::Trapezoid(float targetValue, float maxSpeedP, float minSpeedP, int numRampUpFrames, float slowDownValue, float rampMinSpeedP) {
 
-  dist = 0;
-  direction = (distInches > 0 ? 1 : -1);
-  finalDist = fabs(distInches);
+  curr = 0;
+  target = targetValue;
   maxSpeed = maxSpeedP;
   minSpeed = minSpeedP;
-  rampUp = rampUpInches;
-  slowDown = slowDownInches;
+  xn = numRampUpFrames;
+  slowDown = slowDownValue;
 
-  rampUp = fmin(rampUp, finalDist);
   maxSpeed = fmax(minSpeed, maxSpeed);
   
   if (rampMinSpeedP == -1) rampMinSpeed = minSpeedP;
@@ -18,22 +16,29 @@ Trapezoid::Trapezoid(float distInches, float maxSpeedP, float minSpeedP, float r
   
 }
 
-float Trapezoid::tick(float currDistance) {
+float Trapezoid::tick(float currentValue) {
 
-  dist = fabs(currDistance);
-  float delta, speed;
+  curr = currentValue;
 
-
-  if (dist < rampUp && rampUp > 0) speed = rampMinSpeed + (maxSpeed - rampMinSpeed) * dist / rampUp;
-  else {
-    if (finalDist - dist < slowDown && slowDown > 0) delta = fabs(finalDist - dist) / slowDown;
-    else delta = 1;
-
-    speed = minSpeed + (maxSpeed - minSpeed) * delta;
+  if (firstFrame) {
+    risingEdge = curr < target; // set trapezoidal direction. When crossed threshold from that direction, isCompleted
+    firstFrame = false;
   }
-  return direction * speed;
+
+  float delta, speed;
+  if (fabs(target - curr) < slowDown && slowDown > 0) delta = fabs(target - curr) / slowDown;
+  else delta = 1;
+
+  delta = fmin((xi+1.0) / (xn+1.0), delta); // Apply ramp up. If there is both slowdown and rampUp, pick the smaller one
+  speed = minSpeed + (maxSpeed - minSpeed) * delta;
+
+  if (xi < xn) xi++;
+  return (risingEdge ? 1 : -1) * speed;
 }
 
 bool Trapezoid::isCompleted() {
-  return dist >= finalDist;
+  if (firstFrame) return false;
+
+  if (risingEdge) return curr >= target;
+  else return curr <= target;
 }

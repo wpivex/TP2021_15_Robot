@@ -5,14 +5,16 @@
 class Trapezoid {
 
   public:
-  Trapezoid(float distInches, float maxSpeedP, float minSpeedP, float rampUpInches, float slowDownInches, float rampMinSpeedP = -1);
-  float tick(float currDistance);
+  Trapezoid(float targetValue, float maxSpeedP, float minSpeedP, int numRampUpFrames, float slowDownValue, float rampMinSpeedP = -1);
+  float tick(float currentValue);
   bool isCompleted();
   
   private:
 
-  float direction;
-  float finalDist, maxSpeed, minSpeed, rampMinSpeed, rampUp, slowDown;
-  float dist = 0;
+  bool risingEdge;
+  bool firstFrame = true;
+  int xi = 0;
+  int xn;
+  float curr, target, maxSpeed, minSpeed, rampMinSpeed, rampUp, slowDown;
 
 };

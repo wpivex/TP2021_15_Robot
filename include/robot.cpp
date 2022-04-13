@@ -919,6 +919,13 @@ void Robot::setRightVelocity(directionType d, double percent) {
   rightMotorC.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
   rightMotorD.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
 }
+void Robot::setMotorVelocity(motor m, directionType d, double percent) {
+  if (percent < 0) {
+    d = (d == forward) ? reverse : forward;
+    percent = -percent;
+  }
+  m.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
+}
 
 void Robot::startIntake(directionType dir) {
   intake.spin(dir, 100, pct);
