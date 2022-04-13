@@ -10,7 +10,6 @@ class Trapezoid {
   bool isCompleted();
   
   private:
-
   bool risingEdge;
   bool firstFrame = true;
   int xi = 0;

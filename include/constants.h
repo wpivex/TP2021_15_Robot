@@ -4,12 +4,10 @@
 #include "vex.h"
 #include <string>
 #include <queue>
-#include "FixedRingQueue.cpp"
 
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
 vex::competition Competition;
-vex::gps GPS11 = vex::gps(vex::PORT17, 5.9, 3, vex::inches, 90);
 // -33 -3
 typedef struct Point {
   float x;
@@ -25,7 +23,6 @@ struct Goal {
 
 const float PI = 3.1415;
 
-const float DISTANCE_BETWEEN_WHEELS = 15; // in inches
 
 const struct Goal YELLOW = {0, 13, vex::vision::signature (1, 979, 1701, 1340, -4143, -3541, -3842, 6.000, 0)};
 const struct Goal RED = {1, 56, vex::vision::signature (1, 5767, 9395, 7581, -685, 1, -342, 3.000, 0)};
