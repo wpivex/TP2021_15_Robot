@@ -26,6 +26,8 @@ Robot::Robot() : BaseRobot(PORT16),
   backLiftR = motor(PORT15, ratio36_1, true);
 
   intake = motor(PORT7, ratio18_1, false);
+
+  CAMERA_PORT = PORT17;
   
   frontArmL.setBrake(hold);
   frontArmR.setBrake(hold);
@@ -69,17 +71,12 @@ float degreesToDistance(float distDegrees) {
 
 void Robot::driveTeleop() {
 
+  float drive = cMapping == BRIAN_MAPPING ? buttons.axis(Buttons::RIGHT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
+  float turn = buttons.axis(Buttons::RIGHT_HORIZONTAL) / 1.0;
+  float max = std::max(1.0, std::max(fabs(drive+turn), fabs(drive-turn)));
+  setLeftVelocity(forward,100 * (drive+turn)/max);
+  setRightVelocity(forward,100 * (drive-turn)/max);
 
-  if(false) { // tank
-    setLeftVelocity(forward,buttons.axis(Buttons::LEFT_VERTICAL));
-    setRightVelocity(forward,buttons.axis(Buttons::RIGHT_VERTICAL));
-  } else {
-    float drive = cMapping == BRIAN_MAPPING ? buttons.axis(Buttons::RIGHT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
-    float turn = buttons.axis(Buttons::RIGHT_HORIZONTAL) / 1.0;
-    float max = std::max(1.0, std::max(fabs(drive+turn), fabs(drive-turn)));
-    setLeftVelocity(forward,100 * (drive+turn)/max);
-    setRightVelocity(forward,100 * (drive-turn)/max);
-  }
 }
 
 // Not a truly blocking function, one second timeout if blocking
@@ -207,8 +204,15 @@ void Robot::teleop() {
 }
 
 // return in inches
-float Robot::getEncoderDistance() {
-  return degreesToDistance((leftMotorA.rotation(deg) + rightMotorA.rotation(deg)) / 2);
+float Robot::getLeftEncoderDistance() {
+  float sum = leftMotorA.rotation(deg) + leftMotorB.rotation(deg) + leftMotorC.rotation(deg) + leftMotorD.rotation(deg);
+  return degreesToDistance(sum / 4.0);
+}
+
+// return in inches
+float Robot::getRightEncoderDistance() {
+  float sum = rightMotorA.rotation(deg) + rightMotorB.rotation(deg) + rightMotorC.rotation(deg) + rightMotorD.rotation(deg);
+  return degreesToDistance(sum / 4.0);
 }
 
 void Robot::resetEncoderDistance() {
@@ -218,19 +222,21 @@ void Robot::resetEncoderDistance() {
 
 
 // Go forward a number of inches, maintaining a specific heading
+// Calling general function with 15-specifc params
 void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
 bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
   BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
+// Calling general function with 15-specifc params
 void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
   BaseRobot::goTurnU_Abstract(2, 0, 0.13, 1.5, 5, 12, universalAngleDegrees, stopAfter, timeout, maxSpeed);
 }
 
 void Robot::goFightBackwards() {
 
-  VisualGraph g(-0.1, 2.9, 8, 50,1);
+  VisualGraph g(-0.1, 2.9, 8, 50);
 
   setLeftVelocity(reverse, 100);
   setRightVelocity(reverse, 100);
@@ -241,7 +247,7 @@ void Robot::goFightBackwards() {
   while (curr > 0.9) {
     
     curr = (leftMotorA.current() + rightMotorA.current()) / 2;
-    g.push(curr,0);
+    g.push(curr);
     if (display) g.display();
     display = !display;
     
@@ -260,61 +266,12 @@ void Robot::updateCamera(Goal goal) {
 // Go forward until the maximum distance is hit or the timeout is reached
 // for indefinite timeout, set to -1
 void Robot::goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
-
-  Trapezoid trapDist(distInches, speed, 12, rampUpInches, slowDownInches);
-  PID pidTurn(25, 0, 0);
-
-  updateCamera(goal);
-
-  int startTime = vex::timer::system();
-  leftMotorA.resetPosition();
-  rightMotorA.resetPosition();
-
-  // forward until the maximum distance is hit, the timeout is reached, or limitSwitch is turned on
-  while (!trapDist.isCompleted() && !isTimeout(startTime, timeout)) {
-
-    camera.takeSnapshot(goal.sig);
-    
-    float correction = camera.largestObject.exists ? pidTurn.tick((VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X) : 0;
-    float distDegrees = fmin(leftMotorA.rotation(deg), rightMotorA.rotation(deg)); // take smaller of two distances because arcs
-    float speed = trapDist.tick(degreesToDistance(distDegrees));
-
-    setLeftVelocity(forward, speed - correction);
-    setRightVelocity(forward, speed + correction);
-
-    wait(20, msec);
-  }
-  if (stopAfter) {
-    stopLeft();
-    stopRight();
-  }
-  
+  BaseRobot::goVision_Abstract(25, 12, CAMERA_PORT, distInches, speed, goal, rampUpInches, slowDownInches, stopAfter, timeout);
 }
 
 // Align to the goal of specified color with PID
-void Robot::goAlignVision(Goal goal, float timeout) {
-
-  updateCamera(goal);
-
-  int startTime = vex::timer::system();
-  float speed = 0;
-
-  PID vTurnPID(40, 0, 1, 0.05, 3, 12);
-
-  while (!vTurnPID.isCompleted() && !isTimeout(startTime, timeout)) {
-
-    camera.takeSnapshot(goal.sig);
-
-    if (camera.largestObject.exists) speed = vTurnPID.tick((VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X);
-
-    setLeftVelocity(reverse, speed);
-    setRightVelocity(forward, speed);
-
-    wait(20, msec);
-  }
-
-  stopLeft();
-  stopRight();
+void Robot::goAlignVision(Goal goal, float timeout, bool stopAfter) {
+  BaseRobot::goAlignVision_Abstract(40, 0, 1, 0.05, 3, 12, CAMERA_PORT, goal, timeout, stopAfter);
 }
 
 GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID) {

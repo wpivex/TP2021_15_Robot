@@ -167,3 +167,65 @@ float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
     stopRight();
   }  
 }
+
+// Go forward until the maximum distance is hit or the timeout is reached
+// for indefinite timeout, set to -1
+void BaseRobot::goVision_Abstract(float K_P, float MIN_SPEED, int32_t CAMERA_PORT, float distInches, float speed, Goal goal,
+  float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
+
+  Trapezoid trapDist(distInches, speed, MIN_SPEED, rampUpInches, slowDownInches);
+  PID pidTurn(K_P, 0, 0);
+
+  vision camera(CAMERA_PORT, goal.bright, goal.sig);
+
+  int startTime = vex::timer::system();
+  resetEncoderDistance();
+
+  // forward until the maximum distance is hit, the timeout is reached, or limitSwitch is turned on
+  while (!trapDist.isCompleted() && !isTimeout(startTime, timeout)) {
+
+    camera.takeSnapshot(goal.sig);
+    
+    float correction = camera.largestObject.exists ? pidTurn.tick((VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X) : 0;
+    float distDegrees = fmin(getLeftEncoderDistance(), getRightEncoderDistance()); // take smaller of two distances because arcs
+    float speed = trapDist.tick(degreesToDistance(distDegrees));
+
+    setLeftVelocity(forward, speed - correction);
+    setRightVelocity(forward, speed + correction);
+
+    wait(20, msec);
+  }
+  if (stopAfter) {
+    stopLeft();
+    stopRight();
+  }
+}
+
+// Align to the goal of specified color with PID
+void BaseRobot::goAlignVision_Abstract(float K_P, float K_I, float K_D, float TOLERANCE, float REPEATED, float MINIMUM, int32_t CAMERA_PORT, 
+    Goal goal, float timeout, bool stopAfter) {
+
+  vision camera(CAMERA_PORT, goal.bright, goal.sig);
+
+  int startTime = vex::timer::system();
+  float speed = 0;
+
+  PID vTurnPID(K_P, K_I, K_D, TOLERANCE, REPEATED, MINIMUM);
+
+  while (!vTurnPID.isCompleted() && !isTimeout(startTime, timeout)) {
+
+    camera.takeSnapshot(goal.sig);
+
+    if (camera.largestObject.exists) speed = vTurnPID.tick((VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X);
+
+    setLeftVelocity(reverse, speed);
+    setRightVelocity(forward, speed);
+
+    wait(20, msec);
+  }
+
+  if (stopAfter) {
+    stopLeft();
+    stopRight();
+  }
+}

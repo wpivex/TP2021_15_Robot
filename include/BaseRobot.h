@@ -7,7 +7,7 @@ using namespace vex;
 
 class BaseRobot {
 
-  public:
+public:
 
   inertial gyroSensor;
   Buttons buttons;
@@ -17,7 +17,10 @@ class BaseRobot {
   virtual void teleop() = 0;
 
   virtual void resetEncoderDistance() = 0;
-  virtual float getEncoderDistance() = 0;
+  virtual float getLeftEncoderDistance() = 0;
+  virtual float getRightEncoderDistance() = 0;
+  float getEncoderDistance() {return (getLeftEncoderDistance() + getRightEncoderDistance()) / 2;}
+
   float getAngle();
   void waitGyroCallibrate();
   void possiblyResetGyro(float targetAngle, float angleTolerance = 10);
@@ -35,17 +38,23 @@ class BaseRobot {
   void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, 
       bool stopAfter = true, float rampMinSpeed = 20, float slowMinSpeed = 12);
   virtual void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-      bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
+      bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10) = 0;
   void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, 
       float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 5);
   void goForwardTimed(float duration, float speed);
 
-  protected:
+protected:
 
   void goForwardU_Abstract(float K_P, float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
       bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
   void goTurnU_Abstract(float KP, float KI, float KD, float TOLERANCE, float REPEATED, float MINUMUM,
       float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
+
+  void goVision_Abstract(float K_P, float MIN_SPEED, int32_t CAMERA_PORT, float distInches, float speed, Goal goal,
+  float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
+
+  void goAlignVision_Abstract(float K_P, float K_I, float K_D, float TOLERANCE, float REPEATED, float MINIMUM, int32_t CAMERA_PORT, 
+    Goal goal, float timeout = 5, bool stopAfter = true);
   
 
   

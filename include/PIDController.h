@@ -1,14 +1,13 @@
 #pragma once
 #include "vex.h"
 
-static const int UNBOUNDED = 0;
 
 class PID {
 
   public:
 
   PID(float kp, float ki, float kd, float TOLERANCE = -1, int REPEATED = -1, float minimum = 0, float maximum = -1);
-  float tick(float error, float bound = UNBOUNDED);
+  float tick(float error);
   bool isCompleted();
 
   private:

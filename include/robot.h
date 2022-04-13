@@ -25,6 +25,7 @@ using namespace vex;
 
 class Robot : public BaseRobot {
   public:
+
     // four drivebase motors will not be accessible for a while
     Robot();
     motor leftMotorA;
@@ -49,6 +50,7 @@ class Robot : public BaseRobot {
     motor backLiftR;
 
     vision camera;
+    int32_t CAMERA_PORT;
 
     digital_out frontClaw = digital_out(Brain.ThreeWirePort.G);
 
@@ -59,36 +61,34 @@ class Robot : public BaseRobot {
 
     void setControllerMapping(ControllerMapping mapping);
 
+    // Joint control methods
     void moveArmTo(double degr, double speed, bool blocking = true);
     void setBackLift(Buttons::Button b, bool blocking);
     void backLiftTeleop();
-
+    void startIntake(directionType dir = forward);
+    void stopIntake();
     void clawUp();
     void clawDown();
 
-    void goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
-    void goAlignVision(Goal goal, float timeout);
-
-    void goFightBackwards();
-
     void updateCamera(Goal goal);
 
+    // Teleop methods
     void userControl( void );
     void teleop( void );
     void armTeleop();
     void clawTeleop();
     void intakeTeleop();
 
-    void startIntake(directionType dir = forward);
-    void stopIntake();
-
-    // Implenting drive functions with params
+    // Calling parent drive functions with params
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
         bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
     void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
+    void goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter = true, float timeout = 5);
+    void goAlignVision(Goal goal, float timeout, bool stopAfter);
 
     // Implementing abstract functions
-    float getEncoderDistance();
+    float getLeftEncoderDistance();
+    float getRightEncoderDistance();
     void resetEncoderDistance();
     void setLeftVelocity(directionType d, double percent);
     void setRightVelocity(directionType d, double percent);
@@ -96,6 +96,8 @@ class Robot : public BaseRobot {
     void stopRight();
     void setBrakeType(brakeType b);
 
+    // AI methods
+    void goFightBackwards();
     void trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int targetID = -1);
     int findGoalID(std::vector<GoalPosition> &goals);
     int detectionAndStrafePhase(float *horizontalDistance, int matchStartTime);
@@ -105,6 +107,5 @@ class Robot : public BaseRobot {
 
   private:
     void driveTeleop();
-
     int intakeState;
 };
