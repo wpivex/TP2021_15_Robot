@@ -10,7 +10,7 @@ class Buttons {
     enum Axis {RIGHT_HORIZONTAL = 0 , RIGHT_VERTICAL = 1, LEFT_VERTICAL = 2, LEFT_HORIZONTAL = 3};
 
 
-    Buttons(vex::controller* c);
+    Buttons();
     void updateButtonState();
 
     bool pressing(Button b);
@@ -21,7 +21,6 @@ class Buttons {
     float axis(Axis a);
 
   private:
-    vex::controller* rController;
     const vex::controller::button* getObject(Button b);
     const vex::controller::axis *AXES[5];
     bool prevButtonState[NUM_BUTTONS] = {false}; // initalize all values to false
