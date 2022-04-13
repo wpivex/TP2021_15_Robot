@@ -16,15 +16,14 @@
 #include <unistd.h>
 #include <algorithm>
 #include "Buttons.cpp"
-#include "PIDController.cpp"
-#include "TrapezoidController.cpp"
 #include "GoalPosition.cpp"
 #include "VisualGraph.cpp"
+#include "BaseRobot.cpp"
 #include <constants.h>
 
 using namespace vex;
 
-class Robot {
+class Robot : public BaseRobot {
   public:
     // four drivebase motors will not be accessible for a while
     Robot(controller* c);
