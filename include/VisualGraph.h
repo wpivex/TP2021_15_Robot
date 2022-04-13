@@ -8,8 +8,8 @@ using namespace vex;
 class VisualGraph {
 
   public:
-  VisualGraph(float minY, float maxY, int numMarkersY, int sizeRingQueue, int numFunctions);
-  void push(float dataPoint, int func);
+  VisualGraph(float minY, float maxY, int numMarkersY, int sizeRingQueue, int numFunctions = 1);
+  void push(float dataPoint, int func = 1);
   void display();
   int *a;
 
