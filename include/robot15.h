@@ -17,7 +17,7 @@
 #include <algorithm>
 
 #include "GoalPosition.cpp"
-#include "VisualGraph.cpp"
+#include "Utility/VisualGraph.cpp"
 #include "BaseRobot.cpp"
 #include "constants.h"
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "FixedRingQueue.cpp"
+#include "Utility/FixedRingQueue.cpp"
 #include "vex.h"
 
 class GoalPosition {

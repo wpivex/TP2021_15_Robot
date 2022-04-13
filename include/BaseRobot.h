@@ -1,6 +1,6 @@
 #include "vex.h"
-#include "TrapezoidController.cpp"
-#include "PIDController.cpp"
+#include "Utility/TrapezoidController.cpp"
+#include "Utility/PIDController.cpp"
 #include "Buttons.cpp"
 
 using namespace vex;
