@@ -209,28 +209,30 @@ int worldsAuton() {
 
   return 0;
 }
+*/
+void testDisplay() {
 
-void testTracking() {
-  int matchStartTime = timer::system();
+  VisualGraph g(-0.1, 100, 8, 100,4);
 
-  //fifteen.runAI(matchStartTime);
-
-  Goal g = YELLOW;
-  fifteen.updateCamera(g);
-  Brain.Screen.setFont(mono20);
-
-  std::vector<GoalPosition> goals;
-
-  while (true) {
-    Brain.Screen.clearScreen();
-    fifteen.camera.takeSnapshot(g.sig);
-    fifteen.trackObjectsForCurrentFrame(goals);
-
-    //Brain.Screen.render();
+  for(int i = 0; i < 10000; i++) {
+    
+    float f1 = i/2*sin(i)+i/2;
+    float f2 = std::rand()%50;
+    float f3 = 5*floor(i/5.0);
+    float f4 = i+5;
+    g.push(f1,0);
+    g.push(f2,1);
+    g.push(f3,2);
+    g.push(f4,3);
+    g.display();
+    
     wait(20, msec);
   }
+  g.display();
+
+
 }
-*/
+
 
 
 int autonAI() {
@@ -305,20 +307,21 @@ void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTele
 int main() {
 
   
-  fifteen.clawDown();
-  wait(500, msec);
-  fifteen.gyroSensor.calibrate();
-  fifteen.waitGyroCallibrate();
+  // fifteen.clawDown();
+  // wait(500, msec);
+  // fifteen.gyroSensor.calibrate();
+  // fifteen.waitGyroCallibrate();
 
-  Competition.bStopAllTasksBetweenModes = true;
+  // Competition.bStopAllTasksBetweenModes = true;
 
-  fifteen.resetEncoderDistance();
+  // fifteen.resetEncoderDistance();
   
-  Competition.autonomous(autonomous);
-  Competition.drivercontrol(userControl);
+  // Competition.autonomous(autonomous);
+  // Competition.drivercontrol(userControl);
 
   //platformClimb2();
 
+  testDisplay();
 
   while (true) {
     wait(20, msec);

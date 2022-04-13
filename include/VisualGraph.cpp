@@ -1,14 +1,22 @@
 #include "VisualGraph.h"
 
-VisualGraph::VisualGraph(float minY, float maxY, int numMarkersY, int numX): data(numX) {
+VisualGraph::VisualGraph(float minY, float maxY, int numMarkersY, int sizeRingQueue, int numFunctions)  {
+  for(int i = 0; i < numFunctions; i++)
+    data.push_back(new RingQueue(sizeRingQueue));
   this->minY = minY;
   this->maxY = maxY;
   this->numMarkersY = numMarkersY;
-  this->numX = numX;
+  this->numX = sizeRingQueue;
+
+  lineColors[0] = green;
+  lineColors[1] = blue;
+  lineColors[2] = red;
+  lineColors[3] = yellow;
+  lineColors[4] = purple;
 }
 
-void VisualGraph::push(float dataPoint) {
-  data.push(dataPoint);
+void VisualGraph::push(float dataPoint, int func) {
+  data.at(func)->push(dataPoint);
 }
 
 static int Y_AXIS_XPOS = 50;
@@ -51,18 +59,22 @@ void VisualGraph::display() {
   Brain.Screen.drawLine(Y_AXIS_XPOS, BOTTOM_Y, Y_AXIS_XPOS, TOP_Y); // Draw y axis
   Brain.Screen.drawLine(Y_AXIS_XPOS, BOTTOM_Y, RIGHT_X, BOTTOM_Y); // Draw x axis
 
-  if (data.getSize() < 2) return;
+  
 
-  // Draw f(x)
-  Brain.Screen.setPenColor(green);
-  int y1 = valueToY(data.get(0));
-  for (int i = 1; i < data.getSize(); i++) {
-    int x1 = Y_AXIS_XPOS + (RIGHT_X - Y_AXIS_XPOS) * (i-1) / (numX - 1);
-    int x2 = Y_AXIS_XPOS + (RIGHT_X - Y_AXIS_XPOS) * (i) / (numX - 1);
-    int y2 = valueToY(data.get(i));
+  for(int n = 0; n < data.size(); n++){
+    if (data.at(n)->getSize() < 2) return;
 
-    Brain.Screen.drawLine(x1, y1, x2, y2);
-    y1 = y2;
+    // Draw f(x)
+    Brain.Screen.setPenColor(lineColors[n%(sizeof(lineColors)/sizeof(color))]);
+    int y1 = valueToY(data.at(n)->get(0));
+    for (int i = 1; i < data.at(n)->getSize(); i++) {
+      int x1 = Y_AXIS_XPOS + (RIGHT_X - Y_AXIS_XPOS) * (i-1) / (numX - 1);
+      int x2 = Y_AXIS_XPOS + (RIGHT_X - Y_AXIS_XPOS) * (i) / (numX - 1);
+      int y2 = valueToY(data.at(n)->get(i));
+
+      Brain.Screen.drawLine(x1, y1, x2, y2);
+      y1 = y2;
+    }
   }
 
 }

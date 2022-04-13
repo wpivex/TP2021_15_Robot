@@ -507,7 +507,7 @@ void Robot::goPointGPS(float x, float y, directionType dir) {
 
 void Robot::goFightBackwards() {
 
-  VisualGraph g(-0.1, 2.9, 8, 50);
+  VisualGraph g(-0.1, 2.9, 8, 50,1);
 
   setLeftVelocity(reverse, 100);
   setRightVelocity(reverse, 100);
@@ -518,13 +518,13 @@ void Robot::goFightBackwards() {
   while (curr > 0.9) {
     
     curr = (leftMotorA.current() + rightMotorA.current()) / 2;
-    g.push(curr);
+    g.push(curr,0);
     if (display) g.display();
     display = !display;
     
     wait(20, msec);
   }
-  g.push(curr);
+  g.push(curr,0);
   g.display();
   goForward(-5, 100, 0, 5);
 
