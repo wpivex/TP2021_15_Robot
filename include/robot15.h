@@ -23,11 +23,11 @@
 
 using namespace vex;
 
-class Robot : public BaseRobot {
+class Robot15 : public BaseRobot {
   public:
 
     // four drivebase motors will not be accessible for a while
-    Robot();
+    Robot15();
     motor leftMotorA;
     motor leftMotorB;
     motor leftMotorC;
@@ -37,19 +37,12 @@ class Robot : public BaseRobot {
     motor rightMotorC;
     motor rightMotorD;
 
-    motor_group leftDrive;
-    motor_group rightDrive;
-
     motor intake;
-
-    //Front/Back Left/Right motors for controlling the sixbar lift
     motor frontArmL;
     motor frontArmR;
-
     motor backLiftL;
     motor backLiftR;
 
-    vision camera;
     int32_t CAMERA_PORT;
 
     digital_out frontClaw = digital_out(Brain.ThreeWirePort.G);
@@ -70,8 +63,6 @@ class Robot : public BaseRobot {
     void clawUp();
     void clawDown();
 
-    void updateCamera(Goal goal);
-
     // Teleop methods
     void userControl( void );
     void teleop( void );
@@ -87,6 +78,8 @@ class Robot : public BaseRobot {
     void goAlignVision(Goal goal, float timeout, bool stopAfter);
 
     // Implementing abstract functions
+    float distanceToDegrees(float distInches);
+    float degreesToDistance(float distInches);
     float getLeftEncoderDistance();
     float getRightEncoderDistance();
     void resetEncoderDistance();
@@ -98,14 +91,13 @@ class Robot : public BaseRobot {
 
     // AI methods
     void goFightBackwards();
-    void trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int targetID = -1);
+    void trackObjectsForCurrentFrame(vision camera, std::vector<GoalPosition> &goals, int targetID = -1);
     int findGoalID(std::vector<GoalPosition> &goals);
-    int detectionAndStrafePhase(float *horizontalDistance, int matchStartTime);
+    int detectionAndStrafePhase(vision camera, float *horizontalDistance, int matchStartTime);
     float getDistanceFromArea(int area);
     void runAI(int matchStartTime);
 
 
   private:
-    void driveTeleop();
     int intakeState;
 };

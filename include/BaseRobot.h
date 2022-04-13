@@ -9,10 +9,10 @@ class BaseRobot {
 
 public:
 
-  inertial gyroSensor;
-  Buttons buttons;
-
   BaseRobot(int32_t gyroPort);
+
+  inertial gyroSensor;
+  Buttons buttons; // button wrapper class
 
   virtual void teleop() = 0;
 
@@ -43,6 +43,8 @@ public:
       float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 5);
   void goForwardTimed(float duration, float speed);
 
+  void basicDriveTeleop();
+
 protected:
 
   void goForwardU_Abstract(float K_P, float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
@@ -56,7 +58,4 @@ protected:
   void goAlignVision_Abstract(float K_P, float K_I, float K_D, float TOLERANCE, float REPEATED, float MINIMUM, int32_t CAMERA_PORT, 
     Goal goal, float timeout = 5, bool stopAfter = true);
   
-
-  
-
 };

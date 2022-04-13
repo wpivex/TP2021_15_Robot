@@ -1,22 +1,19 @@
+#include "robot15.h"
 
-#include "robot.h"
 
-
-Robot::Robot() : BaseRobot(PORT16), 
+Robot15::Robot15() : BaseRobot(PORT16), 
   leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0) {
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);
   leftMotorC = motor(PORT12, ratio6_1, true);
   leftMotorD = motor(PORT10, ratio6_1, true);
-  leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD);
 
   rightMotorA = motor(PORT4, ratio6_1, false);
   rightMotorB = motor(PORT18, ratio6_1, false);
   rightMotorC = motor(PORT20, ratio6_1, false);
   rightMotorD = motor(PORT21, ratio6_1, false);
-  rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
   // forward is UP, reverse is DOWN
   frontArmL = motor(PORT19, ratio36_1, true);
@@ -37,7 +34,7 @@ Robot::Robot() : BaseRobot(PORT16),
   setControllerMapping(EZEQUIEL_MAPPING);
 }
 
-void Robot::setControllerMapping(ControllerMapping mapping) {
+void Robot15::setControllerMapping(ControllerMapping mapping) {
 
   cMapping = mapping;
 
@@ -60,27 +57,17 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
 
 }
 
-float distanceToDegrees(float distInches) {
+float Robot15::distanceToDegrees(float distInches) {
   return distInches * (5/3.0) * 360 / 2 / M_PI / (3.25 / 2); // 4 in diameter wheels
 }
 
-float degreesToDistance(float distDegrees) {
+float Robot15::degreesToDistance(float distDegrees) {
   return distDegrees * (3/5.0) / (360 / 2 / M_PI / (3.25 / 2)); // 4 in diameter wheels
 }
 
 
-void Robot::driveTeleop() {
-
-  float drive = cMapping == BRIAN_MAPPING ? buttons.axis(Buttons::RIGHT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
-  float turn = buttons.axis(Buttons::RIGHT_HORIZONTAL) / 1.0;
-  float max = std::max(1.0, std::max(fabs(drive+turn), fabs(drive-turn)));
-  setLeftVelocity(forward,100 * (drive+turn)/max);
-  setRightVelocity(forward,100 * (drive-turn)/max);
-
-}
-
 // Not a truly blocking function, one second timeout if blocking
-void Robot::setBackLift(Buttons::Button b, bool blocking) {
+void Robot15::setBackLift(Buttons::Button b, bool blocking) {
 
   float SPEED = 100;
 
@@ -107,7 +94,7 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
 }
 
 
-void Robot::backLiftTeleop() {
+void Robot15::backLiftTeleop() {
   setBackLift(buttons.get(), false);
   if (buttons.pressing(BACK_LIFT_UPPING)){
     log("upping");
@@ -124,20 +111,20 @@ void Robot::backLiftTeleop() {
   }
 }
 
-void Robot::clawUp() {
+void Robot15::clawUp() {
   frontClaw.set(false);
 }
 
-void Robot::clawDown() {
+void Robot15::clawDown() {
   frontClaw.set(true);
 }
 
-void Robot::moveArmTo(double degr, double speed, bool blocking) {
+void Robot15::moveArmTo(double degr, double speed, bool blocking) {
   frontArmL.rotateTo(degr, degrees, speed, velocityUnits::pct, false);
   frontArmR.rotateTo(degr, degrees, speed, velocityUnits::pct, blocking);
 }
 
-void Robot::armTeleop() {
+void Robot15::armTeleop() {
 
   float MOTOR_SPEED = 100;
 
@@ -171,7 +158,7 @@ void Robot::armTeleop() {
 
 }
 
-void Robot::intakeTeleop() {
+void Robot15::intakeTeleop() {
   int INTAKE_SPEED = 100;
   if (buttons.pressed(INTAKE_TOGGLE)){
     if(intakeState == 1){
@@ -193,9 +180,9 @@ void Robot::intakeTeleop() {
 }
 
 // Run every tick
-void Robot::teleop() {
+void Robot15::teleop() {
   
-  driveTeleop();
+  basicDriveTeleop();
   armTeleop();
   intakeTeleop();
   backLiftTeleop();
@@ -204,18 +191,18 @@ void Robot::teleop() {
 }
 
 // return in inches
-float Robot::getLeftEncoderDistance() {
+float Robot15::getLeftEncoderDistance() {
   float sum = leftMotorA.rotation(deg) + leftMotorB.rotation(deg) + leftMotorC.rotation(deg) + leftMotorD.rotation(deg);
   return degreesToDistance(sum / 4.0);
 }
 
 // return in inches
-float Robot::getRightEncoderDistance() {
+float Robot15::getRightEncoderDistance() {
   float sum = rightMotorA.rotation(deg) + rightMotorB.rotation(deg) + rightMotorC.rotation(deg) + rightMotorD.rotation(deg);
   return degreesToDistance(sum / 4.0);
 }
 
-void Robot::resetEncoderDistance() {
+void Robot15::resetEncoderDistance() {
   leftMotorA.resetRotation();
   rightMotorA.resetRotation();
 }
@@ -223,18 +210,18 @@ void Robot::resetEncoderDistance() {
 
 // Go forward a number of inches, maintaining a specific heading
 // Calling general function with 15-specifc params
-void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
+void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
 bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
   BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
 // Calling general function with 15-specifc params
-void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
+void Robot15::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
   BaseRobot::goTurnU_Abstract(2, 0, 0.13, 1.5, 5, 12, universalAngleDegrees, stopAfter, timeout, maxSpeed);
 }
 
-void Robot::goFightBackwards() {
+void Robot15::goFightBackwards() {
 
   VisualGraph g(-0.1, 2.9, 8, 50);
 
@@ -259,18 +246,14 @@ void Robot::goFightBackwards() {
 
 }
 
-void Robot::updateCamera(Goal goal) {
-  camera = vision(PORT17, goal.bright, goal.sig);
-}
-
 // Go forward until the maximum distance is hit or the timeout is reached
 // for indefinite timeout, set to -1
-void Robot::goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
+void Robot15::goVision(float distInches, float speed, Goal goal, float rampUpInches, float slowDownInches, bool stopAfter, float timeout) {
   BaseRobot::goVision_Abstract(25, 12, CAMERA_PORT, distInches, speed, goal, rampUpInches, slowDownInches, stopAfter, timeout);
 }
 
 // Align to the goal of specified color with PID
-void Robot::goAlignVision(Goal goal, float timeout, bool stopAfter) {
+void Robot15::goAlignVision(Goal goal, float timeout, bool stopAfter) {
   BaseRobot::goAlignVision_Abstract(40, 0, 1, 0.05, 3, 12, CAMERA_PORT, goal, timeout, stopAfter);
 }
 
@@ -283,7 +266,7 @@ GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID) {
 
 // Track each yellow goal across time, and label each with an id
 // targetID only for visual purposes to highlight target goal, if targetID != -1
-void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int targetID) {
+void Robot15::trackObjectsForCurrentFrame(vision camera, std::vector<GoalPosition> &goals, int targetID) {
 
 
   static int nextAvailableID = 0;
@@ -340,6 +323,7 @@ void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int ta
     }
   }
 
+  // Draw graphics for this frame
   for (int i = 0; i < goals.size(); i++) {
     if (goals[i].isPersistent()) {
       color c = (targetID == -1) ? goals[i].col : (goals[i].id == targetID ? green : red); // show red/green if in strafe phase, otherwise display mapped color
@@ -349,7 +333,7 @@ void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int ta
     }
   }
 
-  // goal UI
+  // Print general info for this frame
   Brain.Screen.setFillColor(transparent);
   Brain.Screen.printAt(50, 50, "size %d %d %d", goals.size(), nextAvailableID, camera.objectCount);
 
@@ -357,7 +341,7 @@ void Robot::trackObjectsForCurrentFrame(std::vector<GoalPosition> &goals, int ta
 
 // search through goals list to find persistent goal with size > 1200, and on the right side of screen.
 // return -1 if does not exist
-int Robot::findGoalID(std::vector<GoalPosition> &goals) {
+int Robot15::findGoalID(std::vector<GoalPosition> &goals) {
 
   // Find the left-most goal
 
@@ -378,7 +362,7 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
 
 
 // return area of object when arrived
-int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime) {
+int Robot15::detectionAndStrafePhase(vision camera, float *horizonalDistance, int matchStartTime) {
 
   static const float MAX_TRAVEL_DISTANCE = 80;
 
@@ -421,7 +405,7 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
     camera.takeSnapshot(g.sig);
     Brain.Screen.clearScreen();
     
-    trackObjectsForCurrentFrame(goals, targetID);
+    trackObjectsForCurrentFrame(camera, goals, targetID);
 
     if (targetID == -1) {
       targetID = findGoalID(goals);
@@ -467,7 +451,7 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
 }
 
 // Get distance to goal from area of goal using empirical formula: https://www.desmos.com/calculator/pvbkwhu5lc
-float Robot::getDistanceFromArea(int area) {
+float Robot15::getDistanceFromArea(int area) {
   if (area > 6000) return 24;
   else if (area > 2200) return 36 - 12.0 * (area - 2200.0) / (6000.0 - 2200);
   else if (area > 1200) return 47 - 11.0 * (area - 1200.0) / (2200.0 - 1200);
@@ -488,10 +472,10 @@ Grab yellow goal with front claw. Intake the whole time. Then, back up and align
 4. Undocking phase. Drop the yellow goal behind, and then turn so that 1dof faces other alliance goal again to reset. Go back to step 1.
 
 Keep repeating until timer threshold. */
-void Robot::runAI(int matchStartTime) {
+void Robot15::runAI(int matchStartTime) {
 
   Goal g = YELLOW;
-  updateCamera(g);
+  vision camera(CAMERA_PORT, g.bright, g.sig);
   clawUp();
   Brain.Screen.setFont(mono20);
 
@@ -505,7 +489,7 @@ void Robot::runAI(int matchStartTime) {
 
     // Detection phase
     moveArmTo(200, 100, false);
-    int area = detectionAndStrafePhase(&hDist, matchStartTime);
+    int area = detectionAndStrafePhase(camera, &hDist, matchStartTime);
     if (area == -1) break; // exit if timeout or exceed x value
     int dist = getDistanceFromArea(area);
     logController("Area: %d\nDist: %d", area, dist);
@@ -533,8 +517,7 @@ void Robot::runAI(int matchStartTime) {
 
 }
 
-
-void Robot::setLeftVelocity(directionType d, double percent) {
+void Robot15::setLeftVelocity(directionType d, double percent) {
   if (percent < 0) {
     d = (d == forward) ? reverse : forward;
     percent = -percent;
@@ -545,7 +528,7 @@ void Robot::setLeftVelocity(directionType d, double percent) {
   leftMotorD.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
 }
 
-void Robot::setRightVelocity(directionType d, double percent) {
+void Robot15::setRightVelocity(directionType d, double percent) {
   if (percent < 0) {
     d = (d == forward) ? reverse : forward;
     percent = -percent;
@@ -556,29 +539,29 @@ void Robot::setRightVelocity(directionType d, double percent) {
   rightMotorD.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
 }
 
-void Robot::startIntake(directionType dir) {
+void Robot15::startIntake(directionType dir) {
   intake.spin(dir, 100, pct);
 }
 
-void Robot::stopIntake() {
+void Robot15::stopIntake() {
   intake.stop();
 }
 
-void Robot::stopLeft() {
+void Robot15::stopLeft() {
   leftMotorA.stop();
   leftMotorB.stop();
   leftMotorC.stop();
   leftMotorD.stop();
 }
 
-void Robot::stopRight() {
+void Robot15::stopRight() {
   rightMotorA.stop();
   rightMotorB.stop();
   rightMotorC.stop();
   rightMotorD.stop();
 }
 
-void Robot::setBrakeType(brakeType b) {
+void Robot15::setBrakeType(brakeType b) {
   leftMotorA.setBrake(b);
   leftMotorB.setBrake(b);
   leftMotorC.setBrake(b);
