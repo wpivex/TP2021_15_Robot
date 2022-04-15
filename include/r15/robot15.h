@@ -64,29 +64,29 @@ class Robot15 : public BaseRobot {
 
     // Teleop methods
     void userControl( void );
-    void teleop( void );
+    void teleop( void ) override;
     void armTeleop();
     void clawTeleop();
     void intakeTeleop();
 
     // Calling parent drive functions with params
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-        bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
-    void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
-    void goVision(float distInches, float speed, Goal goal, float rampUpFrames, float slowDownInches, bool stopAfter = true, float timeout = 5);
-    void goAlignVision(Goal goal, float timeout, bool stopAfter);
+        bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10) override;
+    void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75) override;
+    void goVision(float distInches, float speed, Goal goal, float rampUpFrames, float slowDownInches, bool stopAfter = true, float timeout = 5) override;
+    void goAlignVision(Goal goal, float timeout = 5, bool stopAfter = true);
 
     // Implementing abstract functions
-    float distanceToDegrees(float distInches);
-    float degreesToDistance(float distInches);
-    float getLeftEncoderDistance();
-    float getRightEncoderDistance();
-    void resetEncoderDistance();
-    void setLeftVelocity(directionType d, double percent);
-    void setRightVelocity(directionType d, double percent);
-    void stopLeft();
-    void stopRight();
-    void setBrakeType(brakeType b);
+    float distanceToDegrees(float distInches) override;
+    float degreesToDistance(float distInches) override;
+    float getLeftEncoderDistance() override;
+    float getRightEncoderDistance() override;
+    void resetEncoderDistance() override;
+    void setLeftVelocity(directionType d, double percent) override;
+    void setRightVelocity(directionType d, double percent) override;
+    void stopLeft() override;
+    void stopRight() override;
+    void setBrakeType(brakeType b) override;
 
     // AI methods
     void goFightBackwards();

@@ -1,3 +1,4 @@
+#pragma once
 #include "BaseRobot.h"
 
 BaseRobot::BaseRobot(int32_t gyroPort): gyroSensor(gyroPort) {
