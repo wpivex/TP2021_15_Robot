@@ -124,6 +124,46 @@ void Robot15::moveArmTo(double degr, double speed, bool blocking) {
   frontArmR.rotateTo(degr, degrees, speed, velocityUnits::pct, blocking);
 }
 
+void Robot15::moveArmToManual(double degr, double speed) {
+
+  VisualGraph g(0, 3, 10, 200, 2);
+  g.configureAutomaticDisplay();
+
+  PID diffPID(1, 0, 0);
+  float correction;
+  float pos = (frontArmL.position(deg) + frontArmR.position(deg));
+
+  float sumCurrent = 0;
+  int numSamples = 0;
+
+  bool risingEdge = pos < degr;
+
+  while (risingEdge ? pos < degr : pos > degr) {
+    pos = (frontArmL.position(deg) + frontArmR.position(deg));
+    float diff = (frontArmR.position(deg) - frontArmL.position(deg));
+    correction = diffPID.tick(diff);
+
+    setMotorVelocity(frontArmL, forward, speed + correction);
+    setMotorVelocity(frontArmR, forward, speed - correction);
+
+    float curr = (frontArmL.current() + frontArmR.current()) / 2.0;
+    sumCurrent += curr;
+    numSamples++;
+    g.push(curr, 0);
+    g.push(speed / 100.0, 1);
+
+    wait(20, msec);
+  }
+  g.push((frontArmL.current() + frontArmR.current()) / 2.0);
+
+  frontArmL.stop();
+  frontArmR.stop();
+
+  float avgCurrent = (numSamples == 0) ? 0 : sumCurrent / numSamples;
+  logController("Average current: %f", avgCurrent);
+  
+}
+
 void Robot15::armTeleop() {
 
   float MOTOR_SPEED = 100;

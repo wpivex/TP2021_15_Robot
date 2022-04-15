@@ -86,8 +86,17 @@ int autonAI() {
   return 0;
 }
 
+int testArm() {
+  float highArmAngle = 680;
+  fifteen.clawUp();
+  wait(2000, msec);
+  fifteen.clawDown();
+  wait(500, msec);
+  fifteen.moveArmToManual(highArmAngle, 100);
+  return 0;
+}
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(autonAI); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(testArm); }
 //void autonomous() { thread auto1(mainAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }

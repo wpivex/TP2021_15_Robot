@@ -40,6 +40,9 @@ void BaseRobot::setMotorVelocity(motor m, directionType d, double percent) {
     d = (d == forward) ? reverse : forward;
     percent = -percent;
   }
+
+  percent = fmin(100, fmax(-100, percent)); // bound between -100 and 100
+
   m.spin(d, percent / 100.0 * 12.0, voltageUnits::volt);
 }
 
