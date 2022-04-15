@@ -90,9 +90,9 @@ class Robot15 : public BaseRobot {
 
     // AI methods
     void goFightBackwards();
-    void trackObjectsForCurrentFrame(vision camera, std::vector<GoalPosition> &goals, int targetID = -1);
+    void trackObjectsForCurrentFrame(vision *camera, std::vector<GoalPosition> &goals, int targetID = -1);
     int findGoalID(std::vector<GoalPosition> &goals);
-    int detectionAndStrafePhase(vision camera, float *horizontalDistance, int matchStartTime);
+    int detectionAndStrafePhase(vision *camera, float *horizontalDistance, int matchStartTime);
     float getDistanceFromArea(int area);
     void runAI(int matchStartTime);
 
