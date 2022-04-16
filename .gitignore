@@ -1,5 +1,5 @@
-
 build
 .DS_Store
 compile_commands.json
 .vscode/settings.json
+src/main.cpp
