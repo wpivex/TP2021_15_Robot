@@ -310,7 +310,7 @@ void Robot15::trackObjectsForCurrentFrame(vision *camera, std::vector<GoalPositi
   for (int i = 0; i < camera->objectCount; i++) {
     vision::object o = camera->objects[i];
 
-    if (oArea(o) < 160) continue; 
+    if (oArea(o) < 160) continue; // ignore very small yellow blips
 
     // Find the matching goal from the previous frame
     int closestDist = 60; // maximum distance from previous frame location that can link
