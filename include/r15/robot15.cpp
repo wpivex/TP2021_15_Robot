@@ -155,6 +155,8 @@ bool Robot15::moveArmToManual(double degr, double speed) {
     g.push(curr, 0);
     g.push(speed / 100.0, 1);
 
+    log("%f", frontArmR.position(deg));
+
     wait(20, msec);
   }
   g.push((frontArmL.current() + frontArmR.current()) / 2.0);
