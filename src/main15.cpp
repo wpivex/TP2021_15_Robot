@@ -83,7 +83,13 @@ int autonAI() {
   if (obtainedGoal) {
 
     fifteen.goForwardU(-18, 60, 270, 10, 5);
+    
+    // Force turn counterclockwise because am lazy to do this properly
+    fifteen.setLeftVelocity(reverse, 100);
+    fifteen.setRightVelocity(forward, 100);
+    wait(300, msec);
     fifteen.goTurnU(90); // face platform
+    
     fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
     fifteen.goForwardU(12, 50, 90, 10, 5);
     fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);

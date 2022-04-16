@@ -76,6 +76,7 @@ static inline void logController(const char *f, Args ... args) {
   }
 }
 
+
 // log output to brain display the way you would with printf
 template <class ... Args>
 static inline void log(const char *f, Args ... args) {
