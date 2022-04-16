@@ -3,7 +3,7 @@
 
 Robot15 fifteen = Robot15();
 
-int mainTeleop() {
+int mainTeleop15() {
 
   while (true) {
     fifteen.teleop();
@@ -132,11 +132,11 @@ int testArm() {
   return 0;
 }
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(testArm); }
-//void autonomous() { thread auto1(mainAuto); }
+void autonomous15() { fifteen.setBrakeType(hold); task auto1(testArm); }
+//void autonomous15() { thread auto1(mainAuto); }
 
-void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
-//void userControl(void) { task controlLoop1(logDistance); }
+void userControl15(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop15); }
+//void userControl15(void) { task controlLoop1(logDistance); }
 
 
 int main15() {
@@ -151,8 +151,8 @@ int main15() {
 
   fifteen.resetEncoderDistance();
   
-  Competition.autonomous(autonomous);
-  Competition.drivercontrol(userControl);
+  Competition.autonomous(autonomous15);
+  Competition.drivercontrol(userControl15);
 
   while (true) {
     wait(20, msec);

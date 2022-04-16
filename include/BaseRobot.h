@@ -40,6 +40,8 @@ public:
       bool stopAfter = true, float rampMinSpeed = 20, float slowMinSpeed = 12);
   void goForward(float distInches, float maxSpeed, float rampUpFrames, float slowDownInches, bool stopAfter = true, 
       float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 5);
+  virtual void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
+      bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) = 0;
   void goForwardTimed(float duration, float speed);
 
   void basicDriveTeleop();

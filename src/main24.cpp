@@ -3,7 +3,7 @@
 
 Robot24 twentyFour = Robot24();
 
-int mainTeleop() {
+int mainTeleop24() {
   twentyFour.setBackClamp(false);
   twentyFour.setFrontClamp(false);
 
@@ -110,9 +110,9 @@ int testCurrent() {
 }
 
 
-void userControl(void) { twentyFour.setBrakeType(coast); task controlLoop1(mainTeleop); }
+void userControl24(void) { twentyFour.setBrakeType(coast); task controlLoop1(mainTeleop24); }
 
-void autonomous() { twentyFour.setBrakeType(hold); task auto1(matchAuto); }
+void autonomous24() { twentyFour.setBrakeType(hold); task auto1(matchAuto); }
 
 int main24() {
   Competition.bStopAllTasksBetweenModes = true;
@@ -124,8 +124,8 @@ int main24() {
   twentyFour.waitGyroCallibrate();
   
   twentyFour.resetArmRotation();
-  Competition.autonomous(autonomous);
-  Competition.drivercontrol(userControl);
+  Competition.autonomous(autonomous24);
+  Competition.drivercontrol(userControl24);
 
   while (true) {
     wait(20, msec);
