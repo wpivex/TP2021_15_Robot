@@ -2,25 +2,21 @@
 
 // Motor ports Left: 1R, 2F, 3F,  20T Right: 12R, 11F, 13F
 // gear ratio is 60/36
-Robot24::Robot24(controller* c, bool _isSkills) : BaseRobot(PORT2), leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), leftMotorE(0), 
+Robot24::Robot24() : BaseRobot(PORT2), leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), leftMotorE(0), 
   rightMotorA(0), rightMotorB(0), rightMotorC(0), rightMotorD(0), rightMotorE(0), backCamera(PORT9), frontCamera(PORT10), rightArm1(0), rightArm2(0), 
   leftArm1(0), leftArm2(0) {
-
-  isSkills = _isSkills;
 
   leftMotorA = motor(PORT7, ratio18_1, true); 
   leftMotorB = motor(PORT6, ratio18_1, true);
   leftMotorC = motor(PORT3, ratio18_1, true);
   leftMotorD = motor(PORT4, ratio18_1, true);
   leftMotorE = motor(PORT5, ratio18_1, true);
-  leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC, leftMotorD, leftMotorE);
 
   rightMotorA = motor(PORT16, ratio18_1, false);
   rightMotorB = motor(PORT11, ratio18_1, false);
   rightMotorC = motor(PORT12, ratio18_1, false);
   rightMotorD = motor(PORT15, ratio18_1, false);
   rightMotorE = motor(PORT14, ratio18_1, false);
-  rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD, rightMotorE);
 
   rightArm1 = motor(PORT10, ratio36_1, true);
   rightArm2 = motor(PORT20, ratio36_1, true);
@@ -32,7 +28,6 @@ Robot24::Robot24(controller* c, bool _isSkills) : BaseRobot(PORT2), leftMotorA(0
   leftArm1.setBrake(hold);
   leftArm2.setBrake(hold);
 
-  //gyroSensor = inertial(PORT11);
 
   FRONT_CAMERA_PORT = PORT10;
   BACK_CAMERA_PORT = PORT9;
@@ -40,9 +35,6 @@ Robot24::Robot24(controller* c, bool _isSkills) : BaseRobot(PORT2), leftMotorA(0
   driveType = TWO_STICK_ARCADE;
 
   setControllerMapping(DEFAULT_MAPPING);
-
-
-
 }
 
 void Robot24::setControllerMapping(ControllerMapping mapping) {
@@ -56,9 +48,7 @@ void Robot24::setControllerMapping(ControllerMapping mapping) {
     BACK_CLAMP_TOGGLE = Buttons::R1;
     CLAW_TOGGLE = Buttons::A;
   } 
-
 }
-
 
 void Robot24::driveTeleop() {
 
@@ -76,7 +66,6 @@ void Robot24::driveTeleop() {
     setRightVelocity(forward,100 * (drive-turn)/max);
   }
 }
-
 
 void Robot24::goalClamp() {
 
@@ -127,7 +116,7 @@ void Robot24::teleop() {
   buttons.updateButtonState();
 }
 
-void Robot24::goForwardUntilSensor(float maxDistance, float speed, float rampUpInches, int timeout, std::function<bool(void)> func, bool stopAfter) {
+void Robot24::goForwardUntilSensor(float maxDistance, float speed, float rampUpInches, int timeout, bool stopAfter) {
 
   Trapezoid trap(maxDistance, speed, speed, rampUpInches, 0);
 
@@ -137,15 +126,6 @@ void Robot24::goForwardUntilSensor(float maxDistance, float speed, float rampUpI
 
   // finalDist is 0 if we want driveTimed instead of drive some distance
   while (!trap.isCompleted() && !isTimeout(startTime, timeout) && clawSensor.value()) {
-
-    // if there is a concurrent function to run, run it
-    if (func) {
-      bool done = func();
-      if (done) {
-        // if func is done, make it empty
-        func = {};
-      }
-    }
 
     float speed = trap.tick(getEncoderDistance());
 

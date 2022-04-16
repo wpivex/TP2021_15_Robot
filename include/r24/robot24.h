@@ -7,7 +7,8 @@ class Robot24 : public BaseRobot {
 
   public:
     // four drivebase motors will not be accessible for a while
-    Robot24(controller* c, bool isSkills);
+    Robot24();
+
     motor leftMotorA;
     motor leftMotorB;
     motor leftMotorC;
@@ -18,12 +19,6 @@ class Robot24 : public BaseRobot {
     motor rightMotorC;
     motor rightMotorD;
     motor rightMotorE;
-
-    motor_group leftDrive;
-    motor_group rightDrive;
-
-    vision backCamera;
-    vision frontCamera;
 
     motor rightArm1;
     motor rightArm2;
@@ -39,14 +34,8 @@ class Robot24 : public BaseRobot {
     digital_out clawPiston = digital_out(Brain.ThreeWirePort.C);
     digital_in clawSensor = digital_in(Brain.ThreeWirePort.D);
 
-    controller* robotController;
-
     //inertial gyroSensor;
     int32_t FRONT_CAMERA_PORT, BACK_CAMERA_PORT;
-
-    Buttons buttons;
-
-    bool calibrationDone = false;
 
     enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };
     DriveType driveType;
@@ -65,8 +54,7 @@ class Robot24 : public BaseRobot {
     void stopArm();
     void setArmPercent(directionType d, double percent);
 
-    void userControl( void );
-    void teleop( void ) override;
+    void teleop() override;
     void setLeftVelocity(directionType d, double percent) override;
     void setRightVelocity(directionType d, double percent) override;
     void stopLeft() override;
@@ -79,13 +67,12 @@ class Robot24 : public BaseRobot {
     // Drive Functions
     void goForward(float distInches, float maxSpeed, float rampUpInches = 0, float slowDownInches = 5,
       int timeout = 5, std::function<bool(void)> func = {}, bool stopAfter = true);
-    void goForwardUntilSensor(float maxDistance, float speed, float rampUpInches = 0, int timeout = 5, std::function<bool(void)> func = {}, bool stopAfter = true);
+    void goForwardUntilSensor(float maxDistance, float speed, float rampUpInches = 0, int timeout = 5, bool stopAfter = true);
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
       bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
 
     // Turning Functions
     void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
-    void goTurn(float angleDegrees, std::function<bool(void)> func = {});
 
     // Curves
     void goRadiusCurve(float radius, float distAlongCircum, bool curveDirection, float maxSpeed, float rampUp, float slowDown, 
@@ -116,9 +103,6 @@ class Robot24 : public BaseRobot {
     
 
     bool driveHold = false;
-
     bool teleopArmLimited = false;
-
-    bool isSkills;
 
 };
