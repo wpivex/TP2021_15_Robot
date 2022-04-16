@@ -26,7 +26,7 @@ int test() {
   return 0;
 }
 
-int autonAI() {
+int twoRingAuton() {
 
   int matchStartTime = timer::system();
   float highArmAngle = 680;
@@ -83,7 +83,13 @@ int autonAI() {
   if (obtainedGoal) {
 
     fifteen.goForwardU(-18, 60, 270, 10, 5);
+    
+    // Force turn counterclockwise because am lazy to do this properly
+    fifteen.setLeftVelocity(reverse, 100);
+    fifteen.setRightVelocity(forward, 100);
+    wait(300, msec);
     fifteen.goTurnU(90); // face platform
+
     fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
     fifteen.goForwardU(12, 50, 90, 10, 5);
     fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
@@ -93,7 +99,7 @@ int autonAI() {
     // Exchange blue goal from back to front
     fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false); // drop alliance goal
     fifteen.goForwardU(-12, 50, 270, 10, 0, false);
-    fifteen.moveArmTo(lowArmAngle, 100); // lower arm to pick up alliance goal
+    fifteen.moveArmTo(lowArmAngle, 100, false); // lower arm to pick up alliance goal
     fifteen.goForwardU(-5, 50, 270, 0, 4);
     fifteen.goForwardU(10, 50, 270, 10, 4);
     fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
@@ -116,12 +122,13 @@ int autonAI() {
 }
 
 int testArm() {
-  float highArmAngle = 680;
-  fifteen.clawUp();
-  wait(2000, msec);
-  fifteen.clawDown();
-  wait(500, msec);
+  float highArmAngle = 650;
+
   fifteen.moveArmToManual(highArmAngle, 100);
+  wait(1000, msec);
+  fifteen.moveArmTo(-20, 100);
+  wait(1000, msec);
+  fifteen.moveArmTo(highArmAngle, 100);
   return 0;
 }
 
