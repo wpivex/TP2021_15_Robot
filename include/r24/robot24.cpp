@@ -233,7 +233,7 @@ void Robot24::gyroCurve(float distInches, float maxSpeed, float turnAngle, int t
     targetAngle = turnAngle * fabs(fmax(0.3, fmin(1, (distanceError + 0.3*distanceInDegrees) / (distanceInDegrees))));
 
     float speed = fmin(100, fmax(-100, trap.tick(distanceError))); 
-    float turnDifference = anglePID.tick(targetAngle - gyroSensor.rotation());
+    float turnDifference = anglePID.tick(getAngleDiff(targetAngle,gyroSensor.rotation()));
 
     setLeftVelocity(forward, speed * (0.5+turnDifference));
     setRightVelocity(forward, speed * (0.5-turnDifference));
