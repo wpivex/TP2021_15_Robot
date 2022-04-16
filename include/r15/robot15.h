@@ -55,7 +55,7 @@ class Robot15 : public BaseRobot {
 
     // Joint control methods
     void moveArmTo(double degr, double speed, bool blocking = true);
-    void moveArmToManual(double degr, double maxSpeed);
+    bool moveArmToManual(double degr, double maxSpeed);
     void setBackLift(Buttons::Button b, bool blocking);
     void backLiftTeleop();
     void startIntake(directionType dir = forward);

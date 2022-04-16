@@ -124,7 +124,9 @@ void Robot15::moveArmTo(double degr, double speed, bool blocking) {
   frontArmR.rotateTo(degr, degrees, speed, velocityUnits::pct, blocking);
 }
 
-void Robot15::moveArmToManual(double degr, double speed) {
+// Move at speed until crossing threshold. No PID, is heaviside
+// Returns true if there's a goal on arm, false if not, using current thresholds
+bool Robot15::moveArmToManual(double degr, double speed) {
 
   VisualGraph g(0, 3, 10, 200, 2);
   g.configureAutomaticDisplay();
@@ -133,6 +135,7 @@ void Robot15::moveArmToManual(double degr, double speed) {
   float correction;
   float pos = (frontArmL.position(deg) + frontArmR.position(deg));
 
+  // Find average current over arm lift
   float sumCurrent = 0;
   int numSamples = 0;
 
@@ -161,6 +164,8 @@ void Robot15::moveArmToManual(double degr, double speed) {
 
   float avgCurrent = (numSamples == 0) ? 0 : sumCurrent / numSamples;
   logController("Average current: %f", avgCurrent);
+
+  return avgCurrent > 0.6; // no load current ~0.45A, goal current ~0.86A
   
 }
 
