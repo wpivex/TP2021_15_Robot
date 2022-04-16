@@ -103,7 +103,7 @@ void BaseRobot::goRadiusCurve(float radius, float circProportion, bool curveDire
     float distSoFar = getEncoderDistance();
 
     float v_avg = trap.tick(distSoFar); 
-    log("Current: %f\nTotal: %f", distSoFar, distanceToDegrees(distAlongCircum));
+    log("Current: %f\nTotal: %f", distSoFar, distAlongCircum);
 
     float lPower = v_avg / (curveDirection ? 1:v_ratio);
     float rPower =  v_avg / (curveDirection ? v_ratio:1);
