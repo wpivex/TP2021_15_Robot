@@ -28,7 +28,7 @@ int test() {
 
 int twoRingAuton() {
 
-  int matchStartTime = timer::system();
+  // int matchStartTime = timer::system();
   float highArmAngle = 680;
   float lowArmAngle = -20;
   fifteen.setBrakeType(hold);

@@ -3,7 +3,7 @@
 
 Robot15::Robot15() : BaseRobot(PORT16), 
   leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0) {
+  rightMotorC(0), rightMotorD(0), intake(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0) {
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);

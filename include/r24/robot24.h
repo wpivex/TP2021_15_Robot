@@ -65,7 +65,7 @@ class Robot24 : public BaseRobot {
     // Drive Functions
     void goForwardUntilSensor(float maxDistance, float speed, float rampUpInches = 0, int timeout = 5, bool stopAfter = true);
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-      bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
+      bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10) override;
 
     // Turning Functions
     void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
