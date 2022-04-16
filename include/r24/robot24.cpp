@@ -162,53 +162,6 @@ float Robot24::degreesToDistance(float distDegrees) {
   return SPEED_RATIO * distDegrees / (360.0 / 2.0 / M_PI / (4.0 / 2.0)); // 4 in diameter wheels
 }
 
-// PID gyro sensor-based curving 
-// distInches is positive if forward, negative if reverse
-void Robot24::gyroCurve(float distInches, float maxSpeed, float turnAngle, int timeout, bool stopAfter) {
-
-  // Needs tuning desperately
-  float kp = 0.015;
-  float ki = 0;
-  float kd = 0;
-
-
-  // We have these values somewhere but I'm not sure where
-  float distanceInDegrees = distanceToDegrees(distInches);
-  
-  Trapezoid trap(distInches, maxSpeed, maxSpeed, 0, 0);
-  PID anglePID(kp, ki, kd, -1, -1, 0, 0.5);
-  float targetAngle = 0;
-
-  int startTime = vex::timer::system();
-  resetEncoderDistance();
-  gyroSensor.resetRotation();
-
-
-  // Repeat until either arrived at target or timed out
-  while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
-
-    // Not sure if linear distance is correct / it seems relavtively arbitrary for this function. Approximate me!
-    float distanceError = (leftMotorA.position(degrees) + rightMotorA.position(degrees)) / 2;
-    targetAngle = turnAngle * fabs(fmax(0.3, fmin(1, (distanceError + 0.3*distanceInDegrees) / (distanceInDegrees))));
-
-    float speed = fmin(100, fmax(-100, trap.tick(distanceError))); 
-    float turnDifference = anglePID.tick(getAngleDiff(targetAngle,gyroSensor.rotation()));
-
-    setLeftVelocity(forward, speed * (0.5+turnDifference));
-    setRightVelocity(forward, speed * (0.5-turnDifference));
-
-    wait(20, msec);
-
-  }
-
-  logController("done");
-  if(stopAfter) {
-    stopLeft();
-    stopRight();
-  }
-
-}
-
 // Go forward until the maximum distance is hit or the timeout is reached
 // for indefinite timeout, set to -1
 void Robot24::goVision(float distInches, float speed, Goal goal, directionType cameraDir, float rampUpFrames, 

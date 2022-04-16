@@ -86,13 +86,13 @@ bool stopAfter, float rampMinSpeed, float slowMinSpeed) {
 // Will use gyro sensor
 // distAlongCirc is positive if forward, negative if reverse
 // curveDirection is true for right, false for left
-void BaseRobot::goRadiusCurve(float radius, float circProportion, bool curveDirection, float maxSpeed, float rampUp, float slowDown, bool stopAfter,float timeout) {
+void BaseRobot::goRadiusCurve(float radius, float circProportion, bool curveDirection, float maxSpeed, int rampUpFrames, 
+    float slowDownInches, bool stopAfter, float timeout) {
 
   float distAlongCircum = circProportion*M_PI*radius*2;
+  float v_ratio = fabs((radius+DIST_BETWEEN_WHEELS)/(radius-DIST_BETWEEN_WHEELS));
 
-  Trapezoid trap(distanceToDegrees(distAlongCircum), maxSpeed, 20, distanceToDegrees(rampUp), distanceToDegrees(slowDown));
-  //      kp, kd, ki
-  // PID anglepid(0.05, 0, 0); //definitely no kd imo
+  Trapezoid trap(distAlongCircum, maxSpeed, 20, rampUpFrames, slowDownInches);
 
   int startTime = vex::timer::system();
   resetEncoderDistance();
@@ -103,8 +103,6 @@ void BaseRobot::goRadiusCurve(float radius, float circProportion, bool curveDire
     float distSoFar = getEncoderDistance();
 
     float v_avg = trap.tick(distSoFar); 
-    float v_ratio = fabs((radius+DIST_BETWEEN_WHEELS)/(radius-DIST_BETWEEN_WHEELS));
-
     log("Current: %f\nTotal: %f", distSoFar, distanceToDegrees(distAlongCircum));
 
     float lPower = v_avg / (curveDirection ? 1:v_ratio);
@@ -119,9 +117,6 @@ void BaseRobot::goRadiusCurve(float radius, float circProportion, bool curveDire
     stopLeft();
     stopRight();
   }
-  wait(3000, msec);
-  logController("done");
-
 }
 
 void BaseRobot::goForwardTimed(float duration, float speed) {
