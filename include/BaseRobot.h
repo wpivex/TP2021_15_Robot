@@ -51,7 +51,9 @@ public:
 
   // Curving Functions
   void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpFrames, float slowDownInches, 
-      bool stopAfter = true, float rampMinSpeed = 20, float slowMinSpeed = 12);
+    bool stopAfter = true, float rampMinSpeed = 20, float slowMinSpeed = 12);
+  void goRadiusCurve(float radius, float distAlongCircum, bool curveDirection, float maxSpeed, float rampUp, float slowDown, 
+    bool stopAfter = true, float timeout = 5);
 
 
 protected:

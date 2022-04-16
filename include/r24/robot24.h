@@ -72,8 +72,6 @@ class Robot24 : public BaseRobot {
     void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
 
     // Curves
-    void goRadiusCurve(float radius, float distAlongCircum, bool curveDirection, float maxSpeed, float rampUp, float slowDown, 
-      bool stopAfter = true, float timeout = 5);
     void gyroCurve(float distInches, float maxSpeed, float turnAngle, int timeout, bool stopAfter = true);
     
     // Vision Functions
