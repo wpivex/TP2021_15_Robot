@@ -3,7 +3,7 @@
 // Motor ports Left: 1R, 2F, 3F,  20T Right: 12R, 11F, 13F
 // gear ratio is 60/36
 Robot24::Robot24() : BaseRobot(PORT2), leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), leftMotorE(0), 
-  rightMotorA(0), rightMotorB(0), rightMotorC(0), rightMotorD(0), rightMotorE(0), backCamera(PORT9), frontCamera(PORT10), rightArm1(0), rightArm2(0), 
+  rightMotorA(0), rightMotorB(0), rightMotorC(0), rightMotorD(0), rightMotorE(0), rightArm1(0), rightArm2(0), 
   leftArm1(0), leftArm2(0) {
 
   leftMotorA = motor(PORT7, ratio18_1, true); 
@@ -197,7 +197,7 @@ void Robot24::goRadiusCurve(float radius, float numRotations, bool curveDirectio
 
 // PID gyro sensor-based curving 
 // distInches is positive if forward, negative if reverse
-void Robot24::gyroCurve(float distInches, float maxSpeed, float turnAngle, int timeout, bool stopAfter, std::function<bool(void)> func) {
+void Robot24::gyroCurve(float distInches, float maxSpeed, float turnAngle, int timeout, bool stopAfter) {
 
   // Needs tuning desperately
   float kp = 0.015;
@@ -219,15 +219,6 @@ void Robot24::gyroCurve(float distInches, float maxSpeed, float turnAngle, int t
 
   // Repeat until either arrived at target or timed out
   while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
-
-    // if there is a concurrent function to run, run it
-    if (func) {
-      bool done = func();
-      if (done) {
-        // if func is done, make it empty
-        func = {};
-      }
-    }
 
     // Not sure if linear distance is correct / it seems relavtively arbitrary for this function. Approximate me!
     float distanceError = (leftMotorA.position(degrees) + rightMotorA.position(degrees)) / 2;
@@ -266,6 +257,7 @@ void Robot24::goAlignVision(Goal goal, directionType cameraDir, float timeout, b
   BaseRobot::goAlignVision_Abstract(70, 0, 0, 0.05, 3, 25, port, goal, timeout, stopAfter);
 }
 
+// Same as goAlignVision, but use Trapezoidal instead of PID
 void Robot24::goAlignVisionTrap(Goal goal, directionType cameraDir, float timeout, bool stopAfter) {
 
   vision camera(cameraDir == forward ? FRONT_CAMERA_PORT : BACK_CAMERA_PORT, goal.bright, goal.sig);

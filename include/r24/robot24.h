@@ -1,7 +1,6 @@
 #pragma once
 #include "vex.h"
 #include "BaseRobot.cpp"
-#include <functional>
 
 class Robot24 : public BaseRobot {
 
@@ -65,8 +64,6 @@ class Robot24 : public BaseRobot {
 
 
     // Drive Functions
-    void goForward(float distInches, float maxSpeed, float rampUpInches = 0, float slowDownInches = 5,
-      int timeout = 5, std::function<bool(void)> func = {}, bool stopAfter = true);
     void goForwardUntilSensor(float maxDistance, float speed, float rampUpInches = 0, int timeout = 5, bool stopAfter = true);
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
       bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
@@ -77,7 +74,7 @@ class Robot24 : public BaseRobot {
     // Curves
     void goRadiusCurve(float radius, float distAlongCircum, bool curveDirection, float maxSpeed, float rampUp, float slowDown, 
       bool stopAfter = true, float timeout = 5);
-    void gyroCurve(float distInches, float maxSpeed, float turnAngle, int timeout, bool stopAfter = true, std::function<bool(void)> func = {});
+    void gyroCurve(float distInches, float maxSpeed, float turnAngle, int timeout, bool stopAfter = true);
     
     // Vision Functions
     void goVision(float distInches, float speed, Goal goal, directionType cameraDir, float rampUpFrames, 
