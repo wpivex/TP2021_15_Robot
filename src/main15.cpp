@@ -30,6 +30,7 @@ int autonAI() {
 
   int matchStartTime = timer::system();
   float highArmAngle = 680;
+  float lowArmAngle = -20;
   fifteen.setBrakeType(hold);
 
   // Initial go rush
@@ -46,9 +47,8 @@ int autonAI() {
   fifteen.goForwardU(-13, 70, 50, 10, 7, false);
   fifteen.goTurnU(0);
   fifteen.goForwardU(-11, 70, 0, 10, 1, false, 20, 35);
-  fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.goForwardTimed(1.5, -35); // wall align back
-  //fifteen.gyroSensor.setHeading(0, deg);
+  bool obtainedGoal = fifteen.moveArmToManual(highArmAngle, 100); // raise arm and use current thresholds to determine whether obtained yellow goal
 
   // Align with left wall
   fifteen.goForwardU(1, 30, 0, 0, 2);
@@ -71,17 +71,46 @@ int autonAI() {
   fifteen.goForwardU(17, 35, 270, 10, 5, true, 20, 10, 2.5); // go three passes to pick up rings
   fifteen.goForwardU(-17, 35, 270, 10, 5, true, 20, 10, 2.5); // go three passes to pick up rings
   fifteen.goForwardU(16, 30, 270, 10, 0, false);
-  fifteen.goForwardTimed(0.7, 30);
+  fifteen.goForwardTimed(0.7, 30); // another wall align at left goal
 
-  // Get into AI strafe position
-  fifteen.goCurve(-10, 50, 0.365, 10, 0, false);
-  fifteen.clawUp();
-  fifteen.moveArmTo(200, 100, false);
-  fifteen.goCurve(-15.5, 50, 0.365, 0, 0, false);
-  fifteen.goForward(-3, 50, 0, 3, true);
-  fifteen.goTurnU(270);
+  /*
+  Robot needs to get to other alliance goal through platform. Behavior is dependent on whether yellow goal was obtained.
 
-  fifteen.runAI(matchStartTime);
+  If yellow goal obtained, turn 180 to face platform, release alliance goal from 1dof, climb
+  Otherwise, back up, release alliance goal from 1dof, turn 180 to face platform, pick up alliance goal with front arm, climb
+  */
+
+  if (obtainedGoal) {
+
+    fifteen.goForwardU(-18, 60, 270, 10, 5);
+    fifteen.goTurnU(90); // face platform
+    fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
+    fifteen.goForwardU(12, 50, 90, 10, 5);
+    fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
+
+  } else {
+
+    // Exchange blue goal from back to front
+    fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false); // drop alliance goal
+    fifteen.goForwardU(-12, 50, 270, 10, 0, false);
+    fifteen.moveArmTo(lowArmAngle, 100); // lower arm to pick up alliance goal
+    fifteen.goForwardU(-5, 50, 270, 0, 4);
+    fifteen.goForwardU(10, 50, 270, 10, 4);
+    fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
+    wait(500, msec); // wait for back lift to fold sufficiently
+    fifteen.goTurnU(90);
+    fifteen.goForwardU(10, 50, 90, 10, 5);
+    fifteen.clawDown();
+
+    // Get to platfom ready position
+    fifteen.moveArmTo(500, 100);
+    fifteen.goForwardU(7, 40, 90, 10, 3);
+  }
+  // At this point, back wheel is aligned between tiles, ready to lower arm and climb
+
+  // Climb platform
+    fifteen.moveArmTo(100, 100); // lower platform
+    fifteen.goForwardU(70, 50, 90, 10, 5);
 
   return 0;
 }
