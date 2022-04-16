@@ -95,6 +95,7 @@ class Robot15 : public BaseRobot {
     int findGoalID(std::vector<GoalPosition> &goals);
     int detectionAndStrafePhase(vision *camera, float *horizontalDistance, int matchStartTime);
     float getDistanceFromArea(int area);
+    float getDistanceFromWidth(int width);
     void runAI(int matchStartTime);
 
 

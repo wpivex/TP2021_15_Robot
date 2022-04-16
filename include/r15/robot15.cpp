@@ -488,6 +488,13 @@ float Robot15::getDistanceFromArea(int area) {
   else return 47;
 }
 
+float Robot15::getDistanceFromWidth(int width){
+  float degreesPerPixelWidth = 0.2;
+  float goalWidth = 13.5;
+  float theta = degreesPerPixelWidth*goalWidth;
+  return width/tan(theta);
+}
+
 /* Initial box rush, grab left yellow goal with front clamp, go back and wall align. Then wall align with left wall forwards.
 Back up, grab alliance goal with 1dof, do match loads. Wall align with side, drop yellow goal, then curve to strafe position.
 
