@@ -44,6 +44,8 @@ public:
       float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 5);
   void goForwardTimed(float duration, float speed);
   virtual void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75) = 0;
+  virtual void goVision(float distInches, float speed, Goal goal, float rampUpFrames, float slowDownInches, bool stopAfter = true, float timeout = 5) = 0;
+  virtual void goAlignVision(Goal goal, float timeout = 5, bool stopAfter = true) = 0;
 
   void basicDriveTeleop();
 

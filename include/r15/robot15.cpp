@@ -124,6 +124,51 @@ void Robot15::moveArmTo(double degr, double speed, bool blocking) {
   frontArmR.rotateTo(degr, degrees, speed, velocityUnits::pct, blocking);
 }
 
+// Move at speed until crossing threshold. No PID, is heaviside
+// Returns true if there's a goal on arm, false if not, using current thresholds
+bool Robot15::moveArmToManual(double degr, double speed) {
+
+  VisualGraph g(0, 3, 10, 200, 2);
+  g.configureAutomaticDisplay();
+
+  PID diffPID(1, 0, 0);
+  float correction;
+  float pos = (frontArmL.position(deg) + frontArmR.position(deg));
+
+  // Find average current over arm lift
+  float sumCurrent = 0;
+  int numSamples = 0;
+
+  bool risingEdge = pos < degr;
+
+  while (risingEdge ? pos < degr : pos > degr) {
+    pos = (frontArmL.position(deg) + frontArmR.position(deg));
+    float diff = (frontArmR.position(deg) - frontArmL.position(deg));
+    correction = diffPID.tick(diff);
+
+    setMotorVelocity(frontArmL, forward, speed + correction);
+    setMotorVelocity(frontArmR, forward, speed - correction);
+
+    float curr = (frontArmL.current() + frontArmR.current()) / 2.0;
+    sumCurrent += curr;
+    numSamples++;
+    g.push(curr, 0);
+    g.push(speed / 100.0, 1);
+
+    wait(20, msec);
+  }
+  g.push((frontArmL.current() + frontArmR.current()) / 2.0);
+
+  frontArmL.stop();
+  frontArmR.stop();
+
+  float avgCurrent = (numSamples == 0) ? 0 : sumCurrent / numSamples;
+  logController("Average current: %f", avgCurrent);
+
+  return avgCurrent > 0.6; // no load current ~0.45A, goal current ~0.86A
+  
+}
+
 void Robot15::armTeleop() {
 
   float MOTOR_SPEED = 100;
@@ -271,7 +316,7 @@ GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID) {
 
 // Track each yellow goal across time, and label each with an id
 // targetID only for visual purposes to highlight target goal, if targetID != -1
-void Robot15::trackObjectsForCurrentFrame(vision camera, std::vector<GoalPosition> &goals, int targetID) {
+void Robot15::trackObjectsForCurrentFrame(vision *camera, std::vector<GoalPosition> &goals, int targetID) {
 
 
   static int nextAvailableID = 0;
@@ -284,8 +329,8 @@ void Robot15::trackObjectsForCurrentFrame(vision camera, std::vector<GoalPositio
   
   
   // Go through all of the current frame's detected objects and link with persistent goals vector
-  for (int i = 0; i < camera.objectCount; i++) {
-    vision::object o = camera.objects[i];
+  for (int i = 0; i < camera->objectCount; i++) {
+    vision::object o = camera->objects[i];
 
     if (oArea(o) < 160) continue; 
 
@@ -340,7 +385,7 @@ void Robot15::trackObjectsForCurrentFrame(vision camera, std::vector<GoalPositio
 
   // Print general info for this frame
   Brain.Screen.setFillColor(transparent);
-  Brain.Screen.printAt(50, 50, "size %d %d %d", goals.size(), nextAvailableID, camera.objectCount);
+  Brain.Screen.printAt(50, 50, "size %d %d %d", goals.size(), nextAvailableID, camera->objectCount);
 
 }
 
@@ -367,14 +412,14 @@ int Robot15::findGoalID(std::vector<GoalPosition> &goals) {
 
 
 // return area of object when arrived
-int Robot15::detectionAndStrafePhase(vision camera, float *horizonalDistance, int matchStartTime) {
+int Robot15::detectionAndStrafePhase(vision *camera, float *horizonalDistance, int matchStartTime) {
 
-  static const float MAX_TRAVEL_DISTANCE = 80;
+  static const float MAX_TRAVEL_DISTANCE = 100;
 
   std::vector<GoalPosition> goals;
 
   resetEncoderDistance();
-  float rampUpFrames = 3;
+  float rampUpInches = 3;
 
   float ANGLE = 270;
   float MIN_SPEED = 15;
@@ -393,9 +438,11 @@ int Robot15::detectionAndStrafePhase(vision camera, float *horizonalDistance, in
   while (targetID == -1 || !strafePID.isCompleted()) {
 
     pt = (pt + 1) % 10;
-    if (pt == 0) logController("Dist: %.1f", *horizonalDistance - getEncoderDistance());
+    if (pt == 0) logController("Dist: %.1f\nTime: %.1f", *horizonalDistance - getEncoderDistance(), (timer::system() - matchStartTime)/1000.0);
 
-    if (isTimeout(matchStartTime, 43) || (*horizonalDistance - getEncoderDistance()) > MAX_TRAVEL_DISTANCE) {
+    if (isTimeout(matchStartTime, 43.5) || (*horizonalDistance - getEncoderDistance()) > MAX_TRAVEL_DISTANCE) {
+      if (isTimeout(matchStartTime, 43.5)) logController("timeout");
+      else logController("distance");
       area = -1;
       break;
     };
@@ -403,11 +450,11 @@ int Robot15::detectionAndStrafePhase(vision camera, float *horizonalDistance, in
     // Initial ramp up for idle
     speed = COAST_SPEED; // if no target goal detected, this is default speed
     float dist = fabs(getEncoderDistance());
-    if (dist < rampUpFrames) speed = MIN_SPEED + (COAST_SPEED - MIN_SPEED) * (dist / rampUpFrames);
+    if (dist < rampUpInches) speed = MIN_SPEED + (COAST_SPEED - MIN_SPEED) * (dist / rampUpInches);
 
     offset = -1;
 
-    camera.takeSnapshot(g.sig);
+    camera->takeSnapshot(g.sig);
     Brain.Screen.clearScreen();
     
     trackObjectsForCurrentFrame(camera, goals, targetID);
@@ -494,30 +541,30 @@ void Robot15::runAI(int matchStartTime) {
 
     // Detection phase
     moveArmTo(200, 100, false);
-    int area = detectionAndStrafePhase(camera, &hDist, matchStartTime);
+    int area = detectionAndStrafePhase(&camera, &hDist, matchStartTime);
     if (area == -1) break; // exit if timeout or exceed x value
     int dist = getDistanceFromArea(area);
-    logController("Area: %d\nDist: %d", area, dist);
+    //logController("Area: %d\nDist: %d", area, dist);
     startIntake();
     goTurnU(0); // point to goal
 
     // Attack phase
-    goForwardU(dist * 2.0 / 3.0, 40, 0, 2, 3);
+    goForwardU(dist * 2.0 / 3.0, 40, 0, 10, 3);
     moveArmTo(-20, 100, true);
     stopIntake();
-    goForwardU(dist / 3.0, 85, 0, 7, 12);
+    goForwardU(dist / 3.0, 85, 0, 10, 12);
     clawDown();
     moveArmTo(100, 100, false);
     wait(100, msec);
     
-    goForwardU(-dist, 85, 0, 7, 12);
+    goForwardU(-dist, 85, 0, 10, 12);
     goTurnU(270, true, 2);
     moveArmTo(-20, 50, false);
   }
   //logController("timer done");
 
   // Go to final horizontal distance
-  goForwardU(hDist - 35, 70, 270, 5, 10);
+  goForwardU(hDist - 35, 70, 270, 10, 10);
   goTurnU(0);
 
 }
