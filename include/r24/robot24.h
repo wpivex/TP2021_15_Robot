@@ -42,7 +42,6 @@ class Robot24 : public BaseRobot {
     controller* robotController;
 
     inertial gyroSensor;
-    gps gpsSensor;
 
     Buttons buttons;
 
@@ -68,12 +67,12 @@ class Robot24 : public BaseRobot {
     void setArmPercent(directionType d, double percent);
 
     void userControl( void );
-    void teleop( void );
-    void setLeftVelocity(directionType d, double percent);
-    void setRightVelocity(directionType d, double percent);
-    void stopLeft();
-    void stopRight();
-    void setBrakeType(brakeType b);
+    void teleop( void ) override;
+    void setLeftVelocity(directionType d, double percent) override;
+    void setRightVelocity(directionType d, double percent) override;
+    void stopLeft() override;
+    void stopRight() override;
+    void setBrakeType(brakeType b) override;
     void setMaxArmTorque(float c);
     void setMaxDriveTorque(float c);
 
@@ -84,11 +83,11 @@ class Robot24 : public BaseRobot {
     void goForward(float distInches, float maxSpeed, float rampUpInches = 0, float slowDownInches = 5,
       int timeout = 5, std::function<bool(void)> func = {}, bool stopAfter = true);
     void goForwardUntilSensor(float maxDistance, float speed, float rampUpInches = 0, int timeout = 5, std::function<bool(void)> func = {}, bool stopAfter = true);
-    void goForwardUniversal(float distInches, float maxSpeed, float universalAngle, float rampUpInches = 0, 
-      float slowDownInches = 5, int timeout = 5, std::function<bool(void)> func = {});
+    void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
+      bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10) override;
 
     // Turning Functions
-    void goTurnU(float universalAngleDegrees, std::function<bool(void)> func = {});
+    void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75) override;
     void goTurn(float angleDegrees, std::function<bool(void)> func = {});
 
     // Curves
