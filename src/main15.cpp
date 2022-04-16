@@ -39,7 +39,7 @@ int twoRingAuton() {
   fifteen.goForward(3, 50, 0, 2, false, -1, 40);
   fifteen.clawDown(); // start claw down motion early
   fifteen.goForward(3, 40, 0, 3, true);
-  fifteen.goFightBackwards();
+  fifteen.goFightBackwards(0.9);
 
   // Get back to wall align but avoiding platform
   fifteen.moveArmTo(200, 100, false);

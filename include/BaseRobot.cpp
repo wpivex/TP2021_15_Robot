@@ -95,6 +95,29 @@ void BaseRobot::goForwardTimed(float duration, float speed) {
   stopRight();
 }
 
+void BaseRobot::goFightBackwards(float currThresh) {
+
+  VisualGraph g(-0.1, 2.9, 8, 50);
+
+  setLeftVelocity(reverse, 100);
+  setRightVelocity(reverse, 100);
+  wait(500, msec);
+  float curr = 3;
+  bool display = true;
+  while (curr > currThresh) {
+    curr = getDriveCurrent();
+    g.push(curr);
+    if (display) g.display();
+    display = !display;
+
+    wait(20, msec);
+  }
+  g.push(curr,0);
+  g.display();
+  goForward(-5, 100, 0, 5);
+
+}
+
 // Go forward a number of inches, maintaining a specific heading
 void BaseRobot::goForwardU_Abstract(float K_P, float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
 bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {

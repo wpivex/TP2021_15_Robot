@@ -274,31 +274,6 @@ void Robot15::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout
   BaseRobot::goTurnU_Abstract(2, 0, 0.13, 1, 5, 12, universalAngleDegrees, stopAfter, timeout, maxSpeed);
 }
 
-void Robot15::goFightBackwards() {
-
-  VisualGraph g(-0.1, 2.9, 8, 50);
-
-  setLeftVelocity(reverse, 100);
-  setRightVelocity(reverse, 100);
-  wait(500, msec);
-  //int startTime = vex::timer::system();
-  float curr = 3;
-  bool display = true;
-  while (curr > 0.9) {
-    
-    curr = (leftMotorA.current() + rightMotorA.current()) / 2;
-    g.push(curr);
-    if (display) g.display();
-    display = !display;
-    
-    wait(20, msec);
-  }
-  g.push(curr,0);
-  g.display();
-  goForward(-5, 100, 0, 5);
-
-}
-
 // Go forward until the maximum distance is hit or the timeout is reached
 // for indefinite timeout, set to -1
 void Robot15::goVision(float distInches, float speed, Goal goal, float rampUpFrames, float slowDownInches, bool stopAfter, float timeout) {
@@ -619,4 +594,10 @@ void Robot15::setBrakeType(brakeType b) {
   rightMotorB.setBrake(b);
   rightMotorC.setBrake(b);
   rightMotorD.setBrake(b);
+}
+
+float Robot15::getDriveCurrent() {
+  float currentSum = leftMotorA.current() + leftMotorB.current() + leftMotorC.current() + leftMotorD.current() + rightMotorA.current()
+    + rightMotorB.current() + rightMotorC.current() + rightMotorD.current();
+  return currentSum / 8;
 }

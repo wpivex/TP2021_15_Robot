@@ -35,6 +35,7 @@ public:
 
   virtual float distanceToDegrees(float distInches) = 0;
   virtual float degreesToDistance(float distDegrees) = 0;
+  virtual float getDriveCurrent() = 0;
 
   void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpFrames, float slowDownInches, 
       bool stopAfter = true, float rampMinSpeed = 20, float slowMinSpeed = 12);
@@ -43,6 +44,7 @@ public:
   virtual void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
       bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) = 0;
   void goForwardTimed(float duration, float speed);
+  void goFightBackwards(float currThresh);
 
   void basicDriveTeleop();
 

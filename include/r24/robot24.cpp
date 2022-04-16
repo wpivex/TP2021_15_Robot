@@ -427,3 +427,9 @@ void Robot24::resetEncoderDistance() {
   leftMotorE.resetRotation();
   rightMotorE.resetRotation();
 }
+
+float Robot24::getDriveCurrent() {
+  float currentSum = leftMotorA.current() + leftMotorB.current() + leftMotorC.current() + leftMotorD.current() + leftMotorE.current() 
+    + rightMotorA.current() + rightMotorB.current() + rightMotorC.current() + rightMotorD.current() + rightMotorE.current();
+  return currentSum / 10;
+}
