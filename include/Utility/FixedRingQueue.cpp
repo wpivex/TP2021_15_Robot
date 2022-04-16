@@ -9,13 +9,15 @@ RingQueue::RingQueue(int sizeP) {
 }
 
 // If at capacity, the first element is popped
-void RingQueue::push(float value) {
+bool RingQueue::push(float value) {
   if (size < capacity) {
     arr[size] = value;
     size++;
+    return false;
   } else {
     arr[firstElement] = value;
     firstElement = (firstElement + 1) % capacity;
+    return true;
   }
 }
 

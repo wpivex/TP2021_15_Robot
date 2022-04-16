@@ -8,7 +8,7 @@ VisualGraph::VisualGraph(float minY, float maxY, int numMarkersY, int sizeRingQu
   this->maxY = maxY;
   this->numMarkersY = numMarkersY - 1;
   this->numX = sizeRingQueue;
-
+  offset = 0;
   lineColors[0] = green;
   lineColors[1] = blue;
   lineColors[2] = red;
@@ -21,7 +21,7 @@ void VisualGraph::configureAutomaticDisplay(int interval) {
 }
 
 void VisualGraph::push(float dataPoint, int func) {
-  data.at(func)->push(dataPoint);
+  if(data.at(func)->push(dataPoint)) offset++;
   if (func == 0 && displayInterval != -1) {
     xi = (xi + 1) % displayInterval;
     if (xi == 0) display();
@@ -61,8 +61,8 @@ void VisualGraph::display() {
 
   // Draw x axis labels
   Brain.Screen.setPenColor(white);
-  Brain.Screen.printAt(Y_AXIS_XPOS, BOTTOM_Y + X_AXIS_TEXT_OFFSET, "0");
-  Brain.Screen.printAt(RIGHT_X - 10, BOTTOM_Y + X_AXIS_TEXT_OFFSET, "%d", numX);
+  Brain.Screen.printAt(Y_AXIS_XPOS, BOTTOM_Y + X_AXIS_TEXT_OFFSET, "%d", offset);
+  Brain.Screen.printAt(RIGHT_X - 10, BOTTOM_Y + X_AXIS_TEXT_OFFSET, "%d", numX+offset);
 
   Brain.Screen.setPenColor(white);
   Brain.Screen.drawLine(Y_AXIS_XPOS, BOTTOM_Y, Y_AXIS_XPOS, TOP_Y); // Draw y axis
