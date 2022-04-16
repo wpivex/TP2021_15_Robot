@@ -155,16 +155,16 @@ void Robot24::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout
 }
 
 // Trapezoidal motion profiling
-// Will use gyro sensor *doesn't rn
+// Will use gyro sensor
 // distAlongCirc is positive if forward, negative if reverse
 // curveDirection is true for right, false for left
-void Robot24::goRadiusCurve(float radius, float numRotations, bool curveDirection, float maxSpeed, float rampUp, float slowDown, bool stopAfter, float timeout) {
+void Robot24::goRadiusCurve(float radius, float circProportion, bool curveDirection, float maxSpeed, float rampUp, float slowDown, bool stopAfter,float timeout) {
 
-  float distAlongCircum = numRotations * 2 * M_PI;
+  float distAlongCircum = circProportion*M_PI*radius*2;
 
-  Trapezoid trap(distAlongCircum, maxSpeed, 12, rampUp,slowDown);
-  PID anglepid(0.025, 0, 0);
-
+  Trapezoid trap(distanceToDegrees(distAlongCircum), maxSpeed, 20, distanceToDegrees(rampUp), distanceToDegrees(slowDown));
+  //      kp, kd, ki
+  // PID anglepid(0.05, 0, 0); //definitely no kd imo
 
   int startTime = vex::timer::system();
   resetEncoderDistance();
@@ -177,21 +177,22 @@ void Robot24::goRadiusCurve(float radius, float numRotations, bool curveDirectio
     float v_avg = trap.tick(distSoFar); 
     float v_ratio = fabs((radius+DIST_BETWEEN_WHEELS)/(radius-DIST_BETWEEN_WHEELS));
 
-    log("V_avg: %f\nV_diff: %f", v_avg, v_ratio);
+    log("Current: %f\nTotal: %f", distSoFar, distanceToDegrees(distAlongCircum));
 
-    float lPower = v_avg * sqrt(curveDirection ? v_ratio:1/v_ratio);
-    float rPower =  v_avg * sqrt(curveDirection ? 1/v_ratio:v_ratio);
+    float lPower = v_avg / (curveDirection ? 1:v_ratio);
+    float rPower =  v_avg / (curveDirection ? v_ratio:1);
 
     setLeftVelocity(forward, lPower);
     setRightVelocity(forward, rPower);
 
     wait(20, msec);
   }
-  if (stopAfter) {
+  if(stopAfter){
     stopLeft();
     stopRight();
   }
-  log("done");
+  wait(3000, msec);
+  logController("done");
 
 }
 
