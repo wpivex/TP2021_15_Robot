@@ -5,7 +5,6 @@
 class Robot24 : public BaseRobot {
 
   public:
-    // four drivebase motors will not be accessible for a while
     Robot24();
 
     motor leftMotorA;
@@ -24,9 +23,10 @@ class Robot24 : public BaseRobot {
     motor leftArm1;
     motor leftArm2;  
 
-    int TURN_MIN_SPEED = 10;
-    int FORWARD_MIN_SPEED = 10;
-    int DIST_BETWEEN_WHEELS = 15;
+    float TURN_MIN_SPEED = 10;
+    float FORWARD_MIN_SPEED = 10;
+    float DIST_BETWEEN_WHEELS = 15;
+    float SPEED_RATIO = 1.5;
 
     digital_out frontGoal = digital_out(Brain.ThreeWirePort.B);
     digital_out backGoal = digital_out(Brain.ThreeWirePort.A);
@@ -62,7 +62,6 @@ class Robot24 : public BaseRobot {
     void setMaxArmTorque(float c);
     void setMaxDriveTorque(float c);
 
-
     // Drive Functions
     void goForwardUntilSensor(float maxDistance, float speed, float rampUpInches = 0, int timeout = 5, bool stopAfter = true);
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
@@ -86,10 +85,11 @@ class Robot24 : public BaseRobot {
     void driveArmDown(float timeout);
     void resetArmRotation();
     void setArmDegrees(float degrees, float speed = 100, bool blocking = true);
-
     float getLeftEncoderDistance() override;
     float getRightEncoderDistance() override;
     void resetEncoderDistance() override;
+    float distanceToDegrees(float distInches) override;
+    float degreesToDistance(float distDegrees) override;
 
   private:
 

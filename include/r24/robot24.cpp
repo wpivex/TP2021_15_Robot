@@ -195,6 +195,14 @@ void Robot24::goRadiusCurve(float radius, float numRotations, bool curveDirectio
 
 }
 
+float Robot24::distanceToDegrees(float distInches) {
+  return 2* (distInches * 360.0 / 2.0 / M_PI / (4.0 / 2.0) / SPEED_RATIO); // 4 in diameter wheels
+}
+
+float Robot24::degreesToDistance(float distDegrees) {
+  return SPEED_RATIO * distDegrees / (360.0 / 2.0 / M_PI / (4.0 / 2.0)); // 4 in diameter wheels
+}
+
 // PID gyro sensor-based curving 
 // distInches is positive if forward, negative if reverse
 void Robot24::gyroCurve(float distInches, float maxSpeed, float turnAngle, int timeout, bool stopAfter) {
