@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseRobot.h"
 
-BaseRobot::BaseRobot(int32_t gyroPort): gyroSensor(gyroPort) {
+BaseRobot::BaseRobot(float distBetweenWheels, int32_t gyroPort): DIST_BETWEEN_WHEELS(distBetweenWheels), gyroSensor(gyroPort) {
   
 }
 

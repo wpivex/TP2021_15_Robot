@@ -10,7 +10,9 @@ class BaseRobot {
 
 public:
 
-  BaseRobot(int32_t gyroPort);
+  BaseRobot(float distBetweenWheels, int32_t gyroPort);
+
+  const float DIST_BETWEEN_WHEELS;
 
   inertial gyroSensor;
   Buttons buttons; // button wrapper class

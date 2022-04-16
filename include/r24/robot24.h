@@ -25,7 +25,6 @@ class Robot24 : public BaseRobot {
 
     float TURN_MIN_SPEED = 10;
     float FORWARD_MIN_SPEED = 10;
-    float DIST_BETWEEN_WHEELS = 15;
     float SPEED_RATIO = 1.5;
 
     digital_out frontGoal = digital_out(Brain.ThreeWirePort.B);
