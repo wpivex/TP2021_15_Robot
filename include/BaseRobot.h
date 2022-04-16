@@ -38,14 +38,9 @@ public:
 
   void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpFrames, float slowDownInches, 
       bool stopAfter = true, float rampMinSpeed = 20, float slowMinSpeed = 12);
-  virtual void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-      bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10) = 0;
   void goForward(float distInches, float maxSpeed, float rampUpFrames, float slowDownInches, bool stopAfter = true, 
       float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 5);
   void goForwardTimed(float duration, float speed);
-  virtual void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75) = 0;
-  virtual void goVision(float distInches, float speed, Goal goal, float rampUpFrames, float slowDownInches, bool stopAfter = true, float timeout = 5) = 0;
-  virtual void goAlignVision(Goal goal, float timeout = 5, bool stopAfter = true) = 0;
 
   void basicDriveTeleop();
 

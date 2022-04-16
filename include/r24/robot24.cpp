@@ -2,9 +2,9 @@
 
 // Motor ports Left: 1R, 2F, 3F,  20T Right: 12R, 11F, 13F
 // gear ratio is 60/36
-Robot24::Robot24(controller* c, bool _isSkills) : BaseRobot(PORT16), leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), leftMotorE(0), 
+Robot24::Robot24(controller* c, bool _isSkills) : BaseRobot(PORT2), leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), leftMotorE(0), 
   rightMotorA(0), rightMotorB(0), rightMotorC(0), rightMotorD(0), rightMotorE(0), backCamera(PORT9), frontCamera(PORT10), rightArm1(0), rightArm2(0), 
-  leftArm1(0), leftArm2(0), gyroSensor(PORT2) {
+  leftArm1(0), leftArm2(0) {
 
   isSkills = _isSkills;
 
@@ -34,13 +34,13 @@ Robot24::Robot24(controller* c, bool _isSkills) : BaseRobot(PORT16), leftMotorA(
 
   //gyroSensor = inertial(PORT11);
 
+  FRONT_CAMERA_PORT = PORT10;
+  BACK_CAMERA_PORT = PORT9;
+
   driveType = TWO_STICK_ARCADE;
-  robotController = c; 
 
   setControllerMapping(DEFAULT_MAPPING);
 
-  globalEncoderLeft = 0;
-  globalEncoderRight = 0;
 
 
 }
@@ -147,7 +147,7 @@ void Robot24::goForwardUntilSensor(float maxDistance, float speed, float rampUpI
       }
     }
 
-    float speed = trap.tick(degreesToDistance((leftMotorA.position(degrees) + rightMotorA.position(degrees)) / 2));
+    float speed = trap.tick(getEncoderDistance());
 
     setLeftVelocity(forward, speed);
     setRightVelocity(forward, speed);
@@ -158,8 +158,6 @@ void Robot24::goForwardUntilSensor(float maxDistance, float speed, float rampUpI
     stopLeft();
     stopRight();
   }
- 
-
 }
 
 // Go forward a number of inches, maintaining a specific heading
@@ -168,33 +166,6 @@ void Robot24::goForwardUntilSensor(float maxDistance, float speed, float rampUpI
 void Robot24::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
 bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
   BaseRobot::goForwardU_Abstract(20, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
-}
-
-// angleDegrees is positive if clockwise, negative if counterclockwise
-void Robot24::goTurn(float angleDegrees, std::function<bool(void)> func) {
-
-  PID anglePID(2, 0.00, 0.05, 5, 1, 35);
-
-  float timeout = 5;
-  float speed;
-
-  int startTime = vex::timer::system();
-  resetEncoderDistance();
-  gyroSensor.resetRotation();
-
-  while (!anglePID.isCompleted() && !isTimeout(startTime, timeout)) {
-
-
-    speed = anglePID.tick(angleDegrees - gyroSensor.rotation());
-
-    setLeftVelocity(forward, speed);
-    setRightVelocity(reverse, speed);
-
-    wait(20, msec);
-  }
-
-  stopLeft();
-  stopRight();
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
@@ -300,152 +271,47 @@ void Robot24::gyroCurve(float distInches, float maxSpeed, float turnAngle, int t
 
 }
 
-vision Robot24::getCamera(directionType dir, Goal goal) {
-  vision camera = vision((dir == forward) ? PORT10 : PORT15, goal.bright, goal.sig);
-  return camera;
+// Go forward until the maximum distance is hit or the timeout is reached
+// for indefinite timeout, set to -1
+void Robot24::goVision(float distInches, float speed, Goal goal, directionType cameraDir, float rampUpFrames, 
+    float slowDownInches, bool stopAfter, float timeout) {
+    
+  int32_t port = cameraDir == forward ? FRONT_CAMERA_PORT : BACK_CAMERA_PORT;
+  BaseRobot::goVision_Abstract(50, FORWARD_MIN_SPEED, port, distInches, speed, goal, rampUpFrames, slowDownInches, stopAfter, timeout);
 }
 
-void Robot24::updateCamera(Goal goal) {
-  backCamera = vision(PORT9, goal.bright, goal.sig);
-  frontCamera = vision(PORT10, goal.bright, goal.sig);
+// Align to the goal of specified color with PID
+void Robot24::goAlignVision(Goal goal, directionType cameraDir, float timeout, bool stopAfter) {
+  int32_t port = cameraDir == forward ? FRONT_CAMERA_PORT : BACK_CAMERA_PORT;
+  BaseRobot::goAlignVision_Abstract(70, 0, 0, 0.05, 3, 25, port, goal, timeout, stopAfter);
 }
 
+void Robot24::goAlignVisionTrap(Goal goal, directionType cameraDir, float timeout, bool stopAfter) {
 
-
-// Go forward with vision tracking towards goal
-// PID for distance and for correction towards goal
-// distInches is positive if forward, negative if reverse
-void Robot24::goVision(float distInches, float maxSpeed, Goal goal, directionType cameraDir, float rampUpInches, float slowDownInches,
- int timeout, bool stopAfter, float K_P, std::function<bool(void)> func) {
-
-  updateCamera(goal);
-
-  vision *camera = (cameraDir == forward) ? &frontCamera : &backCamera;
-  
-  Trapezoid trap(distInches, maxSpeed, FORWARD_MIN_SPEED, rampUpInches, slowDownInches);
+  vision camera(cameraDir == forward ? FRONT_CAMERA_PORT : BACK_CAMERA_PORT, goal.bright, goal.sig);
 
   int startTime = vex::timer::system();
-  resetEncoderDistance();
+  float speed = 0;
 
-  PID anglePID(0.5, 0, 0);
-  logController("start vision");
+  Trapezoid trap(VISION_CENTER_X, 100, 35, 0, 50);
+
 
   while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
 
-    if (func) {
-      if (func()) {
-        // if func is done, make it empty
-        func = {};
-      }
-    }
+    camera.takeSnapshot(goal.sig);
 
-    camera->takeSnapshot(goal.sig);
-    
-    float correction = 0; // between -1 and 1
-    if(camera->largestObject.exists)  correction = anglePID.tick(camera->largestObject.centerX - VISION_CENTER_X);
+    if (camera.largestObject.exists) speed = trap.tick(camera.largestObject.centerX);
 
-    float distInDegrees = fabs((leftMotorA.position(degrees) + rightMotorA.position(degrees))/2);
-    float speed = trap.tick(degreesToDistance(distInDegrees));
-
-    float left = speed  * (cameraDir == forward? 1 : -1) + correction;
-    float right =  speed * (cameraDir == forward? 1 : -1) - correction;
-
-
-    setLeftVelocity(forward, left);
-    setRightVelocity(forward, right);
+    setLeftVelocity(reverse, speed);
+    setRightVelocity(forward, speed);
 
     wait(20, msec);
   }
+
   if (stopAfter) {
     stopLeft();
     stopRight();
   }
-  logController("stop vison");
-
-}
-
-// Returns true if aligned to goal, false if timed out or maxTurnAngle reached
-bool Robot24::goTurnVision(Goal goal, bool defaultClockwise, directionType cameraDir, float maxTurnAngle) {
-
-
-  float delta;
-  int timeout = 4;
-  int startTime = vex::timer::system();
-  updateCamera(goal);
-
-  vision *camera = (cameraDir == forward) ? &frontCamera : &backCamera;
-  camera->takeSnapshot(goal.sig);
-  if (!camera->largestObject.exists) return false;
-
-  gyroSensor.resetRotation();
-
-  PID vPID(70, 0, 0, 0.05, 3, 25, 100);
-
-  while (!vPID.isCompleted()) {
-
-    // failure exit conditions
-    if (isTimeout(startTime, timeout) || fabs(gyroSensor.rotation()) > maxTurnAngle) return false;
-
-    camera->takeSnapshot(goal.sig);
-    
-    // correction is between -1 and 1. Positive if overshooting to right, negative if overshooting to left
-    if(camera->largestObject.exists)  delta = (VISION_CENTER_X - camera->largestObject.centerX) / VISION_CENTER_X;
-    else delta = defaultClockwise ? -1 : 1;
-
-    float speed = vPID.tick(delta);
-    setLeftVelocity(reverse, speed);
-    setRightVelocity(forward, speed);
-
-    wait(20, msec);
-
-  }
-
-  stopLeft();
-  stopRight();
-
-  // did not exit on failure conditions, so successfully aligned
-  return true;
-}
-
-void Robot24::alignToGoalVision(Goal goal, bool clockwise, directionType cameraDirection, int timeout, float maxSpeed) {
-
-  // spin speed is proportional to distance from center, but must be bounded between MIN_SPEED and MAX_SPEED
-
-  updateCamera(goal);
-  vision *camera = (cameraDirection == forward) ? &frontCamera : &backCamera;
-
-  int startTime = vex::timer::system();
-  resetEncoderDistance();
-
-  int spinSign = clockwise ? -1 : 1;
-
-  while (!isTimeout(startTime, timeout)) {
-
-    camera->takeSnapshot(goal.sig);
-
-    float mod;
-    if (camera->largestObject.exists) {
-      mod = (VISION_CENTER_X-camera->largestObject.centerX) / VISION_CENTER_X;
-
-      // If goal is [left side of screen if clockwise, right side of scree if counterclockwise], that means it's arrived at center and is aligned
-      if (fabs(mod) <= 0.05) {
-        break;
-      }
-
-    } else {
-      // If largest object not detected, then spin in the specified direction
-      mod = spinSign;
-    }
-
-    float speed = (mod > 0 ? 1 : -1) * TURN_MIN_SPEED + mod * (maxSpeed - TURN_MIN_SPEED);
-
-    setLeftVelocity(reverse, speed);
-    setRightVelocity(forward, speed);
-    wait(20, msec);
-  }
-
-  stopLeft();
-  stopRight();
 }
 
 void Robot24::openClaw() {
@@ -504,7 +370,6 @@ void Robot24::resetArmRotation() {
 }
 
 
-
 void Robot24::setArmDegrees(float degrees, float speed, bool blocking) {
   rightArm1.spinTo(degrees, deg, speed, velocityUnits::pct, false);
   rightArm2.spinTo(degrees, deg, speed, velocityUnits::pct, false);
@@ -559,13 +424,18 @@ void Robot24::setMaxDriveTorque(float c) {
 }
 
 // return in inches
-float Robot24::getEncoderDistance() {
-  return degreesToDistance((leftMotorA.rotation(deg) + rightMotorA.rotation(deg)) / 2);
+float Robot24::getLeftEncoderDistance() {
+  float sum = leftMotorA.rotation(deg) + leftMotorB.rotation(deg) + leftMotorC.rotation(deg) + leftMotorD.rotation(deg) + leftMotorE.rotation(deg);
+  return degreesToDistance(sum / 5.0);
+}
+
+// return in inches
+float Robot24::getRightEncoderDistance() {
+  float sum = rightMotorA.rotation(deg) + rightMotorB.rotation(deg) + rightMotorC.rotation(deg) + rightMotorD.rotation(deg) + rightMotorE.rotation(deg);
+  return degreesToDistance(sum / 5.0);
 }
 
 void Robot24::resetEncoderDistance() {
-  globalEncoderLeft += leftMotorA.rotation(degrees);
-  globalEncoderRight += rightMotorA.rotation(degrees);
   leftMotorA.resetRotation();
   rightMotorA.resetRotation();
   leftMotorB.resetRotation();

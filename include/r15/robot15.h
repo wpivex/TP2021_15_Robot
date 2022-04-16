@@ -72,9 +72,9 @@ class Robot15 : public BaseRobot {
 
     // Calling parent drive functions with params
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-        bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10) override;
-    void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75) override;
-    void goVision(float distInches, float speed, Goal goal, float rampUpFrames, float slowDownInches, bool stopAfter = true, float timeout = 5) override;
+        bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
+    void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
+    void goVision(float distInches, float speed, Goal goal, float rampUpFrames, float slowDownInches, bool stopAfter, float timeout = 5);
     void goAlignVision(Goal goal, float timeout = 5, bool stopAfter = true);
 
     // Implementing abstract functions

@@ -572,25 +572,19 @@ void Robot15::runAI(int matchStartTime) {
 }
 
 void Robot15::setLeftVelocity(directionType d, double percent) {
-  if (percent < 0) {
-    d = (d == forward) ? reverse : forward;
-    percent = -percent;
-  }
-  leftMotorA.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
-  leftMotorB.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
-  leftMotorC.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
-  leftMotorD.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
+
+  setMotorVelocity(leftMotorA, d, percent);
+  setMotorVelocity(leftMotorB, d, percent);
+  setMotorVelocity(leftMotorC, d, percent);
+  setMotorVelocity(leftMotorD, d, percent);
 }
 
 void Robot15::setRightVelocity(directionType d, double percent) {
-  if (percent < 0) {
-    d = (d == forward) ? reverse : forward;
-    percent = -percent;
-  }
-  rightMotorA.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
-  rightMotorB.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
-  rightMotorC.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
-  rightMotorD.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
+  
+  setMotorVelocity(rightMotorA, d, percent);
+  setMotorVelocity(rightMotorB, d, percent);
+  setMotorVelocity(rightMotorC, d, percent);
+  setMotorVelocity(rightMotorD, d, percent);
 }
 
 void Robot15::startIntake(directionType dir) {

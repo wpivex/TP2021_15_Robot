@@ -41,7 +41,8 @@ class Robot24 : public BaseRobot {
 
     controller* robotController;
 
-    inertial gyroSensor;
+    //inertial gyroSensor;
+    int32_t FRONT_CAMERA_PORT, BACK_CAMERA_PORT;
 
     Buttons buttons;
 
@@ -55,8 +56,6 @@ class Robot24 : public BaseRobot {
     Buttons::Button FRONT_CLAMP_TOGGLE, BACK_CLAMP_TOGGLE, CLAW_TOGGLE; 
 
     void setControllerMapping(ControllerMapping mapping);
-
-    void callibrateGyro();
 
     void openClaw();
     void closeClaw();
@@ -76,18 +75,16 @@ class Robot24 : public BaseRobot {
     void setMaxArmTorque(float c);
     void setMaxDriveTorque(float c);
 
-    vision getCamera(directionType dir, Goal goal);
-
 
     // Drive Functions
     void goForward(float distInches, float maxSpeed, float rampUpInches = 0, float slowDownInches = 5,
       int timeout = 5, std::function<bool(void)> func = {}, bool stopAfter = true);
     void goForwardUntilSensor(float maxDistance, float speed, float rampUpInches = 0, int timeout = 5, std::function<bool(void)> func = {}, bool stopAfter = true);
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-      bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10) override;
+      bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
 
     // Turning Functions
-    void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75) override;
+    void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
     void goTurn(float angleDegrees, std::function<bool(void)> func = {});
 
     // Curves
@@ -96,27 +93,27 @@ class Robot24 : public BaseRobot {
     void gyroCurve(float distInches, float maxSpeed, float turnAngle, int timeout, bool stopAfter = true, std::function<bool(void)> func = {});
     
     // Vision Functions
-    void goVision(float distInches, float maxSpeed, Goal goal, directionType cameraDir, 
-      float rampUpInches = 0, float slowDownInches = 5, int timeout = 5, bool stopAfter = true, float K_P = 70, std::function<bool(void)> func = {});
-    bool goTurnVision(Goal goal, bool defaultClockwise, directionType cameraDir, float maxTurnAngle);
-    void alignToGoalVision(Goal goal, bool clockwise, directionType cameraDirection, int timeout, float maxSpeed = 40);
-    void updateCamera(Goal goal);
+    void goVision(float distInches, float speed, Goal goal, directionType cameraDir, float rampUpFrames, 
+    float slowDownInches, bool stopAfter, float timeout = 5);
+    void goAlignVision(Goal goal, directionType cameraDir, float timeout = 5, bool stopAfter = true);
+    void goAlignVisionTrap(Goal goal, directionType cameraDir, float timeout = 5, bool stopAfter = true);
     
     // Misc.
     void driveArmDown(float timeout);
     void resetArmRotation();
     void setArmDegrees(float degrees, float speed = 100, bool blocking = true);
 
+    float getLeftEncoderDistance() override;
+    float getRightEncoderDistance() override;
+    void resetEncoderDistance() override;
+
   private:
 
-    float globalEncoderLeft;
-    float globalEncoderRight;
     void driveTeleop();
     void armTeleop();
     void pneumaticsTeleop();
     void clawMovement();
-    float getEncoderDistance();
-    void resetEncoderDistance();
+    
 
     bool driveHold = false;
 
