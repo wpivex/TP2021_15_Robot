@@ -116,7 +116,12 @@ int testTurn() {
   return 0;
 }
 
-void autonomous24() { twentyFour.setBrakeType(hold); task auto1(testTurn); }
+int testForward() {
+  twentyFour.goForwardU(24, 100, 0, 20, 20);
+  return 0;
+}
+
+void autonomous24() { twentyFour.setBrakeType(hold); task auto1(testForward); }
 void userControl24(void) { twentyFour.setBrakeType(coast); task controlLoop1(mainTeleop24); }
 
 
