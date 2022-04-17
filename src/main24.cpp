@@ -109,30 +109,23 @@ int testCurrent() {
   return 0;
 }
 
-int testRadiusCurve() {
-  twentyFour.goRadiusCurve(24, 0.25, 1, 50, 20, 10);
+int testTurn() {
+  twentyFour.goTurnU(90);
   return 0;
 }
 
-void autonomous24() { twentyFour.setBrakeType(hold); task auto1(testRadiusCurve); }
+void autonomous24() { twentyFour.setBrakeType(hold); task auto1(testTurn); }
 void userControl24(void) { twentyFour.setBrakeType(coast); task controlLoop1(mainTeleop24); }
 
-int main24() {
-  testRadiusCurve();
-  return 0;
-}
 
-/*
 int main24() {
-  Competition.bStopAllTasksBetweenModes = true;
 
   twentyFour.setBackClamp(false);
   twentyFour.setFrontClamp(false);
 
-  // Callibrate Gyro
-  twentyFour.waitGyroCallibrate();
-  
+  twentyFour.calibrateGyroBlocking();
   twentyFour.resetArmRotation();
+
   Competition.autonomous(autonomous24);
   Competition.drivercontrol(userControl24);
 
@@ -141,5 +134,3 @@ int main24() {
   }
 
 }
-
-*/

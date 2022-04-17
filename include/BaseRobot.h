@@ -31,7 +31,7 @@ public:
 
   // Angles/Gyro
   float getAngle();
-  void waitGyroCallibrate();
+  void calibrateGyroBlocking();
   void possiblyResetGyro(float targetAngle, float angleTolerance = 10);
 
   // Basic Motor Control

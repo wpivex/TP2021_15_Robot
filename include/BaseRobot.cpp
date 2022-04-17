@@ -9,18 +9,19 @@ float BaseRobot::getAngle() {
   return gyroSensor.heading();
 }
 
-void BaseRobot::waitGyroCallibrate() {
-  if (gyroSensor.isCalibrating()) {
-    int i = 0;
-    while (gyroSensor.isCalibrating()) {
-      wait(20, msec);
-      i++;
-    }
-    gyroSensor.resetRotation();
-    wait(1000, msec);
-  }
-  
+void BaseRobot::calibrateGyroBlocking() {
+
   wait(500, msec);
+  gyroSensor.calibrate();
+
+  int i = 0;
+  while (gyroSensor.isCalibrating()) {
+    wait(20, msec);
+    i++;
+  }
+  gyroSensor.resetRotation();
+  wait(1000, msec);
+  
   log("done calibration");
 }
 

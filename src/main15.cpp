@@ -140,14 +140,9 @@ void userControl15(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTe
 
 
 int main15() {
-
   
   fifteen.clawDown();
-  wait(500, msec);
-  fifteen.gyroSensor.calibrate();
-  fifteen.waitGyroCallibrate();
-
-  Competition.bStopAllTasksBetweenModes = true;
+  fifteen.calibrateGyroBlocking();
 
   fifteen.resetEncoderDistance();
   
