@@ -109,46 +109,12 @@ int testCurrent() {
   return 0;
 }
 
-const float DEGREES_PER_PIXEL = (63.0 * M_PI / 180.0) / VISION_MAX_X;
-const float GOAL_WIDTH = 13.5;
-const float CAMERA_HEIGHT = 15.5;
-float getDistanceFromWidth(int width){
-
-  float theta = DEGREES_PER_PIXEL*width;
-  float hypotenuseDistanceToGoal = GOAL_WIDTH / tan(theta);
-  float horizontalDistance = sqrt(pow(hypotenuseDistanceToGoal, 2) - pow(CAMERA_HEIGHT, 2));
-  log("%d %d %d",width, hypotenuseDistanceToGoal,horizontalDistance);
-  return horizontalDistance;
-}
-
-int testVisionDistance() {
-
-  Goal g = YELLOW;
-
-  vision camera(twentyFour.BACK_CAMERA_PORT, g.bright, g.sig);
-  
-  while (true) {
-
-    camera.takeSnapshot(g.sig);
-
-    if (camera.largestObject.exists) {
-      float width = camera.largestObject.width;
-      float dist = getDistanceFromWidth(width);
-      //log("%f\n%f", width, dist);
-    } else {
-      log("no object");
-    }
-    wait(20, msec);
-  }
-  return 0;
-}
-
 int testRadiusCurve() {
   twentyFour.goRadiusCurve(48, 1, 1, 100, 20, 10);
   return 0;
 }
 
-void autonomous24() { twentyFour.setBrakeType(hold); task auto1(testVisionDistance); }
+void autonomous24() { twentyFour.setBrakeType(hold); task auto1(testRadiusCurve); }
 void userControl24(void) { twentyFour.setBrakeType(coast); task controlLoop1(mainTeleop24); }
 
 int main24() {

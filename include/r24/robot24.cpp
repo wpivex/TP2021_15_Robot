@@ -345,3 +345,15 @@ float Robot24::getDriveCurrent() {
     + rightMotorA.current() + rightMotorB.current() + rightMotorC.current() + rightMotorD.current() + rightMotorE.current();
   return currentSum / 10;
 }
+
+float getDistanceFromWidth(int width){
+
+  static const float DEGREES_PER_PIXEL = (63.0 * M_PI / 180.0) / VISION_MAX_X;
+  static const float GOAL_WIDTH = 13.5;
+  static const float CAMERA_HEIGHT = 15.5;
+
+  float theta = DEGREES_PER_PIXEL*width;
+  float hypotenuseDistanceToGoal = GOAL_WIDTH / tan(theta);
+  float horizontalDistance = sqrt(pow(hypotenuseDistanceToGoal, 2) - pow(CAMERA_HEIGHT, 2));
+  return fmax(0,horizontalDistance - 8.5);
+}
