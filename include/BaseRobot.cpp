@@ -198,9 +198,11 @@ void BaseRobot::goForward(float distInches, float maxSpeed, float rampUpFrames, 
   goForwardU(distInches, maxSpeed, getAngle(), rampUpFrames, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
 }
 
-// Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
+// Turn to some universal angle based on starting point.
+// If direction = 0, turn direction is determined by smallest angle to universal angle
+// If direction = 1, force clockwise.  If direction = -1, force counterclockwise.
 void BaseRobot::goTurnU_Abstract(float KP, float KI, float KD, float TOLERANCE, float REPEATED, float MINUMUM,
-float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
+float universalAngleDegrees, int direction, bool stopAfter, float timeout, float maxSpeed) {
 
   PID anglePID(KP, KI, KD, TOLERANCE, REPEATED, MINUMUM, maxSpeed);
 
@@ -210,17 +212,22 @@ float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
   int startTime = vex::timer::system();
   log("about to loop");
 
+  float relativeAngle = 0 - getAngleDiff(universalAngleDegrees, getAngle()); // negative = turn clockwise, positive = turn counterclockwise
+  if (relativeAngle < 0 && direction == -1) relativeAngle += 360;
+  else if (relativeAngle > 0 && direction == 1) relativeAngle -= 360;
+
+  gyroSensor.setRotation(relativeAngle, deg);
+
   while (!anglePID.isCompleted() && !isTimeout(startTime, timeout)) {
 
-    float ang = getAngleDiff(universalAngleDegrees, getAngle());
-    speed = anglePID.tick(ang);
+    
+    speed = anglePID.tick(gyroSensor.rotation());
 
     //log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
     //log("heading: %f", GPS11.heading());
-    log("%f", getAngle());
 
-    setLeftVelocity(forward, speed);
-    setRightVelocity(reverse, speed);
+    setLeftVelocity(reverse, speed);
+    setRightVelocity(forward, speed);
 
     wait(20, msec);
   }

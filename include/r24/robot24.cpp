@@ -150,8 +150,8 @@ bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
 // Calling general function with 24-specifc params
-void Robot24::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
-  BaseRobot::goTurnU_Abstract(2, 0.00, 0.05, 5, 1, 35, universalAngleDegrees, stopAfter, timeout, maxSpeed);
+void Robot24::goTurnU(float universalAngleDegrees, int direction, bool stopAfter, float timeout, float maxSpeed) {
+  BaseRobot::goTurnU_Abstract(2, 0.00, 0.05, 5, 1, 35, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
 }
 
 float Robot24::distanceToDegrees(float distInches) {

@@ -110,7 +110,7 @@ int testCurrent() {
 }
 
 int testRadiusCurve() {
-  twentyFour.goRadiusCurve(48, 1, 1, 100, 20, 10);
+  twentyFour.goRadiusCurve(24, 0.25, 1, 50, 20, 10);
   return 0;
 }
 
