@@ -21,6 +21,7 @@ class VisualGraph {
   int xi = 0;
   std::vector<RingQueue*> data;
   int valueToY(float value);
+  int offset;
   color lineColors[5];
   // void displayFunction(std::function<int()> func, vex::color col = black);
 

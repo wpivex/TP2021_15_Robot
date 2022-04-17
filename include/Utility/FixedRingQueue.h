@@ -7,7 +7,7 @@ class RingQueue {
 
   public:
   RingQueue(int sizeP);
-  void push(float value); // Push to queue. If at capacity, pop.
+  bool push(float value); // Push to queue. If at capacity, pop.
   float getAverage();
   float get(int index);
   int getSize();
