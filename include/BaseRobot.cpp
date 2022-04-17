@@ -213,13 +213,12 @@ float universalAngleDegrees, int direction, bool stopAfter, float timeout, float
   log("about to loop");
 
   float relativeAngle = 0 - getAngleDiff(universalAngleDegrees, getAngle()); // negative = turn clockwise, positive = turn counterclockwise
-  if (relativeAngle < 0 && direction == -1) relativeAngle += 360;
-  else if (relativeAngle > 0 && direction == 1) relativeAngle -= 360;
+  if (relativeAngle < 0 && direction == -1) relativeAngle += 360; // closest is to turn clockwise, but force turn counterclockwise
+  else if (relativeAngle > 0 && direction == 1) relativeAngle -= 360; // closest is to turn counterclockwise, but force turn clockwise
 
-  gyroSensor.setRotation(relativeAngle, deg);
+  gyroSensor.setRotation(relativeAngle, deg); // set starting rotation, PID until gyroSensor rotation = 0
 
   while (!anglePID.isCompleted() && !isTimeout(startTime, timeout)) {
-
     
     speed = anglePID.tick(gyroSensor.rotation());
 
