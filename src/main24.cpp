@@ -143,11 +143,16 @@ int testVisionDistance() {
   return 0;
 }
 
+int testRadiusCurve() {
+  twentyFour.goRadiusCurve(48, 1, 1, 100, 20, 10);
+  return 0;
+}
+
 void autonomous24() { twentyFour.setBrakeType(hold); task auto1(testVisionDistance); }
 void userControl24(void) { twentyFour.setBrakeType(coast); task controlLoop1(mainTeleop24); }
 
 int main24() {
-  testVisionDistance();
+  testRadiusCurve();
   return 0;
 }
 
