@@ -117,7 +117,7 @@ float getDistanceFromWidth(int width){
   float theta = DEGREES_PER_PIXEL*width;
   float hypotenuseDistanceToGoal = GOAL_WIDTH / tan(theta);
   float horizontalDistance = sqrt(pow(hypotenuseDistanceToGoal, 2) - pow(CAMERA_HEIGHT, 2));
-
+  log("%d %d %d",width, hypotenuseDistanceToGoal,horizontalDistance);
   return horizontalDistance;
 }
 
@@ -134,7 +134,7 @@ int testVisionDistance() {
     if (camera.largestObject.exists) {
       float width = camera.largestObject.width;
       float dist = getDistanceFromWidth(width);
-      log("%f\n%f", width, dist);
+      //log("%f\n%f", width, dist);
     } else {
       log("no object");
     }
