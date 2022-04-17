@@ -111,6 +111,8 @@ int testCurrent() {
 
 int testTurn() {
   twentyFour.goTurnU(90);
+  wait(1000, msec);
+  twentyFour.goTurnU(0, 1, true, 10, 100);
   return 0;
 }
 

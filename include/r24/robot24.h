@@ -68,7 +68,7 @@ class Robot24 : public BaseRobot {
       bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10) override;
 
     // Turning Functions
-    void goTurnU(float universalAngleDegrees, int direction = 0, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
+    void goTurnU(float universalAngleDegrees, int direction = 0, bool stopAfter = true, float timeout = 5, float maxSpeed = 100);
     
     // Vision Functions
     void goVision(float distInches, float speed, Goal goal, directionType cameraDir, float rampUpFrames, 
