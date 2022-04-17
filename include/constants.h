@@ -29,6 +29,7 @@ namespace CURRENT {
 }
 
 static const float VISION_CENTER_X = 157.0;
+static const float VISION_MAX_X = 316;
 const float MAX_VOLTS = 12.0; // maximum volts for vex motors
 
 float oArea(vex::vision::object o) {
