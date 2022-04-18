@@ -143,9 +143,10 @@ void Robot24::goForwardUntilSensor(float maxDistance, float speed, float rampUpI
 // Go forward a number of inches, maintaining a specific heading
 // Calling general function with 24-specifc params
 
-void Robot24::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
-  BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
+void Robot24::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, float endSlowInches,
+    bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
+  BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, endSlowInches,
+  stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
@@ -167,10 +168,10 @@ float Robot24::degreesToDistance(float distDegrees) {
 // Go forward until the maximum distance is hit or the timeout is reached
 // for indefinite timeout, set to -1
 void Robot24::goVision(float distInches, float speed, Goal goal, directionType cameraDir, float rampUpFrames, 
-    float slowDownInches, bool stopAfter, float timeout) {
+    float slowDownInches, float endSlowInches, bool stopAfter, float timeout) {
     
   int32_t port = cameraDir == forward ? FRONT_CAMERA_PORT : BACK_CAMERA_PORT;
-  BaseRobot::goVision_Abstract(50, FORWARD_MIN_SPEED, port, distInches, speed, goal, rampUpFrames, slowDownInches, stopAfter, timeout);
+  BaseRobot::goVision_Abstract(50, FORWARD_MIN_SPEED, port, distInches, speed, goal, rampUpFrames, slowDownInches, endSlowInches, stopAfter, timeout);
 }
 
 // Align to the goal of specified color with PID

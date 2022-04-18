@@ -44,15 +44,14 @@ public:
   virtual float getDriveCurrent() = 0;
 
   // Drive Straight & Variations
-  void goForward(float distInches, float maxSpeed, float rampUpFrames, float slowDownInches, bool stopAfter = true, 
+  void goForward(float distInches, float maxSpeed, float rampUpFrames, float slowDownInches, float endSlowInches = 0, bool stopAfter = true, 
       float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 5);
-  virtual void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-      bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) = 0;
   void goForwardTimed(float duration, float speed);
   void goFightBackwards(float currThresh);
 
+
   // Curving Functions
-  void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpFrames, float slowDownInches, 
+  void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpFrames, float slowDownInches, float endSlowInches = 0,
     bool stopAfter = true, float rampMinSpeed = 20, float slowMinSpeed = 12);
   void goRadiusCurve(float radius, float circProportion, bool curveDirection, float maxSpeed, int rampUpFrames, 
     float slowDownInches, bool stopAfter = true, float timeout = 5);
@@ -60,14 +59,14 @@ public:
 
 protected:
 
-  void goForwardU_Abstract(float K_P, float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-      bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
+  void goForwardU_Abstract(float K_P, float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches,
+      float endSlowInches = 0, bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
   void goTurnU_Abstract(float KP, float KI, float KD, float TOLERANCE, float REPEATED, float MINUMUM,
       float universalAngleDegrees, int direction = 0, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
 
   // Vision
   void goVision_Abstract(float K_P, float MIN_SPEED, int32_t CAMERA_PORT, float distInches, float speed, Goal goal,
-    float rampUpFrames, float slowDownInches, bool stopAfter = true, float timeout = 5);
+    float rampUpFrames, float slowDownInches, float endSlowInches = 0, bool stopAfter = true, float timeout = 5);
   void goAlignVision_Abstract(float K_P, float K_I, float K_D, float TOLERANCE, float REPEATED, float MINIMUM, int32_t CAMERA_PORT, 
     Goal goal, float timeout = 5, bool stopAfter = true);
   
