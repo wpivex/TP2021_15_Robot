@@ -106,7 +106,7 @@ int testTurn() {
 }
 
 int testForward() {
-  twentyFour.goForwardU(24, 100, 0, 20, 20);
+  twentyFour.goForwardU(24, 100,0, 20, 5, 5);
   return 0;
 }
 

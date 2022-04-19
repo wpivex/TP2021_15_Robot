@@ -6,7 +6,7 @@ A trapezoidal object allows you to approach the targetValue from any starting va
 The direction is dtermined by starting value (from first tick() call)
 rampUp is determined by numRampUpFrames, which linearly interpolates from 0 to maxSpeed over the number of frames (so over time, not error)
 */
-Trapezoid::Trapezoid(float targetValue, float maxSpeedP, float minSpeedP, int numRampUpFrames, float slowDownValue, float endSlowValue, float rampMinSpeedP) {
+Trapezoid::Trapezoid(float targetValue, float maxSpeedP, float minSpeedP, int numRampUpFrames, float slowDownValue, float endSlowValue) {
 
   curr = 0;
   target = targetValue;
@@ -17,9 +17,6 @@ Trapezoid::Trapezoid(float targetValue, float maxSpeedP, float minSpeedP, int nu
   endSlow = endSlowValue;
 
   maxSpeed = fmax(minSpeed, maxSpeed);
-  
-  if (rampMinSpeedP == -1) rampMinSpeed = minSpeedP;
-  else rampMinSpeed = rampMinSpeedP;
   
 }
 

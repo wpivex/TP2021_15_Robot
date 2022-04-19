@@ -48,10 +48,10 @@ void BaseRobot::setMotorVelocity(motor m, directionType d, double percent) {
 }
 
 void BaseRobot::goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpFrames, float slowDownInches, float endSlowInches,
-bool stopAfter, float rampMinSpeed, float slowMinSpeed) {
+bool stopAfter, float slowMinSpeed) {
   float timeout = 5;
 
-  Trapezoid trap(fabs(distInches), maxSpeed, slowMinSpeed, rampUpFrames, slowDownInches, endSlowInches, rampMinSpeed);
+  Trapezoid trap(fabs(distInches), maxSpeed, slowMinSpeed, rampUpFrames, slowDownInches, endSlowInches);
 
   int startTime = vex::timer::system();
   resetEncoderDistance();
@@ -158,9 +158,9 @@ void BaseRobot::goFightBackwards(float currThresh) {
 
 // Go forward a number of inches, maintaining a specific heading
 void BaseRobot::goForwardU_Abstract(float K_P, float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-float endSlowInches, bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
+float endSlowInches, bool stopAfter, float minSpeed, float timeout) {
 
-  Trapezoid trap(distInches, maxSpeed, slowDownMinSpeed, rampUpFrames, slowDownInches, endSlowInches, rampMinSpeed);
+  Trapezoid trap(distInches, maxSpeed, minSpeed, rampUpFrames, slowDownInches, endSlowInches);
   PID turnPID(K_P, 0.00, 0);
 
   float correction = 0;

@@ -264,9 +264,9 @@ void Robot15::resetEncoderDistance() {
 // Calling general function with 15-specifc params
 
 void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
+bool stopAfter, float minSpeed, float timeout) {
   BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, 0, 
-    stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
+    stopAfter, minSpeed, timeout);
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
