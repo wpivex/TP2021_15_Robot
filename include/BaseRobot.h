@@ -56,9 +56,9 @@ public:
     float slowDownInches, bool stopAfter = true, float timeout = 5);
 
   // Abstract Functions
-  virtual void goTurnU(float universalAngleDegrees, int direction = 0, bool stopAfter = true, float timeout = 5, float maxSpeed = 75)=0;
+  virtual void goTurnU(float universalAngleDegrees, int direction = 0, bool stopAfter = true, float timeout = 5, float maxSpeed = 75) = 0;
   virtual void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-        bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10)= 0;
+      bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10) = 0;
 
 protected:
 

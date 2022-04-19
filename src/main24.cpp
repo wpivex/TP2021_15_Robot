@@ -47,39 +47,26 @@ int matchAuto() {
   twentyFour.openClaw();
   // Drive forwards at full speed (while adjusting towards goal if needed)
   twentyFour.setArmDegrees(5, 50, false);
-  // robot.goForward(36, 100, 3, 20, 5); 
   twentyFour.goForwardUntilSensor(36, 100, 3, 5);
   twentyFour.closeClaw();
   wait(200, msec);
   // Raise arm a bit (so that other team cannot grab it)
   twentyFour.setArmDegrees(215);
+  twentyFour.goFightBackwards(1.3);
   // RETREAT
-  twentyFour.goForward(-8, 100, 0, 5); 
+  // twentyFour.goForward(-8, 100, 0, 5);
 
   // // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
   //robot.cursedTurn(150,70);
 
-  // robot.goTurn(120);
-  // robot.setBackClamp(true);
-  // robot.goVision(50, 65, YELLOW, reverse, 0, 0);
-  // robot.setBackClamp(false);
-  // wait(200, msec);
+  twentyFour.goTurnU(120);
+  twentyFour.setBackClamp(true);
+  twentyFour.goVision(50, 65, YELLOW, reverse, 0, 0);
+  twentyFour.setBackClamp(false);
+  wait(200, msec);
 
-  // robot.goForward(40, 100, 5, 0, 5, {}, false);
-  // robot.goCurve(20, 100, 0.2, 0, 10); // get back to base
-
-
-  // // ~~~~~~~~~~~~~~ Alliance Goal ~~~~~~~~~~~~~~~~
-  // robot.encoderTurnU(130);
-  // robot.goForward(24*sqrt(3), 100);
-  // robot.encoderTurnU(90);
-  // robot.setFrontClamp(true);
-  // robot.goForward(24, 50);
-  // robot.setFrontClamp(false);
-
-  // // ~~~~~~~~~~~ Get out of the 15's way~~~~~~~~~~~
-  // robot.encoderTurnU(0);
-  // robot.goForward(-24,30);
+  twentyFour.goForward(40, 100, 5, 0, 5, {}, false);
+  twentyFour.goTurnU(270);
 
   return 0;
 }

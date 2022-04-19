@@ -143,10 +143,10 @@ void Robot24::goForwardUntilSensor(float maxDistance, float speed, float rampUpI
 // Go forward a number of inches, maintaining a specific heading
 // Calling general function with 24-specifc params
 
-void Robot24::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, float endSlowInches,
+void Robot24::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches,
     bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
-  BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, endSlowInches,
-  stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
+  BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, 0, stopAfter, rampMinSpeed,
+    slowDownMinSpeed, timeout);
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
