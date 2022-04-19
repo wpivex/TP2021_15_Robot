@@ -239,7 +239,7 @@ void runAI(Robot24 *robot, int32_t port, int matchStartTime) {
   //clawUp();
   Brain.Screen.setFont(mono20);
 
-  // TODO: Add generic arm compatibility
+  const float GOAL_DISTANCE_OFFSET = 0;
   
   //moveArmTo(-20, 50, false);
 
@@ -252,16 +252,14 @@ void runAI(Robot24 *robot, int32_t port, int matchStartTime) {
     //moveArmTo(200, 100, false);
     int area = detectionAndStrafePhase(robot, &camera, &hDist, matchStartTime);
     if (area == -1) break; // exit if timeout or exceed x value
-    int dist = getDistanceFromArea(area);
+    int dist = getDistanceFromArea(area) + GOAL_DISTANCE_OFFSET;
     //logController("Area: %d\nDist: %d", area, dist);
     //startIntake();
     robot->goTurnU(0); // point to goal
 
     // Attack phase
-    robot->goForwardU(dist * 2.0 / 3.0, 40, 0, 10, 3);
+    robot->goForwardU(dist, 40, 0, 10, 10);
     //moveArmTo(-20, 100, true);
-    //stopIntake();
-    robot->goForwardU(dist / 3.0, 85, 0, 10, 12);
     //clawDown();
     //moveArmTo(100, 100, false);
     wait(100, msec);
