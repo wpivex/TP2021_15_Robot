@@ -1,3 +1,4 @@
+#pragma once
 #include "GoalPosition.h"
 
 void GoalPosition::update(int OX, int CX, int OY, int CY, int W, int H) {
