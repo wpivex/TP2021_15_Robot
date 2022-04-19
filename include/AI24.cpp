@@ -13,15 +13,12 @@ static GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetI
 // targetID only for visual purposes to highlight target goal, if targetID != -1
 static void trackObjectsForCurrentFrame(Robot24 *robot, vision *camera, std::vector<GoalPosition> &goals, int targetID) {
 
-
   static int nextAvailableID = 0;
 
   // Reset goal linking status to false
   for (int i = 0; i < goals.size(); i++) {
     goals[i].isLinkedThisFrame = false;
   }
-
-  
   
   // Go through all of the current frame's detected objects and link with persistent goals vector
   for (int i = 0; i < camera->objectCount; i++) {
