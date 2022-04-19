@@ -1,4 +1,4 @@
-#include "r24/robot24.cpp"
+#include "robot24.cpp"
 #include "GoalPosition.cpp"
 
 

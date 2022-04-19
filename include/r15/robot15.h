@@ -15,7 +15,6 @@
 #include <unistd.h>
 #include <algorithm>
 
-#include "GoalPosition.cpp"
 #include "Utility/VisualGraph.cpp"
 #include "BaseRobot.cpp"
 #include "constants.h"

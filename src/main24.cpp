@@ -1,5 +1,5 @@
 // CODE FOR 24" ROBOT
-#include "AI24.cpp"
+#include "r24/AI24.cpp"
 
 Robot24 twentyFour = Robot24();
 
