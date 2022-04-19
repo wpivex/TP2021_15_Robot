@@ -1,5 +1,5 @@
 // CODE FOR 24" ROBOT
-#include "r24/robot24.cpp"
+#include "AI24.cpp"
 
 Robot24 twentyFour = Robot24();
 
@@ -40,6 +40,7 @@ void middleFirst(void) {
 */
 
 int matchAuto() {
+  int matchStartTime = timer::system();
   Goal allianceColor = RED;
   twentyFour.setBrakeType(hold);
 
@@ -67,6 +68,7 @@ int matchAuto() {
 
   twentyFour.goForward(40, 100, 5, 0, 5, {}, false);
   twentyFour.goTurnU(270);
+  AI24::runAI(twentyFour, matchStartTime);
 
   return 0;
 }
