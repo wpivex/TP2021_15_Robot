@@ -23,6 +23,9 @@ class Robot24 : public BaseRobot {
     motor leftArm1;
     motor leftArm2;  
 
+    encoder leftEncoder;
+    encoder rightEncoder;
+
     float TURN_MIN_SPEED = 10;
     float FORWARD_MIN_SPEED = 10;
     float SPEED_RATIO = 1.5;

@@ -320,27 +320,31 @@ void Robot24::setMaxDriveTorque(float c) {
 
 // return in inches
 float Robot24::getLeftEncoderDistance() {
-  float sum = leftMotorA.rotation(deg) + leftMotorB.rotation(deg) + leftMotorC.rotation(deg) + leftMotorD.rotation(deg) + leftMotorE.rotation(deg);
-  return degreesToDistance(sum / 5.0);
+  return leftEncoder.rotation(deg)*M_PI*2.75/360.0;
+  // float sum = leftMotorA.rotation(deg) + leftMotorB.rotation(deg) + leftMotorC.rotation(deg) + leftMotorD.rotation(deg) + leftMotorE.rotation(deg);
+  // return degreesToDistance(sum / 5.0);
 }
 
 // return in inches
 float Robot24::getRightEncoderDistance() {
-  float sum = rightMotorA.rotation(deg) + rightMotorB.rotation(deg) + rightMotorC.rotation(deg) + rightMotorD.rotation(deg) + rightMotorE.rotation(deg);
-  return degreesToDistance(sum / 5.0);
+  return rightEncoder.rotation(deg)*M_PI*2.75/360.0;
+  // float sum = rightMotorA.rotation(deg) + rightMotorB.rotation(deg) + rightMotorC.rotation(deg) + rightMotorD.rotation(deg) + rightMotorE.rotation(deg);
+  // return degreesToDistance(sum / 5.0);
 }
 
 void Robot24::resetEncoderDistance() {
-  leftMotorA.resetRotation();
-  rightMotorA.resetRotation();
-  leftMotorB.resetRotation();
-  rightMotorB.resetRotation();
-  leftMotorC.resetRotation();
-  rightMotorC.resetRotation();
-  leftMotorD.resetRotation();
-  rightMotorD.resetRotation();
-  leftMotorE.resetRotation();
-  rightMotorE.resetRotation();
+  leftEncoder.resetRotation();
+  rightEncoder.resetRotation();
+  // leftMotorA.resetRotation();
+  // rightMotorA.resetRotation();
+  // leftMotorB.resetRotation();
+  // rightMotorB.resetRotation();
+  // leftMotorC.resetRotation();
+  // rightMotorC.resetRotation();
+  // leftMotorD.resetRotation();
+  // rightMotorD.resetRotation();
+  // leftMotorE.resetRotation();
+  // rightMotorE.resetRotation();
 }
 
 float Robot24::getDriveCurrent() {
