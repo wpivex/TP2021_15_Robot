@@ -49,13 +49,16 @@ public:
   void goForwardTimed(float duration, float speed);
   void goFightBackwards(float currThresh);
 
-
   // Curving Functions
   void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpFrames, float slowDownInches, float endSlowInches = 0,
     bool stopAfter = true, float rampMinSpeed = 20, float slowMinSpeed = 12);
   void goRadiusCurve(float radius, float circProportion, bool curveDirection, float maxSpeed, int rampUpFrames, 
     float slowDownInches, bool stopAfter = true, float timeout = 5);
 
+  // Abstract Functions
+  virtual void goTurnU(float universalAngleDegrees, int direction = 0, bool stopAfter = true, float timeout = 5, float maxSpeed = 75)=0;
+  virtual void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
+        bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10)= 0;
 
 protected:
 

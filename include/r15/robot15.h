@@ -90,15 +90,6 @@ class Robot15 : public BaseRobot {
     void setBrakeType(brakeType b) override;
     float getDriveCurrent() override;
 
-    // AI methods
-    void trackObjectsForCurrentFrame(vision *camera, std::vector<GoalPosition> &goals, int targetID = -1);
-    int findGoalID(std::vector<GoalPosition> &goals);
-    int detectionAndStrafePhase(vision *camera, float *horizontalDistance, int matchStartTime);
-    float getDistanceFromArea(int area);
-    float getDistanceFromWidth(int width);
-    void runAI(int matchStartTime);
-
-
   private:
     int intakeState;
 };
