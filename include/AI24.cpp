@@ -1,18 +1,17 @@
 #include "r24/robot24.cpp"
 #include "GoalPosition.cpp"
 
-// AI Method Headers
-static void trackObjectsForCurrentFrame(Robot24 *robot, vision *camera, std::vector<GoalPosition> &goals, int targetID = -1);
-static int findGoalID(std::vector<GoalPosition> &goals);
-static int detectionAndStrafePhase(Robot24 *robot, vision *camera, float *horizontalDistance, int matchStartTime);
-static float getDistanceFromArea(int area);
-static float getDistanceFromWidth(int width);
-static void runAI(Robot24 *robot, int matchStartTime);
-static GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID);
+
+static GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID) {
+  for (int i = 0; i < goals.size(); i++) {
+    if (goals[i].id == targetID) return &goals[i];
+  }
+  return nullptr;
+}
 
 // Track each yellow goal across time, and label each with an id
 // targetID only for visual purposes to highlight target goal, if targetID != -1
-void trackObjectsForCurrentFrame(Robot24 *robot, vision *camera, std::vector<GoalPosition> &goals, int targetID) {
+static void trackObjectsForCurrentFrame(Robot24 *robot, vision *camera, std::vector<GoalPosition> &goals, int targetID) {
 
 
   static int nextAvailableID = 0;
@@ -87,7 +86,7 @@ void trackObjectsForCurrentFrame(Robot24 *robot, vision *camera, std::vector<Goa
 
 // search through goals list to find persistent goal with size > 1200, and on the right side of screen.
 // return -1 if does not exist
-int findGoalID(std::vector<GoalPosition> &goals) {
+static int findGoalID(std::vector<GoalPosition> &goals) {
 
   // Find the left-most goal
 
@@ -108,7 +107,7 @@ int findGoalID(std::vector<GoalPosition> &goals) {
 
 
 // return area of object when arrived
-int detectionAndStrafePhase(Robot24 *robot, vision *camera, float *horizonalDistance, int matchStartTime) {
+static int detectionAndStrafePhase(Robot24 *robot, vision *camera, float *horizonalDistance, int matchStartTime) {
 
   static const float MAX_TRAVEL_DISTANCE = 100;
 
@@ -199,14 +198,14 @@ int detectionAndStrafePhase(Robot24 *robot, vision *camera, float *horizonalDist
 }
 
 // Get distance to goal from area of goal using empirical formula: https://www.desmos.com/calculator/pvbkwhu5lc
-float getDistanceFromArea(int area) {
+static float getDistanceFromArea(int area) {
   if (area > 6000) return 24;
   else if (area > 2200) return 36 - 12.0 * (area - 2200.0) / (6000.0 - 2200);
   else if (area > 1200) return 47 - 11.0 * (area - 1200.0) / (2200.0 - 1200);
   else return 47;
 }
 
-float getDistanceFromWidth(int width){
+static float getDistanceFromWidth(int width) {
 
   static const float DEGREES_PER_PIXEL = (63.0 * M_PI / 180.0) / VISION_MAX_X;
   static const float GOAL_WIDTH = 13.5;
@@ -216,13 +215,6 @@ float getDistanceFromWidth(int width){
   float hypotenuseDistanceToGoal = GOAL_WIDTH / tan(theta);
   float horizontalDistance = sqrt(pow(hypotenuseDistanceToGoal, 2) - pow(CAMERA_HEIGHT, 2));
   return fmax(0,horizontalDistance - 8.5);
-}
-
-GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID) {
-  for (int i = 0; i < goals.size(); i++) {
-    if (goals[i].id == targetID) return &goals[i];
-  }
-  return nullptr;
 }
 
 
@@ -240,10 +232,10 @@ Grab yellow goal with front claw. Intake the whole time. Then, back up and align
 4. Undocking phase. Drop the yellow goal behind, and then turn so that 1dof faces other alliance goal again to reset. Go back to step 1.
 
 Keep repeating until timer threshold. */
-void runAI(Robot24 *robot, int matchStartTime) {
+void runAI(Robot24 *robot, int32_t port, int matchStartTime) {
 
   Goal g = YELLOW;
-  vision camera(PORT1/*CAMERA_PORT*/, g.bright, g.sig); // Fix port
+  vision camera(port, g.bright, g.sig); // Fix port
   //clawUp();
   Brain.Screen.setFont(mono20);
 
