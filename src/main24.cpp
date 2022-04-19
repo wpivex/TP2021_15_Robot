@@ -68,7 +68,7 @@ int matchAuto() {
 
   twentyFour.goForward(40, 100, 5, 0, 5, {}, false);
   twentyFour.goTurnU(270);
-  AI24::runAI(twentyFour, matchStartTime);
+  AI24.runAI(twentyFour, matchStartTime);
 
   return 0;
 }

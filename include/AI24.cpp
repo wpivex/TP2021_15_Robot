@@ -2,13 +2,13 @@
 #include "GoalPosition.cpp"
 
 // AI Method Headers
-void trackObjectsForCurrentFrame(Robot24 *robot, vision *camera, std::vector<GoalPosition> &goals, int targetID = -1);
-int findGoalID(std::vector<GoalPosition> &goals);
-int detectionAndStrafePhase(Robot24 *robot, vision *camera, float *horizontalDistance, int matchStartTime);
-float getDistanceFromArea(int area);
-float getDistanceFromWidth(int width);
-void runAI(Robot24 *robot, int matchStartTime);
-GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID);
+static void trackObjectsForCurrentFrame(Robot24 *robot, vision *camera, std::vector<GoalPosition> &goals, int targetID = -1);
+static int findGoalID(std::vector<GoalPosition> &goals);
+static int detectionAndStrafePhase(Robot24 *robot, vision *camera, float *horizontalDistance, int matchStartTime);
+static float getDistanceFromArea(int area);
+static float getDistanceFromWidth(int width);
+static void runAI(Robot24 *robot, int matchStartTime);
+static GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID);
 
 // Track each yellow goal across time, and label each with an id
 // targetID only for visual purposes to highlight target goal, if targetID != -1
@@ -204,6 +204,18 @@ float getDistanceFromArea(int area) {
   else if (area > 2200) return 36 - 12.0 * (area - 2200.0) / (6000.0 - 2200);
   else if (area > 1200) return 47 - 11.0 * (area - 1200.0) / (2200.0 - 1200);
   else return 47;
+}
+
+float getDistanceFromWidth(int width){
+
+  static const float DEGREES_PER_PIXEL = (63.0 * M_PI / 180.0) / VISION_MAX_X;
+  static const float GOAL_WIDTH = 13.5;
+  static const float CAMERA_HEIGHT = 15.5;
+
+  float theta = DEGREES_PER_PIXEL*width;
+  float hypotenuseDistanceToGoal = GOAL_WIDTH / tan(theta);
+  float horizontalDistance = sqrt(pow(hypotenuseDistanceToGoal, 2) - pow(CAMERA_HEIGHT, 2));
+  return fmax(0,horizontalDistance - 8.5);
 }
 
 GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID) {
