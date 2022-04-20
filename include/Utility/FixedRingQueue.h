@@ -16,5 +16,6 @@ class RingQueue {
   std::vector<float> arr;
   int capacity;
   int size = 0;
+  float sum = 0;
   int firstElement = 0;
 };
