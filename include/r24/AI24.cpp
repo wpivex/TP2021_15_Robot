@@ -1,7 +1,7 @@
 #include "robot24.cpp"
 #include "GoalPosition.cpp"
 
-
+// Search for goal given ID. Return nullptr if not found
 static GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID) {
   for (int i = 0; i < goals.size(); i++) {
     if (goals[i].id == targetID) return &goals[i];
@@ -24,7 +24,7 @@ static void trackObjectsForCurrentFrame(Robot24 *robot, vision *camera, std::vec
   for (int i = 0; i < camera->objectCount; i++) {
     vision::object o = camera->objects[i];
 
-    if (oArea(o) < 160) continue; // ignore very small yellow blips
+    if (o.width * o.height < 160) continue; // ignore very small yellow blips
 
     // Find the matching goal from the previous frame
     int closestDist = 60; // maximum distance from previous frame location that can link
@@ -102,7 +102,7 @@ static int findGoalID(std::vector<GoalPosition> &goals) {
   return (leftmostValidGoalIndex == -1) ? leftmostValidGoalIndex : goals[leftmostValidGoalIndex].id;
 }
 
-
+// Strafe and lock onto the location of a goal
 // return area of object when arrived
 static int detectionAndStrafePhase(Robot24 *robot, vision *camera, float *horizonalDistance, int matchStartTime) {
 
@@ -202,6 +202,7 @@ static float getDistanceFromArea(int area) {
   else return 47;
 }
 
+// Theoretically better and the mathematically correct way to gauge distance from area
 static float getDistanceFromWidth(int width) {
 
   static const float DEGREES_PER_PIXEL = (63.0 * M_PI / 180.0) / VISION_MAX_X;
@@ -228,7 +229,7 @@ A goal is seen when an object with a size > 1000 is detected. Set target to its 
 Grab yellow goal with front claw. Intake the whole time. Then, back up and align with blue goal with side camera
 4. Undocking phase. Drop the yellow goal behind, and then turn so that 1dof faces other alliance goal again to reset. Go back to step 1.
 
-Keep repeating until timer threshold. */
+Keep repeating until timer threshold, OR reaches the end. */
 void runAI(Robot24 *robot, int32_t port, int matchStartTime) {
 
   Goal g = YELLOW;

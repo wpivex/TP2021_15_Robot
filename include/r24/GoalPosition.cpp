@@ -11,9 +11,7 @@ void GoalPosition::update(int OX, int CX, int OY, int CY, int W, int H) {
   h = H;
 
   isLinkedThisFrame = true;
-  sizeQueue.push(w * h);
-
-  
+  sizeQueue.push(w * h); 
 }
 
 GoalPosition::GoalPosition(int ID, int OX, int CX, int OY, int CY, int W, int H): sizeQueue(10) {
