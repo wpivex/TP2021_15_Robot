@@ -255,7 +255,7 @@ int autonAI() {
   fifteen.goTurnU(50);
   fifteen.goForwardU(-13, 70, 50, 3, 7, false);
   fifteen.goTurnU(0);
-  fifteen.goForwardU(-11, 70, 0, 3, 1, false, 20, 35);
+  fifteen.goForwardU(-9, 70, 0, 3, 1, false, 20, 35, 3);
   fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.goForwardTimed(1.5, -35); // wall align back
   //fifteen.gyroSensor.setHeading(0, deg);
@@ -270,7 +270,7 @@ int autonAI() {
 
   // Get alliance goal
   
-  fifteen.goForwardU(-26, 70, 270, 5, 5, false, 20, 40);
+  fifteen.goForwardU(-26, 70, 270, 5, 5, false, 20, 40, 3);
   fifteen.goForwardU(-9, 40, 270, 0, 4, true);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
 
