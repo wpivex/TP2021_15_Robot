@@ -4,5 +4,5 @@
 int main() {
 
   Competition.bStopAllTasksBetweenModes = true;
-  return main24();
+  return main15();
 }
