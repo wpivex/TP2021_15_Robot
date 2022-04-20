@@ -117,6 +117,34 @@ int twoRingAuton() {
   // Climb platform
     fifteen.moveArmTo(100, 100); // lower platform
     fifteen.goForwardU(70, 50, 90, 10, 5);
+    fifteen.moveArmTo(highArmAngle, 100, false);
+
+    // Align on wall with clearance on the home side
+    wait(500, msec);
+    fifteen.goForwardU(15, 30, 80, 20, 5); // angle slightly away from platform
+    fifteen.goTurnU(90);
+    fifteen.goForwardTimed(1, 30);
+
+    // Grab blue goal
+    fifteen.goForwardU(-2, 30, 90, 10, 0.5);
+    fifteen.goTurnU(180);
+    fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
+    fifteen.goForwardU(-15, 40, 180, 20, 4);
+    fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
+
+    // Do rings
+    fifteen.startIntake();
+    fifteen.goForwardU(16, 30, 180, 20, 5, true, 10, 2.5);
+    fifteen.goForwardU(-24, 40, 180, 20, 5);
+    fifteen.goForwardU(16, 30, 180, 20, 0, false, 10, 2.5);
+    fifteen.goForwardTimed(1, 30);
+
+    // Get to teleop position
+    fifteen.goCurve(24, 50, 0.3, 20, 7);
+    fifteen.moveArmTo(200, 100, false);
+    fifteen.goTurnU(0);
+
+
 
   return 0;
 }
