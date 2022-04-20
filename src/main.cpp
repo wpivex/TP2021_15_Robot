@@ -244,7 +244,7 @@ int autonAI() {
 
   // Initial go rush
   fifteen.clawUp();
-  fifteen.goForward(43, 100, 4, 6, false, 20, 50);
+  fifteen.goForward(43, 100, 2.5, 6, false, 40, 50);
   fifteen.goForward(3, 50, 0, 2, false, -1, 40);
   fifteen.clawDown(); // start claw down motion early
   fifteen.goForward(3, 40, 0, 3, true);
