@@ -114,7 +114,7 @@ void autonomous24() { twentyFour.setBrakeType(hold); task auto1(testForward); }
 void userControl24(void) { twentyFour.setBrakeType(coast); task controlLoop1(mainTeleop24); }
 
 
-int main24() {
+int mainFunc() {
 
   twentyFour.setBackClamp(false);
   twentyFour.setFrontClamp(false);

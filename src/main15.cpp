@@ -167,7 +167,7 @@ void userControl15(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTe
 //void userControl15(void) { task controlLoop1(logDistance); }
 
 
-int main15() {
+int mainFunc() {
   
   fifteen.clawDown();
   fifteen.calibrateGyroBlocking();
