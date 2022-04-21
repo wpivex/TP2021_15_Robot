@@ -73,18 +73,22 @@ void Robot15::setBackLift(Buttons::Button b, bool blocking) {
 
   if (b == BACK_LIFT_UP) {
     log("up");
+    targetIsIntake = false;
     backLiftL.rotateTo(0, degrees, SPEED, velocityUnits::pct, false);
     backLiftR.rotateTo(0, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_MID) {
     log("mid");
+    targetIsIntake = true;
     backLiftL.rotateTo(130, degrees, SPEED, velocityUnits::pct, false);
     backLiftR.rotateTo(130, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_DOWN) {
     log("down");
+    targetIsIntake = false;
     backLiftL.rotateTo(360, degrees, 60, velocityUnits::pct, false); // gentler set down
     backLiftR.rotateTo(360, degrees, 60, velocityUnits::pct, false);
     if (blocking) wait(400, msec);
   } else if (b == BACK_LIFT_SLIGHT) {
+    targetIsIntake = false;
     backLiftL.rotateTo(260, degrees, SPEED, velocityUnits::pct, false);
     backLiftR.rotateTo(260, degrees, SPEED, velocityUnits::pct, false);
   }
@@ -97,18 +101,25 @@ void Robot15::setBackLift(Buttons::Button b, bool blocking) {
 void Robot15::backLiftTeleop() {
   setBackLift(buttons.get(), false);
   if (buttons.pressing(BACK_LIFT_UPPING)){
+    targetIsIntake = false;
     log("upping");
     backLiftL.spin(forward,50,pct);
     backLiftR.spin(forward,50,pct);
   } else if (buttons.pressing(BACK_LIFT_DOWNING)) {
+    targetIsIntake = false;
     log("downing");
     backLiftL.spin(reverse,50,pct);
     backLiftR.spin(reverse,50,pct);
   } else if (buttons.released(BACK_LIFT_DOWNING) || buttons.released(BACK_LIFT_UPPING)) {
+    targetIsIntake = false;
     log("stop");
     backLiftL.stop();
     backLiftR.stop();
   }
+
+  if (targetIsIntake && !backIsDown) backDown();
+  else if (!targetIsIntake && backIsDown) backUp();
+
 }
 
 void Robot15::clawUp() {
@@ -117,6 +128,18 @@ void Robot15::clawUp() {
 
 void Robot15::clawDown() {
   frontClaw.set(true);
+}
+
+void Robot15::backUp() {
+  backIsDown = false;
+  backClamp.set(true);
+  
+}
+
+void Robot15::backDown() {
+  backIsDown = true;
+  backClamp.set(false);
+  
 }
 
 void Robot15::moveArmTo(double degr, double speed, bool blocking) {

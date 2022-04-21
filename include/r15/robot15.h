@@ -44,6 +44,7 @@ class Robot15 : public BaseRobot {
     int32_t CAMERA_PORT;
 
     digital_out frontClaw = digital_out(Brain.ThreeWirePort.G);
+    digital_out backClamp = digital_out(Brain.ThreeWirePort.A);
 
     enum ControllerMapping {EZEQUIEL_MAPPING, BRIAN_MAPPING};
     ControllerMapping cMapping;
@@ -61,6 +62,8 @@ class Robot15 : public BaseRobot {
     void stopIntake();
     void clawUp();
     void clawDown();
+    void backUp();
+    void backDown();
 
     // Teleop methods
     void userControl( void );
@@ -91,4 +94,6 @@ class Robot15 : public BaseRobot {
 
   private:
     int intakeState;
+    bool targetIsIntake = false;
+    bool backIsDown = false;
 };
