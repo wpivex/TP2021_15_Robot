@@ -152,7 +152,7 @@ void BaseRobot::goFightBackwards(float currThresh) {
   }
   g.push(curr,0);
   g.display();
-  goForward(-5, 100, 0, 5);
+  goForwardU(-5, 100, gyroSensor.heading(), 0, 5);
 
 }
 

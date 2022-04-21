@@ -6,17 +6,17 @@ Robot24::Robot24() : BaseRobot(15.0, PORT2), leftMotorA(0), leftMotorB(0), leftM
   rightMotorA(0), rightMotorB(0), rightMotorC(0), rightMotorD(0), rightMotorE(0), rightArm1(0), rightArm2(0), 
   leftArm1(0), leftArm2(0), leftEncoder(Brain.ThreeWirePort.E), rightEncoder(Brain.ThreeWirePort.F) {
 
-  leftMotorA = motor(PORT7, ratio18_1, true); 
-  leftMotorB = motor(PORT6, ratio18_1, true);
-  leftMotorC = motor(PORT3, ratio18_1, true);
-  leftMotorD = motor(PORT4, ratio18_1, true);
-  leftMotorE = motor(PORT5, ratio18_1, true);
+  leftMotorA = motor(PORT3, ratio18_1, true); 
+  leftMotorB = motor(PORT4, ratio18_1, true);
+  leftMotorC = motor(PORT5, ratio18_1, true);
+  leftMotorD = motor(PORT6, ratio18_1, true);
+  leftMotorE = motor(PORT7, ratio18_1, true);
 
-  rightMotorA = motor(PORT16, ratio18_1, false);
-  rightMotorB = motor(PORT11, ratio18_1, false);
-  rightMotorC = motor(PORT12, ratio18_1, false);
+  rightMotorA = motor(PORT11, ratio18_1, false);
+  rightMotorB = motor(PORT12, ratio18_1, false);
+  rightMotorC = motor(PORT14, ratio18_1, false);
   rightMotorD = motor(PORT15, ratio18_1, false);
-  rightMotorE = motor(PORT14, ratio18_1, false);
+  rightMotorE = motor(PORT16, ratio18_1, false);
 
   rightArm1 = motor(PORT10, ratio36_1, true);
   rightArm2 = motor(PORT20, ratio36_1, true);
@@ -148,6 +148,7 @@ void Robot24::goForwardU(float distInches, float maxSpeed, float universalAngle,
   BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, endSlowInches, stopAfter,
     minSpeed, timeout);
 }
+
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
 // Calling general function with 24-specifc params

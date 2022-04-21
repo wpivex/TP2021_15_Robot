@@ -66,7 +66,7 @@ int matchAuto() {
   twentyFour.setBackClamp(false);
   wait(200, msec);
 
-  twentyFour.goForward(40, 100, 5, 0, 5, {}, false);
+  twentyFour.goForwardU(40, 100, twentyFour.gyroSensor.heading(), 5, 0, 5, false);
   twentyFour.goTurnU(270);
   runAI(&twentyFour, PORT2, matchStartTime);
 
@@ -110,7 +110,7 @@ int testForward() {
   return 0;
 }
 
-void autonomous24() { twentyFour.setBrakeType(hold); task auto1(testForward); }
+void autonomous24() { twentyFour.setBrakeType(hold); task auto1(matchAuto); }
 void userControl24(void) { twentyFour.setBrakeType(coast); task controlLoop1(mainTeleop24); }
 
 

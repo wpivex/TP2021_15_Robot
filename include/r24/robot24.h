@@ -35,7 +35,7 @@ class Robot24 : public BaseRobot {
     digital_out clawPiston = digital_out(Brain.ThreeWirePort.C);
     digital_in clawSensor = digital_in(Brain.ThreeWirePort.D);
 
-    //inertial gyroSensor;
+    //inertial gyroSensor; PORT9
     int32_t FRONT_CAMERA_PORT, BACK_CAMERA_PORT;
 
     enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };
@@ -68,7 +68,7 @@ class Robot24 : public BaseRobot {
     // Drive Functions
     void goForwardUntilSensor(float maxDistance, float speed, float rampUpInches = 0, int timeout = 5, bool stopAfter = true);
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, float endSlowInches = 0,
-      bool stopAfter = true, float minSpeed = 10, float timeout = 10);
+      bool stopAfter = true, float minSpeed = 10, float timeout = 10) override;
 
     // Turning Functions
     void goTurnU(float universalAngleDegrees, int direction = 0, bool stopAfter = true, float timeout = 5, float maxSpeed = 100);
