@@ -170,6 +170,7 @@ void userControl15(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTe
 int mainFunc() {
   
   fifteen.clawDown();
+  fifteen.backUp();
   fifteen.calibrateGyroBlocking();
 
   fifteen.resetEncoderDistance();

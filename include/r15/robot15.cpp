@@ -117,7 +117,7 @@ void Robot15::backLiftTeleop() {
     backLiftR.stop();
   }
 
-  if (targetIsIntake && !backIsDown) backDown();
+  if (targetIsIntake && backLiftR.isDone() && !backIsDown) backDown();
   else if (!targetIsIntake && backIsDown) backUp();
 
 }
