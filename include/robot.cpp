@@ -446,7 +446,7 @@ void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, f
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
 void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
 
-  PID anglePID(2, 0, 0.13, 1.5, 5, 12, maxSpeed);
+  PID anglePID(2.1, 0, 0.13, 1.5, 5, 15, maxSpeed);
 
   float speed;
 
@@ -758,7 +758,7 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
   Goal g = YELLOW;
   int targetID = -1;
 
-  PID strafePID(0.75, 0, 0.01, 5, 5, 8, 50);
+  PID strafePID(0.8, 0, 0.01, 5, 5, 14, 50);
   PID anglePID(1, 0, 0);
   float speed, offset, ang, correction;
   int area = -1;
