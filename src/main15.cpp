@@ -12,7 +12,7 @@ int mainTeleop15() {
   return 0;
 }
 
-
+/*
 int twoRingAuton() {
 
   // int matchStartTime = timer::system();
@@ -42,7 +42,7 @@ int twoRingAuton() {
   fifteen.goForwardU(1, 30, 0, 0, 2);
   wait(150, msec);
   fifteen.goTurnU(270);
-  fifteen.goForwardU(11, 50, 270, 10, 5, false, 35);
+  fifteen.goForwardU(11, 50, 270, 10, 5, false, 3, 35);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   fifteen.goForwardTimed(1.0, 35);
 
@@ -54,19 +54,19 @@ int twoRingAuton() {
 
   // do match load rings
   fifteen.startIntake();
-  fifteen.goForwardU(27, 30, 270, 10, 5, true, 10, 3);
-  fifteen.goForwardU(-17, 35, 270, 10, 5, true, 10, 2.5); // go three passes to pick up rings
-  fifteen.goForwardU(17, 35, 270, 10, 5, true, 10, 2.5); // go three passes to pick up rings
-  fifteen.goForwardU(-17, 35, 270, 10, 5, true, 10, 2.5); // go three passes to pick up rings
+  fifteen.goForwardU(27, 30, 270, 10, 5, true, 3);
+  fifteen.goForwardU(-17, 35, 270, 10, 5, true, 2.5); // go three passes to pick up rings
+  fifteen.goForwardU(17, 35, 270, 10, 5, true, 2.5); // go three passes to pick up rings
+  fifteen.goForwardU(-17, 35, 270, 10, 5, true, 2.5); // go three passes to pick up rings
   fifteen.goForwardU(16, 30, 270, 10, 0, false);
   fifteen.goForwardTimed(0.7, 30); // another wall align at left goal
 
-  /*
+  
   Robot needs to get to other alliance goal through platform. Behavior is dependent on whether yellow goal was obtained.
 
   If yellow goal obtained, turn 180 to face platform, release alliance goal from 1dof, climb
   Otherwise, back up, release alliance goal from 1dof, turn 180 to face platform, pick up alliance goal with front arm, climb
-  */
+  
 
   if (obtainedGoal) {
 
@@ -122,9 +122,9 @@ int twoRingAuton() {
 
     // Do rings
     fifteen.startIntake();
-    fifteen.goForwardU(16, 30, 180, 20, 5, true, 10, 2.5);
+    fifteen.goForwardU(16, 30, 180, 20, 5, true, 2.5);
     fifteen.goForwardU(-24, 40, 180, 20, 5);
-    fifteen.goForwardU(16, 30, 180, 20, 0, false, 10, 2.5);
+    fifteen.goForwardU(16, 30, 180, 20, 0, false, 2.5);
     fifteen.goForwardTimed(1, 30);
 
     // Get to teleop position
@@ -136,19 +136,9 @@ int twoRingAuton() {
 
   return 0;
 }
+*/
 
-int testArm() {
-  float highArmAngle = 650;
-
-  fifteen.moveArmToManual(highArmAngle, 100);
-  wait(1000, msec);
-  fifteen.moveArmTo(-20, 100);
-  wait(1000, msec);
-  fifteen.moveArmTo(highArmAngle, 100);
-  return 0;
-}
-
-void autonomous15() { fifteen.setBrakeType(hold); task auto1(testArm); }
+void autonomous15() { fifteen.setBrakeType(hold); task auto1(); }
 //void autonomous15() { thread auto1(mainAuto); }
 
 void userControl15(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop15); }
@@ -162,6 +152,8 @@ int mainFunc() {
   fifteen.calibrateGyroBlocking();
 
   fifteen.resetEncoderDistance();
+  fifteen.frontArmL.resetPosition();
+  fifteen.frontArmR.resetPosition();
   
   Competition.autonomous(autonomous15);
   Competition.drivercontrol(userControl15);

@@ -156,7 +156,7 @@ bool Robot15::moveArmToManual(double degr, double speed) {
 
   PID diffPID(1, 0, 0);
   float correction;
-  float pos = (frontArmL.position(deg) + frontArmR.position(deg));
+  float pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
 
   // Find average current over arm lift
   float sumCurrent = 0;
@@ -165,7 +165,7 @@ bool Robot15::moveArmToManual(double degr, double speed) {
   bool risingEdge = pos < degr;
 
   while (risingEdge ? pos < degr : pos > degr) {
-    pos = (frontArmL.position(deg) + frontArmR.position(deg));
+    pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
     float diff = (frontArmR.position(deg) - frontArmL.position(deg));
     correction = diffPID.tick(diff);
 
@@ -285,17 +285,21 @@ void Robot15::resetEncoderDistance() {
 
 // Go forward a number of inches, maintaining a specific heading
 // Calling general function with 15-specifc params
+// minSpeed default is 18
+void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle, bool stopAfter, float minSpeed, float timeout) {
 
-void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-bool stopAfter, float minSpeed, float timeout) {
-  BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, 0, 
+  float rampUpFrames = maxSpeed * 0.075; // rampUp slope
+  float slowDownInches = (maxSpeed - minSpeed) * 0.06; // slowDown slope
+  float endSlowInches = 4.5;
+
+  BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, endSlowInches, 
     stopAfter, minSpeed, timeout);
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
 // Calling general function with 15-specifc params
 void Robot15::goTurnU(float universalAngleDegrees, int direction, bool stopAfter, float timeout, float maxSpeed) {
-  BaseRobot::goTurnU_Abstract(2, 0, 0.13, 1, 5, 12, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
+  BaseRobot::goTurnU_Abstract(2.5, 0, 0.1, 1.3, 3, 18, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
 }
 
 // Go forward until the maximum distance is hit or the timeout is reached

@@ -31,15 +31,14 @@ float Trapezoid::tick(float currentValue) {
 
   float delta, speed;
   if(fabs(target - curr) < endSlow) delta = 0;
-  if (fabs(target - curr) < slowDown+endSlow && slowDown > 0) delta = (fabs(target - curr) - endSlow) / slowDown;
+  else if (fabs(target - curr) < slowDown+endSlow && slowDown > 0) delta = (fabs(target - curr) - endSlow) / slowDown;
   else delta = 1;
 
   //log("%f\n%f", (xi+1.0) / (xn+1.0), delta);
 
   delta = fmin((xi+1.0) / (xn+1.0), delta); // Apply ramp up. If there is both slowdown and rampUp, pick the smaller one
+  log("%f", delta);
   speed = minSpeed + (maxSpeed - minSpeed) * delta;
-
-  
 
   if (xi < xn) xi++;
   return (risingEdge ? 1 : -1) * speed;

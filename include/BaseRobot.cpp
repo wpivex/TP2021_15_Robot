@@ -183,8 +183,7 @@ float endSlowInches, bool stopAfter, float minSpeed, float timeout) {
     setLeftVelocity(forward, speed + correction);
     setRightVelocity(forward, speed - correction);
 
-    //log("Target: %f\nActual:%f\nLeft:%f\nRight:%f\n", universalAngle, getAngle(), speed+correction, speed-correction);
-    //log("%f", gyroSensor.heading());
+    //log("Dist: %f\nSpeed: %f", currDist, speed);
 
     wait(20, msec);
   }
@@ -221,7 +220,7 @@ float universalAngleDegrees, int direction, bool stopAfter, float timeout, float
 
     //log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
     //log("heading: %f", GPS11.heading());
-    log("%f", speed);
+    log("Heading: %f\nSpeed: %f", getAngle(), speed);
 
     setLeftVelocity(reverse, speed);
     setRightVelocity(forward, speed);
