@@ -73,8 +73,7 @@ class Robot15 : public BaseRobot {
     void intakeTeleop();
 
     // Calling parent drive functions with params
-    void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-        bool stopAfter = true, float minSpeed = 10, float timeout = 10);
+    void goForwardU(float distInches, float maxSpeed, float universalAngle, bool stopAfter = true, float timeout = 5);
     void goTurnU(float universalAngleDegrees, int direction = 0, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
     void goVision(float distInches, float speed, Goal goal, float rampUpFrames, float slowDownInches, bool stopAfter, float timeout = 5);
     void goAlignVision(Goal goal, float timeout = 5, bool stopAfter = true);

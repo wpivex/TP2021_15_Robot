@@ -286,9 +286,14 @@ void Robot15::resetEncoderDistance() {
 // Go forward a number of inches, maintaining a specific heading
 // Calling general function with 15-specifc params
 
-void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-bool stopAfter, float minSpeed, float timeout) {
-  BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, 0, 
+void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle, bool stopAfter, float timeout) {
+
+  float minSpeed = 15;
+  float rampUpFrames = maxSpeed * 0.2; // rampUp slope
+  float slowDownInches = (maxSpeed - minSpeed) * 0.1; // slowDown slope
+  float endSlowInches = 2;
+
+  BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, endSlowInches, 
     stopAfter, minSpeed, timeout);
 }
 
