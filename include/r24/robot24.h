@@ -35,7 +35,7 @@ class Robot24 : public BaseRobot {
     digital_out clawPiston = digital_out(Brain.ThreeWirePort.C);
     digital_in clawSensor = digital_in(Brain.ThreeWirePort.D);
 
-    //inertial gyroSensor; PORT9
+    inertial gyroSensor;
     int32_t FRONT_CAMERA_PORT, BACK_CAMERA_PORT;
 
     enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };
