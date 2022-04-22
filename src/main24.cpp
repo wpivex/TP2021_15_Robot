@@ -54,16 +54,12 @@ int matchAuto() {
   // Raise arm a bit (so that other team cannot grab it)
   twentyFour.setArmDegrees(215);
   twentyFour.goFightBackwards(1.3);
-  twentyFour.goForwardU(-5, 100, twentyFour.getAngle(), 0, 5); // slow down to a stop after fighting backwards
-  // RETREAT
-  // twentyFour.goForward(-8, 100, 0, 5);
+  twentyFour.goForwardU(5, 100, twentyFour.getAngle(), 0, 5); // slow down to a stop after fighting backwards
 
-  // // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
-  //robot.cursedTurn(150,70);
-
+  // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
   twentyFour.goTurnU(120);
   twentyFour.setBackClamp(true);
-  twentyFour.goVision(50, 65, YELLOW, reverse, 0, 0);
+  twentyFour.goVision(-50, 65, YELLOW, reverse, 0, 0);
   twentyFour.setBackClamp(false);
   wait(200, msec);
 
