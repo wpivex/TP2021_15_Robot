@@ -136,49 +136,9 @@ int twoRingAuton() {
 
   return 0;
 }
-
-int testArm() {
-  float highArmAngle = 650;
-
-  fifteen.moveArmToManual(highArmAngle, 100);
-  wait(1000, msec);
-  fifteen.moveArmTo(-20, 100);
-  wait(1000, msec);
-  fifteen.moveArmTo(highArmAngle, 100);
-  return 0;
-}
 */
 
-int test() {
-
-  fifteen.setBackLift(fifteen.BACK_LIFT_MID, false);
-  fifteen.clawUp();
-  wait(2000, msec);
-  fifteen.clawDown();
-  wait(100, msec);
-  fifteen.moveArmTo(200, 100, true);
-  wait(500, msec);
-
-  // fifteen.goTurnU(90);
-  // logController("a");
-  // wait(500, msec);
-  // fifteen.goTurnU(0, 1);
-  // logController("b");
-  // wait(500, msec);
-  // fifteen.goTurnU(30);
-  // logController("c");
-  // wait(500, msec);
-
-  fifteen.goForwardU(24, 100, 0);
-  logController("1");
-  wait(1000, msec);
-  fifteen.goForwardU(5, 50, 0);
-  logController("2");
-
-  return 0;
-}
-
-void autonomous15() { fifteen.setBrakeType(hold); task auto1(test); }
+void autonomous15() { fifteen.setBrakeType(hold); task auto1(); }
 //void autonomous15() { thread auto1(mainAuto); }
 
 void userControl15(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop15); }
@@ -192,6 +152,8 @@ int mainFunc() {
   fifteen.calibrateGyroBlocking();
 
   fifteen.resetEncoderDistance();
+  fifteen.frontArmL.resetPosition();
+  fifteen.frontArmR.resetPosition();
   
   Competition.autonomous(autonomous15);
   Competition.drivercontrol(userControl15);

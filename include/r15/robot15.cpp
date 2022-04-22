@@ -156,7 +156,7 @@ bool Robot15::moveArmToManual(double degr, double speed) {
 
   PID diffPID(1, 0, 0);
   float correction;
-  float pos = (frontArmL.position(deg) + frontArmR.position(deg));
+  float pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
 
   // Find average current over arm lift
   float sumCurrent = 0;
@@ -165,7 +165,7 @@ bool Robot15::moveArmToManual(double degr, double speed) {
   bool risingEdge = pos < degr;
 
   while (risingEdge ? pos < degr : pos > degr) {
-    pos = (frontArmL.position(deg) + frontArmR.position(deg));
+    pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
     float diff = (frontArmR.position(deg) - frontArmL.position(deg));
     correction = diffPID.tick(diff);
 
@@ -285,10 +285,9 @@ void Robot15::resetEncoderDistance() {
 
 // Go forward a number of inches, maintaining a specific heading
 // Calling general function with 15-specifc params
+// minSpeed default is 18
+void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle, bool stopAfter, float minSpeed, float timeout) {
 
-void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle, bool stopAfter, float timeout) {
-
-  float minSpeed = 18;
   float rampUpFrames = maxSpeed * 0.075; // rampUp slope
   float slowDownInches = (maxSpeed - minSpeed) * 0.06; // slowDown slope
   float endSlowInches = 4.5;
