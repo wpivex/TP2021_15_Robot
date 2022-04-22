@@ -133,6 +133,8 @@ void BaseRobot::goForwardTimed(float duration, float speed) {
   stopRight();
 }
 
+// THIS FUNCTION DOES NOT STOP THE MOTORS; THEY WILL BE RUNNING AT FULL SPEED BACKWARDS AT THE END
+// Make sure to handle this somehow, like adding a goForwardU backwards to decelerate to a stop
 void BaseRobot::goFightBackwards(float currThresh) {
 
   VisualGraph g(-0.1, 2.9, 8, 50);
@@ -152,7 +154,6 @@ void BaseRobot::goFightBackwards(float currThresh) {
   }
   g.push(curr,0);
   g.display();
-  goForwardU(-5, 100, gyroSensor.heading(), 0, 5);
 
 }
 

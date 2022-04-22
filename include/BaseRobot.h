@@ -44,8 +44,6 @@ public:
   virtual float getDriveCurrent() = 0;
 
   // Drive Straight & Variations
-  virtual void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, float endSlowInches = 0,
-    bool stopAfter = true, float minSpeed = 10, float timeout = 10) = 0;
   void goForwardTimed(float duration, float speed);
   void goFightBackwards(float currThresh);
 

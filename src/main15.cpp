@@ -12,19 +12,6 @@ int mainTeleop15() {
   return 0;
 }
 
-int test() {
-  //fifteen.goForwardPID(48, 100, fifteen.getAngle(), 20, 10);
-  // fifteen.goForward(24, 80, 20, 12);
-  // wait(1000, msec);
-  // fifteen.goForward(-24, 80, 20, 12);
-  fifteen.goTurnU(180);
-
-  // wait(1000, msec);
-
-  // fifteen.goFightBackwards();
-
-  return 0;
-}
 
 int twoRingAuton() {
 
@@ -35,11 +22,12 @@ int twoRingAuton() {
 
   // Initial go rush
   fifteen.clawUp();
-  fifteen.goForward(43, 100, 4, 6, false, 50);
-  fifteen.goForward(3, 50, 0, 2, false, 40);
+  fifteen.goForwardU(43, 100, fifteen.getAngle(), 4, 6, false, 50);
+  fifteen.goForwardU(3, 50, fifteen.getAngle(), 0, 2, false, 40);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForward(3, 40, 0, 3, true);
+  fifteen.goForwardU(3, 40, fifteen.getAngle(), 0, 3, true);
   fifteen.goFightBackwards(0.9);
+  fifteen.goForwardU(-5, 100, fifteen.getAngle(), 0, 5); // slow down to a stop after fighting backwards
 
   // Get back to wall align but avoiding platform
   fifteen.moveArmTo(200, 100, false);
