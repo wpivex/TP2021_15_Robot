@@ -294,13 +294,13 @@ void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle,
   float endSlowInches = 2;
 
   BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, endSlowInches, 
-    stopAfter, minSpeed, timeout);
+    stopAfter, minSpeed, 20);
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
 // Calling general function with 15-specifc params
 void Robot15::goTurnU(float universalAngleDegrees, int direction, bool stopAfter, float timeout, float maxSpeed) {
-  BaseRobot::goTurnU_Abstract(2, 0, 0.13, 1, 5, 12, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
+  BaseRobot::goTurnU_Abstract(2.5, 0, 0.1, 1.3, 3, 18, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
 }
 
 // Go forward until the maximum distance is hit or the timeout is reached

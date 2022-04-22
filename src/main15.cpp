@@ -159,19 +159,21 @@ int test() {
   fifteen.moveArmTo(200, 100, true);
   wait(500, msec);
 
-  fifteen.goTurnU(90);
-  logController("a");
-  wait(500, msec);
-  fifteen.goTurnU(0, 1);
-  logController("b");
-  wait(500, msec);
-  fifteen.goTurnU(30);
-  logController("c");
-  wait(500, msec);
+  // fifteen.goTurnU(90);
+  // logController("a");
+  // wait(500, msec);
+  // fifteen.goTurnU(0, 1);
+  // logController("b");
+  // wait(500, msec);
+  // fifteen.goTurnU(30);
+  // logController("c");
+  // wait(500, msec);
 
-  // fifteen.goForwardU(24, 100, 0, 20, 12);
-  // wait(1000, msec);
-  // fifteen.goForwardU(5, 50, 0, 10, 3);
+  fifteen.goForwardU(24, 100, 0);
+  logController("1");
+  wait(1000, msec);
+  fifteen.goForwardU(5, 50, 0);
+  logController("2");
 
   return 0;
 }
