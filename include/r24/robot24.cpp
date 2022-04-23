@@ -146,7 +146,7 @@ void Robot24::goForwardUntilSensor(float maxDistance, float speed, float rampUpI
 void Robot24::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, float endSlowInches,
     bool stopAfter, float minSpeed, float timeout) {
   BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, endSlowInches, stopAfter,
-    minSpeed, timeout);
+    minSpeed, -1, timeout);
 }
 
 

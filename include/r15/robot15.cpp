@@ -286,14 +286,14 @@ void Robot15::resetEncoderDistance() {
 // Go forward a number of inches, maintaining a specific heading
 // Calling general function with 15-specifc params
 // minSpeed default is 18
-void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle, bool stopAfter, float minSpeed, float timeout) {
+void Robot15::goForwardU(float distInches, float maxSpeed, float universalAngle, bool stopAfter, float startSpeed, float stopSpeed, float timeout) {
 
-  float rampUpFrames = maxSpeed * 0.075; // rampUp slope
-  float slowDownInches = (maxSpeed - minSpeed) * 0.06; // slowDown slope
-  float endSlowInches = 4.5;
+  float rampUpFrames = (startSpeed == -1) ? 0 : maxSpeed * 0.075; // rampUp slope
+  float slowDownInches = (stopSpeed == -1) ? 0 : (maxSpeed - stopSpeed) * 0.06; // slowDown slope
+  float endSlowInches = (stopSpeed == -1) ? 0 : 4.5;
 
   BaseRobot::goForwardU_Abstract(1.0, distInches, maxSpeed, universalAngle, rampUpFrames, slowDownInches, endSlowInches, 
-    stopAfter, minSpeed, timeout);
+    stopAfter, startSpeed, stopSpeed, timeout);
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle

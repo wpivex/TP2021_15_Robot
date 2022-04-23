@@ -159,9 +159,9 @@ void BaseRobot::goFightBackwards(float currThresh) {
 
 // Go forward a number of inches, maintaining a specific heading
 void BaseRobot::goForwardU_Abstract(float K_P, float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
-float endSlowInches, bool stopAfter, float minSpeed, float timeout) {
+float endSlowInches, bool stopAfter, float startSpeed, float stopSpeed, float timeout) {
 
-  Trapezoid trap(distInches, maxSpeed, minSpeed, rampUpFrames, slowDownInches, endSlowInches);
+  Trapezoid trap(distInches, maxSpeed, stopSpeed, rampUpFrames, slowDownInches, endSlowInches, startSpeed);
   PID turnPID(K_P, 0.00, 0);
 
   float correction = 0;

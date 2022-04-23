@@ -57,7 +57,7 @@ public:
 protected:
 
   void goForwardU_Abstract(float K_P, float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches,
-      float endSlowInches = 0, bool stopAfter = true, float minSpeed = 10, float timeout = 10);
+      float endSlowInches, bool stopAfter, float startSpeed, float stopSpeed, float timeout = 10);
   void goTurnU_Abstract(float KP, float KI, float KD, float TOLERANCE, float REPEATED, float MINUMUM,
       float universalAngleDegrees, int direction = 0, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
 

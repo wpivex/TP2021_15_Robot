@@ -5,7 +5,7 @@
 class Trapezoid {
 
   public:
-  Trapezoid(float targetValue, float maxSpeedP, float minSpeedP, int numRampUpFrames, float slowDownValue, float endSlowValue = 0);
+  Trapezoid(float targetValue, float maxSpeedP, float minSpeedP, int numRampUpFrames, float slowDownValue, float endSlowValue = 0, float startSpeedP = -1);
   float tick(float currentValue);
   bool isCompleted();
   
@@ -14,6 +14,6 @@ class Trapezoid {
   bool firstFrame = true;
   int xi = 0;
   int xn;
-  float curr, target, maxSpeed, minSpeed, rampUp, slowDown, endSlow;
+  float curr, target, maxSpeed, minSpeed, startSpeed, rampUp, slowDown, endSlow;
 
 };
