@@ -356,8 +356,12 @@ float Robot24::getDriveCurrent() {
 
 void Robot24::activeLocation(){
   //Figure out how much each encoder has changed
-  float deltaL = recordedL - degreesToDistance(leftEncoder);
-  float deltaR = recordedR - degreesToDistance(rightEncoder);
+  //Enocoder code
+  //float deltaL = recordedL - degreesToDistance(leftEncoder);
+  //Non-encoder code
+  float deltaR = recordedR - getRightEncoderDistance();
+  float deltaL = recordedL - getLeftEncoderDistance();
+  //float deltaR = recordedR - degreesToDistance(rightEncoder);
   float vec = (deltaL+deltaR/2);
   //Split vector to X and Y 
   float deltaX = vec * cos(gyroSensor.angle());
