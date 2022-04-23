@@ -353,3 +353,18 @@ float Robot24::getDriveCurrent() {
     + rightMotorA.current() + rightMotorB.current() + rightMotorC.current() + rightMotorD.current() + rightMotorE.current();
   return currentSum / 10;
 }
+
+void Robot24::activeLocation(){
+  //Figure out how much each encoder has changed
+  float deltaL = recordedL - degreesToDistance(leftEncoder);
+  float deltaR = recordedR - degreesToDistance(rightEncoder);
+  float vec = (deltaL+deltaR/2);
+  //Split vector to X and Y 
+  float deltaX = vec * cos(gyroSensor.angle());
+  float delatY = vec * sin(gyroSensor.angle());
+  //Add x and Y distance to current values
+  absoluteX += deltaX;
+  absoluteY +=delatY;
+
+}
+
