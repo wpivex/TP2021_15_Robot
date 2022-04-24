@@ -28,8 +28,8 @@ class Robot24 : public BaseRobot {
 
     float absoluteY;
     float absoluteX;
-    float recordedL;
-    float recordedR;
+    float recordedL = 0;
+    float recordedR = 0;
 
     float TURN_MIN_SPEED = 10;
     float FORWARD_MIN_SPEED = 10;
@@ -40,7 +40,6 @@ class Robot24 : public BaseRobot {
     digital_out clawPiston = digital_out(Brain.ThreeWirePort.C);
     digital_in clawSensor = digital_in(Brain.ThreeWirePort.D);
 
-    inertial gyroSensor;
     int32_t FRONT_CAMERA_PORT, BACK_CAMERA_PORT;
 
     enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };

@@ -46,6 +46,7 @@ float Trapezoid::tick(float currentValue) {
 }
 
 bool Trapezoid::isCompleted() {
+  logController("%f, %f", curr, target);
   if (firstFrame) return false;
 
   if (risingEdge) return curr >= target;

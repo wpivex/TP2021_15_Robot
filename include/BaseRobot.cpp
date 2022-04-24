@@ -255,7 +255,7 @@ void BaseRobot::goVision_Abstract(float K_P, float MIN_SPEED, int32_t CAMERA_POR
     
     float correction = camera.largestObject.exists ? pidTurn.tick((VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X) : 0;
     float distDegrees = fmin(getLeftEncoderDistance(), getRightEncoderDistance()); // take smaller of two distances because arcs
-    float speed = trapDist.tick(degreesToDistance(distDegrees));
+    float speed = trapDist.tick(distDegrees);
 
     setLeftVelocity(forward, speed - correction);
     setRightVelocity(forward, speed + correction);

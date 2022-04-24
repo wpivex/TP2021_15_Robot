@@ -14,12 +14,11 @@ int mainTeleop24() {
   return 0;
 }
 
-int ActiveLocationTest(){
+int ActiveLocationTest() {
   while (true){
     twentyFour.activeLocation();
-    //print x
-    // print y 
-    //If not working print out angle?
+    log("%f", twentyFour.recordedL);
+    wait(20, msec);
   }
   return 0;
 }
@@ -68,12 +67,13 @@ int matchAuto() {
   // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
   twentyFour.goTurnU(120);
   twentyFour.setBackClamp(true);
-  twentyFour.goVision(-50, 65, YELLOW, reverse, 0, 0);
+  twentyFour.goVision(-40, 100, YELLOW, reverse, 0, 0);
   twentyFour.setBackClamp(false);
   wait(200, msec);
 
-  twentyFour.goForwardU(40, 100, twentyFour.gyroSensor.heading(), 5, 0, 5, false);
+  twentyFour.goForwardU(50, 100, twentyFour.gyroSensor.heading(), 5, 0, 5, false);
   twentyFour.goTurnU(270);
+  twentyFour.goForwardTimed(3, -30);
   runAI(&twentyFour, PORT2, matchStartTime);
 
   return 0;
