@@ -54,6 +54,7 @@ class Robot {
 
 
     digital_out frontClaw = digital_out(Brain.ThreeWirePort.G);
+    digital_out backClamp = digital_out(Brain.ThreeWirePort.A);
 
     controller* robotController;
 
@@ -137,9 +138,14 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, flo
     float getDistanceFromArea(int area);
     void runAI(int matchStartTime);
 
+    void backDown();
+    void backUp();
+
 
   private:
     void driveTeleop();
 
     int intakeState;
+    bool targetIsIntake = false;
+    bool backIsDown = false;
 };
