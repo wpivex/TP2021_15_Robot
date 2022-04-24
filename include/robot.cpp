@@ -383,7 +383,7 @@ bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
     setLeftVelocity(forward, speed + correction);
     setRightVelocity(forward, speed - correction);
 
-    log("%f\n%f", currDist, distInches);
+    //log("%f\n%f", currDist, distInches);
     //log("Target: %f\nActual:%f\nLeft:%f\nRight:%f\n", universalAngle, getAngle(), speed+correction, speed-correction);
     //log("%f", gyroSensor.heading());
 
@@ -540,7 +540,7 @@ void Robot::goFightBackwards() {
   //int startTime = vex::timer::system();
   float curr = 3;
   bool display = true;
-  while (curr > 0.9) {
+  while (curr > 1.3) {
     
     curr = (leftMotorA.current() + rightMotorA.current()) / 2;
     g.push(curr);
@@ -768,6 +768,7 @@ int Robot::findGoalID(std::vector<GoalPosition> &goals) {
 
 
 // return area of object when arrived
+int AI_Direction;
 int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime) {
 
   static const float MAX_TRAVEL_DISTANCE = 80;
@@ -796,15 +797,15 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
     pt = (pt + 1) % 10;
     if (pt == 0) logController("Dist: %.1f", *horizonalDistance);
 
-    if (isTimeout(matchStartTime, 43) || (*horizonalDistance - getEncoderDistance()) > MAX_TRAVEL_DISTANCE) {
+    if (isTimeout(matchStartTime, 43) || (*horizonalDistance + AI_Direction * getEncoderDistance()) > MAX_TRAVEL_DISTANCE) {
       area = -1;
       break;
     };
 
     // Initial ramp up for idle
-    speed = COAST_SPEED; // if no target goal detected, this is default speed
+    speed = AI_Direction * COAST_SPEED; // if no target goal detected, this is default speed
     float dist = fabs(getEncoderDistance());
-    if (dist < rampUpInches) speed = MIN_SPEED + (COAST_SPEED - MIN_SPEED) * (dist / rampUpInches);
+    // if (dist < rampUpInches) speed = MIN_SPEED + (COAST_SPEED - MIN_SPEED) * (dist / rampUpInches);
 
     offset = -1;
 
@@ -825,7 +826,7 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
         // Perform strafe towards goal
         offset = goal->cx - VISION_CENTER_X;
         area = goal->averageArea();
-        speed = strafePID.tick(offset);
+        speed = -strafePID.tick(offset);
 
       } else {
         // Tracked goal was lost, abort target and find new
@@ -836,8 +837,8 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
     ang = getAngleDiff(ANGLE, getAngle());
     correction = anglePID.tick(ang);
 
-    setLeftVelocity(forward, -speed + correction);
-    setRightVelocity(forward, -speed - correction);
+    setLeftVelocity(forward, speed + correction);
+    setRightVelocity(forward, speed - correction);
 
     Brain.Screen.printAt(20, 20, "Speed: %.1f Offset: %f", -speed, offset);
     
@@ -851,7 +852,7 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
   stopLeft();
   stopRight();
 
-  *horizonalDistance = -getEncoderDistance() + *horizonalDistance; // increment horizontal distance throughout AI
+  *horizonalDistance = AI_Direction * getEncoderDistance() + *horizonalDistance; // increment horizontal distance throughout AI
 
   return area;
 }

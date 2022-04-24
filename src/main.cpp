@@ -24,6 +24,8 @@ int mainTeleop() {
 
 int leftAuto() {
 
+  AI_Direction = -1;
+
   int matchStartTime = timer::system();
 
   float lowArmAngle = -20;
@@ -34,18 +36,17 @@ int leftAuto() {
   // Initial go rush
   fifteen.clawUp();
   float ang = fifteen.getAngle();
-  fifteen.goForwardU(41, 100, ang, 2.5, 6, false, 40, 50);
-  fifteen.goForwardU(3, 50, ang, 0, 2, false, -1, 40);
+  fifteen.goForwardU(44, 100, ang, 2, 3, false, 40, 50);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForwardU(3, 40, ang, 0, 3, true);
+  fifteen.goForwardU(3, 50, ang, 0, 3, true);
   fifteen.goFightBackwards();
 
   // Get back to wall align but avoiding platform
   fifteen.moveArmTo(200, 100, false);
-  fifteen.goTurnU(90);
-  fifteen.goForwardU(-5, 70, 90, 3, 7, true, 20, 20, 2);
+  fifteen.goTurnU(50);
+  fifteen.goForwardU(-10, 70, 50, 3, 7, true, 20, 20, 2);
   fifteen.goTurnU(0);
-  fifteen.goForwardU(-7, 70, 0, 3, 1, true, 20, 35, 2);
+  fifteen.goForwardU(-13, 70, 0, 3, 1, true, 20, 35, 2);
   fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.goForwardTimed(1, -35); // wall align back
   //fifteen.gyroSensor.setHeading(0, deg);
@@ -63,6 +64,7 @@ int leftAuto() {
   fifteen.goForwardU(-24, 70, 270, 5, 5, false, 20, 40, 3);
   fifteen.goForwardU(-9, 40, 270, 0, 0, true, 10, 20, 1.5);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
+  fifteen.backDown();
 
   // do match load rings
   fifteen.startIntake();
@@ -87,6 +89,8 @@ int leftAuto() {
 
 int rightAuto() {
 
+  AI_Direction = 1;
+
   int matchStartTime = timer::system();
 
   float lowArmAngle = -20;
@@ -97,15 +101,14 @@ int rightAuto() {
   // Initial go rush
   float ang = fifteen.getAngle();
   fifteen.clawUp();
-  fifteen.goForwardU(42, 100, ang, 2.5, 6, false, 40, 50);
-  fifteen.goForwardU(3, 50, ang, 0, 2, false, -1, 40);
+  fifteen.goForwardU(44, 100, ang, 2, 3, false, 40, 50);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForwardU(3, 40, ang, 0, 3, true);
+  fifteen.goForwardU(3, 50, ang, 0, 3, true);
   fifteen.goFightBackwards();
 
   // Get back to wall align but avoiding platform
   fifteen.moveArmTo(200, 100, false);
-  fifteen.goForwardU(-20, 70, 350, 3, 1, false, 20, 35);
+  fifteen.goForwardU(-23, 70, 350, 3, 1, false, 20, 35, 3);
   fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.goForwardTimed(1, -35); // wall align back
   //fifteen.gyroSensor.setHeading(0, deg);
@@ -116,9 +119,9 @@ int rightAuto() {
   fifteen.goTurnU(270);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
 
-
   fifteen.goForwardU(-16, 40, 270, 5, 4, true);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
+  fifteen.backDown();
   fifteen.goForwardU(5, 40, 270, 1, 1);
   fifteen.goTurnU(180);
 
@@ -145,6 +148,8 @@ int rightAuto() {
 
 int midAuto() {
 
+  AI_Direction = 1;
+
   int matchStartTime = timer::system();
 
   float lowArmAngle = -20;
@@ -155,10 +160,9 @@ int midAuto() {
   // Initial go rush
   float ang = fifteen.getAngle();
   fifteen.clawUp();
-  fifteen.goForwardU(52, 100, ang, 2.5, 6, false, 40, 50);
-  fifteen.goForwardU(3, 50, ang, 0, 2, false, -1, 40);
+  fifteen.goForwardU(55, 100, ang, 2.5, 3, false, 40, 50);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForwardU(3, 40, ang, 0, 3, true);
+  fifteen.goForwardU(3, 50, ang, 0, 3, true);
   fifteen.goFightBackwards();
 
   // Wall aligns to localize
@@ -172,11 +176,12 @@ int midAuto() {
   fifteen.goForwardTimed(2, 30);
 
   // Get alliance goal  
-    fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
+  fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   fifteen.goForwardU(-3, 30, 180, 1, 1);
   fifteen.goTurnU(225);
   fifteen.goForwardU(24, 60, 225, 3, 10);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
+  fifteen.backDown();
   fifteen.goForwardU(5, 40, 270, 1, 1);
   fifteen.goTurnU(180);
 
@@ -213,10 +218,9 @@ int midSimpleAuto() {
   // Initial go rush
   float ang = fifteen.getAngle();
   fifteen.clawUp();
-  fifteen.goForwardU(52, 100, ang, 2.5, 6, false, 40, 50);
-  fifteen.goForwardU(3, 50, ang, 0, 2, false, -1, 40);
+  fifteen.goForwardU(55, 100, ang, 2.5, 3, false, 40, 50);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForwardU(3, 40, ang, 0, 3, true);
+  fifteen.goForwardU(3, 50, ang, 0, 3, true);
   fifteen.goFightBackwards();
   fifteen.goCurve(-12, 30, -0.3, 1, 1);
 
@@ -224,15 +228,20 @@ int midSimpleAuto() {
 }
 
 int test() {
+  fifteen.clawUp();
+  wait(1000, msec);
+  fifteen.clawDown();
+  wait(200,msec);
   fifteen.goFightBackwards();
   return 0;
 }
 
 
-//void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
-void autonomous() { fifteen.setBrakeType(hold); task auto1(rightAuto); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(rightAuto); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(midAuto); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(midSimpleAuto); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(test); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
 //void userControl(void) { task controlLoop1(logDistance); }
