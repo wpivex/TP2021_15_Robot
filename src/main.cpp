@@ -36,9 +36,9 @@ int leftAuto() {
   // Initial go rush
   fifteen.clawUp();
   float ang = fifteen.getAngle();
-  fifteen.goForwardU(44, 100, ang, 2, 3, false, 40, 50);
+  fifteen.goForwardU(44, 100, ang, 0, 3, false, 40, 75);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForwardU(3, 50, ang, 0, 3, true);
+  fifteen.goForwardU(3, 75, ang, 0, 3, true, 20, 50);
   fifteen.goFightBackwards();
 
   // Get back to wall align but avoiding platform
@@ -61,16 +61,16 @@ int leftAuto() {
 
   // Get alliance goal
   
-  fifteen.goForwardU(-24, 70, 270, 5, 5, false, 20, 40, 3);
+  fifteen.goForwardU(-20, 70, 270, 5, 5, false, 20, 40, 3);
   fifteen.goForwardU(-9, 40, 270, 0, 0, true, 10, 20, 1.5);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
-  fifteen.backDown();
 
   // do match load rings
   fifteen.startIntake();
   fifteen.goForwardU(30, 35, 270, 2, 5, true, 20, 15, 3);
-  fifteen.goForwardU(-17, 40, 270, 2, 5, true, 20, 15, 2.5); // go three passes to pick up rings
-  fifteen.goForwardU(16, 35, 270, 2, 0, false);
+  fifteen.backDown();
+  //fifteen.goForwardU(-17, 40, 270, 2, 5, true, 20, 15, 2.5); // go three passes to pick up rings
+  //fifteen.goForwardU(16, 35, 270, 2, 0, false);
   fifteen.goForwardTimed(0.7, 30);
 
   // Get into AI strafe position
@@ -79,7 +79,7 @@ int leftAuto() {
   fifteen.clawUp();
   fifteen.moveArmTo(200, 100, false);
   fifteen.goCurve(-15.5, 50, 0.365, 0, 0, false);
-  fifteen.goForward(-4, 50, 0, 3, true);
+  fifteen.goForward(-7.5, 50, 0, 3, true);
   fifteen.goTurnU(270);
 
   fifteen.runAI(matchStartTime);
@@ -101,9 +101,9 @@ int rightAuto() {
   // Initial go rush
   float ang = fifteen.getAngle();
   fifteen.clawUp();
-  fifteen.goForwardU(44, 100, ang, 2, 3, false, 40, 50);
+  fifteen.goForwardU(44, 100, ang, 0, 3, false, 40, 75);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForwardU(3, 50, ang, 0, 3, true);
+  fifteen.goForwardU(3, 75, ang, 0, 3, true, 20, 50);
   fifteen.goFightBackwards();
 
   // Get back to wall align but avoiding platform
@@ -160,9 +160,9 @@ int midAuto() {
   // Initial go rush
   float ang = fifteen.getAngle();
   fifteen.clawUp();
-  fifteen.goForwardU(55, 100, ang, 2.5, 3, false, 40, 50);
+  fifteen.goForwardU(55, 100, ang, 0, 3, false, 40, 75);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForwardU(3, 50, ang, 0, 3, true);
+  fifteen.goForwardU(3, 75, ang, 0, 3, true, 20, 50);
   fifteen.goFightBackwards();
 
   // Wall aligns to localize
@@ -218,11 +218,11 @@ int midSimpleAuto() {
   // Initial go rush
   float ang = fifteen.getAngle();
   fifteen.clawUp();
-  fifteen.goForwardU(55, 100, ang, 2.5, 3, false, 40, 50);
+  fifteen.goForwardU(50, 100, ang, 0, 3, false, 40, 75);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForwardU(3, 50, ang, 0, 3, true);
+  fifteen.goForwardU(3, 75, ang, 0, 3, true, 20, 50);
   fifteen.goFightBackwards();
-  fifteen.goCurve(-12, 30, -0.3, 1, 1);
+  fifteen.goCurve(-20, 30, 0.3, 3, 5);
 
   return 0;
 }
