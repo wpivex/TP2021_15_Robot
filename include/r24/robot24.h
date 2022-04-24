@@ -48,7 +48,7 @@ class Robot24 : public BaseRobot {
 
     enum ControllerMapping {DEFAULT_MAPPING};
     ControllerMapping cMapping;
-    Buttons::Button FRONT_CLAMP_TOGGLE, BACK_CLAMP_TOGGLE, CLAW_TOGGLE; 
+    BTN::Button FRONT_CLAMP_TOGGLE, BACK_CLAMP_TOGGLE, CLAW_TOGGLE; 
 
     void setControllerMapping(ControllerMapping mapping);
 

@@ -1,5 +1,6 @@
 // CODE FOR 15" ROBOT
 #include "r15/robot15.cpp"
+#include <functional>
 
 Robot15 fifteen = Robot15();
 
@@ -133,7 +134,6 @@ int twoRingAuton() {
 
   return 0;
 }
-
 
 void autonomous15() { fifteen.setBrakeType(hold); task auto1(twoRingAuton); }
 //void autonomous15() { thread auto1(mainAuto); }

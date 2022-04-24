@@ -44,9 +44,9 @@ void Robot24::setControllerMapping(ControllerMapping mapping) {
   if (mapping == DEFAULT_MAPPING) {
     driveType = TWO_STICK_ARCADE;
 
-    FRONT_CLAMP_TOGGLE = Buttons::L1;
-    BACK_CLAMP_TOGGLE = Buttons::R1;
-    CLAW_TOGGLE = Buttons::A;
+    FRONT_CLAMP_TOGGLE = BTN::L1;
+    BACK_CLAMP_TOGGLE = BTN::R1;
+    CLAW_TOGGLE = BTN::A;
   } 
 }
 
@@ -55,16 +55,7 @@ void Robot24::driveTeleop() {
   if (driveHold) setBrakeType(hold);
   else setBrakeType(coast);
 
-  if(driveType == TANK) {
-    setLeftVelocity(forward,buttons.axis(Buttons::LEFT_VERTICAL));
-    setRightVelocity(forward,buttons.axis(Buttons::RIGHT_VERTICAL));
-  }else{
-    float drive = driveType == ONE_STICK_ARCADE ? buttons.axis(Buttons::RIGHT_VERTICAL) : buttons.axis(Buttons::LEFT_VERTICAL);
-    float turn = buttons.axis(Buttons::RIGHT_HORIZONTAL);
-    float max = std::max(1.0, std::max(fabs(drive+turn), fabs(drive-turn)));
-    setLeftVelocity(forward,100 * (drive+turn)/max);
-    setRightVelocity(forward,100 * (drive-turn)/max);
-  }
+  basicDriveTeleop();
 }
 
 void Robot24::goalClamp() {
@@ -91,16 +82,16 @@ void Robot24::setBackClamp(bool intaking) {
 }
 
 void Robot24::armTeleop() {
-  if (buttons.pressing(buttons.R2)) {
+  if (buttons.pressing(BTN::R2)) {
     setArmPercent(forward, 50);
-  } else if (buttons.pressing(buttons.L2)) {
+  } else if (buttons.pressing(BTN::L2)) {
     setArmPercent(reverse, 40);
   } else {
     stopArm();
   }
 
   // Toggle limiting arm current
-  if (buttons.pressed(buttons.X)) {
+  if (buttons.pressed(BTN::X)) {
     teleopArmLimited = !teleopArmLimited;
     if (teleopArmLimited) setMaxArmTorque(CURRENT::MID);
     else setMaxArmTorque(CURRENT::HIGH);

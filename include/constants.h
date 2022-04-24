@@ -1,13 +1,13 @@
-#if !defined(MYLIB_CONSTANTS_H)
-#define MYLIB_CONSTANTS_H 1
-
+#pragma once
 #include "vex.h"
 #include <string>
 #include <queue>
+#include "Buttons.cpp"
 
 vex::brain Brain;
 vex::controller Controller1(vex::controllerType::primary);
 vex::competition Competition;
+Buttons buttons(&Controller1);
 
 
 struct Goal {
@@ -31,6 +31,9 @@ namespace CURRENT {
 static const float VISION_CENTER_X = 157.0;
 static const float VISION_MAX_X = 316;
 const float MAX_VOLTS = 12.0; // maximum volts for vex motors
+
+static const int SCREEN_WIDTH = 480;
+static const int SCREEN_HEIGHT = 240;
 
 static inline float distanceFormula(float dx, float dy) {
   return sqrt(dx*dx + dy*dy);
@@ -94,5 +97,3 @@ static inline void log(const char *f, Args ... args) {
     row++;
   }
 }
-
-#endif

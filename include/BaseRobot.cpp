@@ -299,8 +299,8 @@ void BaseRobot::goAlignVision_Abstract(float K_P, float K_I, float K_D, float TO
 
 void BaseRobot::basicDriveTeleop() {
 
-  float drive = buttons.axis(Buttons::LEFT_VERTICAL);
-  float turn = buttons.axis(Buttons::RIGHT_HORIZONTAL);
+  float drive = buttons.axis(BTN::LEFT_VERTICAL);
+  float turn = buttons.axis(BTN::RIGHT_HORIZONTAL);
   float max = std::max(1.0, std::max(fabs(drive+turn), fabs(drive-turn)));
   setLeftVelocity(forward,100 * (drive+turn)/max);
   setRightVelocity(forward,100 * (drive-turn)/max);
