@@ -4,7 +4,7 @@
 // gear ratio is 60/36
 Robot24::Robot24() : BaseRobot(15.0, PORT17), leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), leftMotorE(0), 
   rightMotorA(0), rightMotorB(0), rightMotorC(0), rightMotorD(0), rightMotorE(0), rightArm1(0), rightArm2(0), 
-  leftArm1(0), leftArm2(0), leftEncoder(Brain.ThreeWirePort.E), rightEncoder(Brain.ThreeWirePort.G) {
+  leftArm1(0), leftArm2(0), leftEncoder(Brain.ThreeWirePort.F), rightEncoder(Brain.ThreeWirePort.H) {
 
   leftMotorA = motor(PORT3, ratio18_1, true); 
   leftMotorB = motor(PORT4, ratio18_1, true);

@@ -26,8 +26,8 @@ class Robot24 : public BaseRobot {
     encoder leftEncoder;
     encoder rightEncoder;
 
-    float absoluteY;
-    float absoluteX;
+    float absoluteY = 0;
+    float absoluteX = 0;
     float recordedL = 0;
     float recordedR = 0;
 
