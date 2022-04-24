@@ -221,7 +221,9 @@ int midSimpleAuto() {
 
 
 void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
-//void autonomous() { thread auto1(mainAuto); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(rightAuto); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(midAuto); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(midSimpleAuto); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
 //void userControl(void) { task controlLoop1(logDistance); }
@@ -229,7 +231,7 @@ void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTele
 
 int main() {
 
-  
+  fifteen.backUp();
   fifteen.clawDown();
   wait(500, msec);
   fifteen.gyroSensor.calibrate();

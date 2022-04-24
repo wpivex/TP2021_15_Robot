@@ -54,7 +54,7 @@ class Robot {
 
 
     digital_out frontClaw = digital_out(Brain.ThreeWirePort.G);
-    digital_out backClamp = digital_out(Brain.ThreeWirePort.A);
+    digital_out backClamp = digital_out(Brain.ThreeWirePort.D);
 
     controller* robotController;
 
