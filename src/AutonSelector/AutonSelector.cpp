@@ -1,14 +1,17 @@
 #include "AutonSelector.h"
 
-void AutonSelector::setAuton(int (*func)(), const char* name, BTN::Button key) {
+// Add auton to AutonSelector, which will automatically configure buttons and running the auton
+void AutonSelector::addAuton(int (*func)(), const char* name, BTN::Button key) {
   autons.push_back(Auton(func, name, key));
   if (autons.size() == 1) logController(autons[0].name.c_str());
 }
 
+// Actually run the auton that was selected by buttons
 int AutonSelector::runSelectedAuton() {
   return autons[selectedAuton].function();
 }
 
+// Internal method to draw auton buttons
 void AutonSelector::drawButtons() {
 
   const int NUM_COLS = 3;
@@ -51,6 +54,7 @@ void AutonSelector::drawButtons() {
   }
 }
 
+// To be run every tick; keep track of held buttons and which auto is selected
 void AutonSelector::tick() {
 
   // Keep track of which button is being held
@@ -79,7 +83,6 @@ void AutonSelector::tick() {
   }
 
   drawButtons();
-  
   buttons.updateButtonState();
 
 }

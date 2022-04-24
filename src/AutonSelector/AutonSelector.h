@@ -62,7 +62,7 @@ class AutonSelector {
 
 public:
   
-  void setAuton(int (*func)(), const char* name, BTN::Button key);
+  void addAuton(int (*func)(), const char* name, BTN::Button key);
   int runSelectedAuton();
 
   void tick();
