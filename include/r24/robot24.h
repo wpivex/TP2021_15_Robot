@@ -26,6 +26,11 @@ class Robot24 : public BaseRobot {
     encoder leftEncoder;
     encoder rightEncoder;
 
+    float absoluteY;
+    float absoluteX;
+    float recordedL;
+    float recordedR;
+
     float TURN_MIN_SPEED = 10;
     float FORWARD_MIN_SPEED = 10;
     float SPEED_RATIO = 1.5;
@@ -88,6 +93,7 @@ class Robot24 : public BaseRobot {
     void resetEncoderDistance() override;
     float distanceToDegrees(float distInches) override;
     float degreesToDistance(float distDegrees) override;
+    void activeLocation();
 
   private:
 
@@ -95,8 +101,6 @@ class Robot24 : public BaseRobot {
     void armTeleop();
     void pneumaticsTeleop();
     void clawMovement();
-    
-
     bool driveHold = false;
     bool teleopArmLimited = false;
 

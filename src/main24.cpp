@@ -14,6 +14,15 @@ int mainTeleop24() {
   return 0;
 }
 
+int ActiveLocationTest(){
+  while (true){
+    twentyFour.activeLocation();
+    //print x
+    // print y 
+    //If not working print out angle?
+  }
+  return 0;
+}
 /*
 void middleFirst(void) {
   int color = 1; //red is 1, blue is 2
