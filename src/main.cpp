@@ -34,7 +34,7 @@ int leftAuto() {
   // Initial go rush
   fifteen.clawUp();
   float ang = fifteen.getAngle();
-  fifteen.goForwardU(43, 100, ang, 2.5, 6, false, 40, 50);
+  fifteen.goForwardU(41, 100, ang, 2.5, 6, false, 40, 50);
   fifteen.goForwardU(3, 50, ang, 0, 2, false, -1, 40);
   fifteen.clawDown(); // start claw down motion early
   fifteen.goForwardU(3, 40, ang, 0, 3, true);
@@ -42,16 +42,16 @@ int leftAuto() {
 
   // Get back to wall align but avoiding platform
   fifteen.moveArmTo(200, 100, false);
-  fifteen.goTurnU(50);
-  fifteen.goForwardU(-12, 70, 50, 3, 7, false);
+  fifteen.goTurnU(90);
+  fifteen.goForwardU(-5, 70, 90, 3, 7, true, 20, 20, 2);
   fifteen.goTurnU(0);
-  fifteen.goForwardU(-7, 70, 0, 3, 1, false, 20, 35, 2);
+  fifteen.goForwardU(-7, 70, 0, 3, 1, true, 20, 35, 2);
   fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.goForwardTimed(1, -35); // wall align back
   //fifteen.gyroSensor.setHeading(0, deg);
 
   // Align with left wall
-  fifteen.goForwardU(2, 40, 0, 0, 0);
+  fifteen.goForwardU(4, 40, 0, 0, 0);
   wait(150, msec);
   fifteen.goTurnU(270);
   fifteen.goForwardU(5, 50, 270, 3, 5, false, 20, 30);
@@ -111,13 +111,13 @@ int rightAuto() {
   //fifteen.gyroSensor.setHeading(0, deg);
 
   // Get alliance goal  
-  fifteen.goForwardU(31, 80, 355, 5, 10);
+  fifteen.goForwardU(30, 80, 355, 5, 10);
   wait(150, msec);
   fifteen.goTurnU(270);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
 
 
-  fifteen.goForwardU(-14, 40, 270, 5, 4, true);
+  fifteen.goForwardU(-16, 40, 270, 5, 4, true);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
   fifteen.goForwardU(5, 40, 270, 1, 1);
   fifteen.goTurnU(180);
@@ -223,9 +223,14 @@ int midSimpleAuto() {
   return 0;
 }
 
+int test() {
+  fifteen.goFightBackwards();
+  return 0;
+}
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
-//void autonomous() { fifteen.setBrakeType(hold); task auto1(rightAuto); }
+
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(rightAuto); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(midAuto); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(midSimpleAuto); }
 

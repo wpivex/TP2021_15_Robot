@@ -360,7 +360,7 @@ void Robot::goForwardTimed(float duration, float speed) {
 // Go forward a number of inches, maintaining a specific heading if angleCorrection = true
 void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
 bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
-
+  logController("goforwardu");
   Trapezoid trap(distInches, maxSpeed, slowDownMinSpeed, rampUpInches, slowDownInches, rampMinSpeed);
   PID turnPID(1, 0.00, 0);
 
@@ -383,6 +383,7 @@ bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
     setLeftVelocity(forward, speed + correction);
     setRightVelocity(forward, speed - correction);
 
+    log("%f\n%f", currDist, distInches);
     //log("Target: %f\nActual:%f\nLeft:%f\nRight:%f\n", universalAngle, getAngle(), speed+correction, speed-correction);
     //log("%f", gyroSensor.heading());
 
@@ -468,7 +469,7 @@ void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, f
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
 void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
-
+  logController("goTurnU");
   PID anglePID(2.5, 0, 0.1, 1.3, 3, 18, maxSpeed);
 
   float speed;
@@ -529,6 +530,7 @@ void Robot::goPointGPS(float x, float y, directionType dir) {
 }
 
 void Robot::goFightBackwards() {
+  logController("fight");
 
   VisualGraph g(-0.1, 2.9, 8, 50);
 
@@ -549,7 +551,8 @@ void Robot::goFightBackwards() {
   }
   g.push(curr);
   g.display();
-  goForward(-5, 100, 0, 5);
+  logController("fight end");
+  goForwardU(-5, 100, getAngle(), 0, 5);
 
 }
 

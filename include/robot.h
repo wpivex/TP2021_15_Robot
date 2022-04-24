@@ -92,7 +92,7 @@ class Robot {
     void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
 
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
-bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 10, float timeout = 10);
+bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 16, float timeout = 10);
     void goForward(float distInches, float maxSpeed, float rampUpInches, float slowDownInches, bool stopAfter = true, 
     float rampMinSpeed = 20, float slowDownMinSpeed = 12, float timeout = 5);
 
