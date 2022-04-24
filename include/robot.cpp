@@ -904,10 +904,10 @@ void Robot::runAI(int matchStartTime) {
     goTurnU(0); // point to goal
 
     // Attack phase
-    goForwardU(dist * 2.0 / 3.0, 40, 0, 2, 3);
+    goForwardU(dist / 2.0, 40, 0, 2, 3);
     moveArmTo(-20, 100, true);
     stopIntake();
-    goForwardU(dist / 3.0, 85, 0, 7, 12);
+    goForwardU(dist / 2.0, 85, 0, 7, 12);
     clawDown();
     moveArmTo(100, 100, false);
     wait(100, msec);

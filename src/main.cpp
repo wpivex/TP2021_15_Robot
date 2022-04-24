@@ -55,7 +55,7 @@ int leftAuto() {
   fifteen.goForwardU(4, 40, 0, 0, 0);
   wait(150, msec);
   fifteen.goTurnU(270);
-  fifteen.goForwardU(5, 50, 270, 3, 5, false, 20, 30);
+  fifteen.goForwardU(8, 50, 270, 3, 5, false, 20, 30, 2);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   fifteen.goForwardTimed(1.3, 30);
 
@@ -94,7 +94,7 @@ int rightAuto() {
   int matchStartTime = timer::system();
 
   float lowArmAngle = -20;
-  float highArmAngle = 680;
+  float highArmAngle = 560;
 
   fifteen.setBrakeType(hold);
 
@@ -153,7 +153,7 @@ int midAuto() {
   int matchStartTime = timer::system();
 
   float lowArmAngle = -20;
-  float highArmAngle = 680;
+  float highArmAngle = 560;
 
   fifteen.setBrakeType(hold);
 
@@ -211,7 +211,7 @@ int midSimpleAuto() {
   int matchStartTime = timer::system();
 
   float lowArmAngle = -20;
-  float highArmAngle = 680;
+  float highArmAngle = 560;
 
   fifteen.setBrakeType(hold);
 
@@ -237,9 +237,9 @@ int test() {
 }
 
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(rightAuto); }
-//void autonomous() { fifteen.setBrakeType(hold); task auto1(midAuto); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(midAuto); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(midSimpleAuto); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(test); }
 
