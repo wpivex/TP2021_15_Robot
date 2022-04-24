@@ -33,10 +33,11 @@ int leftAuto() {
 
   // Initial go rush
   fifteen.clawUp();
-  fifteen.goForward(43, 100, 2.5, 6, false, 40, 50);
-  fifteen.goForward(3, 50, 0, 2, false, -1, 40);
+  float ang = fifteen.getAngle();
+  fifteen.goForwardU(43, 100, ang, 2.5, 6, false, 40, 50);
+  fifteen.goForwardU(3, 50, ang, 0, 2, false, -1, 40);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForward(3, 40, 0, 3, true);
+  fifteen.goForwardU(3, 40, ang, 0, 3, true);
   fifteen.goFightBackwards();
 
   // Get back to wall align but avoiding platform
@@ -94,11 +95,12 @@ int rightAuto() {
   fifteen.setBrakeType(hold);
 
   // Initial go rush
+  float ang = fifteen.getAngle();
   fifteen.clawUp();
-  fifteen.goForward(42, 100, 2.5, 6, false, 40, 50);
-  fifteen.goForward(3, 50, 0, 2, false, -1, 40);
+  fifteen.goForwardU(42, 100, ang, 2.5, 6, false, 40, 50);
+  fifteen.goForwardU(3, 50, ang, 0, 2, false, -1, 40);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForward(3, 40, 0, 3, true);
+  fifteen.goForwardU(3, 40, ang, 0, 3, true);
   fifteen.goFightBackwards();
 
   // Get back to wall align but avoiding platform
@@ -151,11 +153,12 @@ int midAuto() {
   fifteen.setBrakeType(hold);
 
   // Initial go rush
+  float ang = fifteen.getAngle();
   fifteen.clawUp();
-  fifteen.goForward(52, 100, 2.5, 6, false, 40, 50);
-  fifteen.goForward(3, 50, 0, 2, false, -1, 40);
+  fifteen.goForwardU(52, 100, ang, 2.5, 6, false, 40, 50);
+  fifteen.goForwardU(3, 50, ang, 0, 2, false, -1, 40);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForward(3, 40, 0, 3, true);
+  fifteen.goForwardU(3, 40, ang, 0, 3, true);
   fifteen.goFightBackwards();
 
   // Wall aligns to localize
@@ -208,11 +211,12 @@ int midSimpleAuto() {
   fifteen.setBrakeType(hold);
 
   // Initial go rush
+  float ang = fifteen.getAngle();
   fifteen.clawUp();
-  fifteen.goForward(52, 100, 2.5, 6, false, 40, 50);
-  fifteen.goForward(3, 50, 0, 2, false, -1, 40);
+  fifteen.goForwardU(52, 100, ang, 2.5, 6, false, 40, 50);
+  fifteen.goForwardU(3, 50, ang, 0, 2, false, -1, 40);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForward(3, 40, 0, 3, true);
+  fifteen.goForwardU(3, 40, ang, 0, 3, true);
   fifteen.goFightBackwards();
   fifteen.goCurve(-12, 30, -0.3, 1, 1);
 
