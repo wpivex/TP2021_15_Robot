@@ -39,21 +39,21 @@ void Robot15::setControllerMapping(ControllerMapping mapping) {
   cMapping = mapping;
 
   //Controls that don't change:
-  BACK_LIFT_UP = cMapping == BRIAN_MAPPING ? Buttons::X : Buttons::A;
-  BACK_LIFT_MID = Buttons::R1;
-  BACK_LIFT_DOWN = Buttons::R2;
-  BACK_LIFT_SLIGHT = Buttons::INVALID;
-  BACK_LIFT_UPPING = Buttons::RIGHT;
-  BACK_LIFT_DOWNING = Buttons::LEFT;
+  BACK_LIFT_UP = cMapping == BRIAN_MAPPING ? BTN::X : BTN::A;
+  BACK_LIFT_MID = BTN::R1;
+  BACK_LIFT_DOWN = BTN::R2;
+  BACK_LIFT_SLIGHT = BTN::INVALID;
+  BACK_LIFT_UPPING = BTN::RIGHT;
+  BACK_LIFT_DOWNING = BTN::LEFT;
 
-  INTAKE_TOGGLE = Buttons::UP;
-  INTAKE_TOGGLE_REV = Buttons::DOWN;
+  INTAKE_TOGGLE = BTN::UP;
+  INTAKE_TOGGLE_REV = BTN::DOWN;
 
-  CLAW_UP = Buttons::L2;
-  CLAW_DOWN = Buttons::L1;
+  CLAW_UP = BTN::L2;
+  CLAW_DOWN = BTN::L1;
 
-  FRONT_ARM_UP = Buttons::INVALID; // brian uses left-stick controls
-  FRONT_ARM_DOWN = Buttons::INVALID;
+  FRONT_ARM_UP = BTN::INVALID; // brian uses left-stick controls
+  FRONT_ARM_DOWN = BTN::INVALID;
 
 }
 
@@ -67,7 +67,7 @@ float Robot15::degreesToDistance(float distDegrees) {
 
 
 // Not a truly blocking function, one second timeout if blocking
-void Robot15::setBackLift(Buttons::Button b, bool blocking) {
+void Robot15::setBackLift(BTN::Button b, bool blocking) {
 
   float SPEED = 100;
 
@@ -200,7 +200,7 @@ void Robot15::armTeleop() {
 
   //logController("%f", frontArmL.rotation(degrees));
   
-  float arm = buttons.axis(cMapping == BRIAN_MAPPING ? Buttons::LEFT_VERTICAL : Buttons::RIGHT_VERTICAL); // Brian's weird shit
+  float arm = buttons.axis(cMapping == BRIAN_MAPPING ? BTN::LEFT_VERTICAL : BTN::RIGHT_VERTICAL); // Brian's weird shit
 
   if (buttons.pressing(FRONT_ARM_UP)) {
     frontArmL.spin(forward, MOTOR_SPEED, pct);

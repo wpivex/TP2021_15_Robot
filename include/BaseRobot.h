@@ -15,7 +15,6 @@ public:
   const float DIST_BETWEEN_WHEELS;
 
   inertial gyroSensor;
-  Buttons buttons; // button wrapper class
 
   // Teleop
   virtual void teleop() = 0;
