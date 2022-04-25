@@ -30,6 +30,7 @@ class Robot24 : public BaseRobot {
     float absoluteX = 0;
     float recordedL = 0;
     float recordedR = 0;
+    float recordedTheta;
 
     float TURN_MIN_SPEED = 10;
     float FORWARD_MIN_SPEED = 10;

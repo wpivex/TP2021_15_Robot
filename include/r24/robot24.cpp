@@ -353,15 +353,20 @@ void Robot24::activeLocation() {
   //Non-encoder code
   float deltaR = this->recordedR - (-1*getRightEncoderDistance());
   float deltaL = this->recordedL - (-1*getLeftEncoderDistance());
+  float deltaTheta = this->recordedTheta - (-1*gyroSensor.angle());
   //float deltaR = recordedR - degreesToDistance(rightEncoder);
   float vec = (deltaL+deltaR/2);
+  if(deltaTheta>0){
+    vec = ((deltaL+deltaR/2)/deltaTheta);
+  }
   //Split vector to X and Y 
-  float deltaX = vec * cos(gyroSensor.angle());
-  float delatY = vec * sin(gyroSensor.angle());
+  float deltaX = vec * (cos(recordedTheta) - cos(gyroSensor.angle()));
+  float delatY = vec * (sin(recordedTheta) - sin(gyroSensor.angle()));
   //Add x and Y distance to current values
   this->absoluteX += deltaX;
   this->absoluteY += delatY;
   this->recordedR = getRightEncoderDistance();
   this->recordedL = getLeftEncoderDistance();
+  this->recordedTheta = gyroSensor.angle();
 }
 
