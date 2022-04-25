@@ -238,8 +238,8 @@ int test() {
 
 
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
-//void autonomous() { fifteen.setBrakeType(hold); task auto1(rightAuto); }
-void autonomous() { fifteen.setBrakeType(hold); task auto1(midAuto); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(rightAuto); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(midAuto); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(midSimpleAuto); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(test); }
 
