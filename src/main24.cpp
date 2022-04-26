@@ -18,7 +18,7 @@ int ActiveLocationTest() {
   twentyFour.setBrakeType(coast);
   while (true){
     twentyFour.activeLocation();
-    log("%f\n%f\n%f\n%f\n%f",twentyFour.recordedL,twentyFour.recordedR,twentyFour.absoluteY,twentyFour.gyroSensor.heading(),twentyFour.recordedTheta); 
+    log("%f\n%f\n%f\n%f\n%f\n%f",twentyFour.recordedL,twentyFour.recordedR,twentyFour.absoluteY,twentyFour.absoluteX,twentyFour.gyroSensor.heading(),twentyFour.recordedTheta); 
     wait(20, msec);
   }
   return 0;

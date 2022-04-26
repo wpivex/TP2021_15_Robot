@@ -351,20 +351,20 @@ void Robot24::activeLocation() {
   //Enocoder code
   //float deltaL = recordedL - degreesToDistance(leftEncoder);
   //Non-encoder code
-  float deltaR = this->recordedR - (-1*getRightEncoderDistance());
-  float deltaL = this->recordedL - (-1*getLeftEncoderDistance());
-  float deltaTheta = this->recordedTheta - ((-1*gyroSensor.heading()*M_PI)/180);
+  float deltaR = getRightEncoderDistance() -this->recordedR;
+  float deltaL = getLeftEncoderDistance()-this->recordedL;
+  float deltaTheta = bound180(gyroSensor.heading()- this->recordedTheta)*M_PI/180;
   //float deltaR = recordedR - degreesToDistance(rightEncoder);
-  float vec = (deltaL+deltaR/2);
+  float dist = (deltaL+deltaR)/2;
   float deltaX;
   float deltaY;
   if(deltaTheta!=0){
-    vec = ((deltaL+deltaR/2)/deltaTheta);
-    deltaX = vec * (cos(recordedTheta) - cos(((gyroSensor.heading()*M_PI)/180)));
-    deltaY = vec * (sin(recordedTheta) - sin(((gyroSensor.heading()*M_PI)/180)));
+    float radius = dist/deltaTheta;
+    deltaX = radius * (cos((gyroSensor.heading()*M_PI)/180) - cos(recordedTheta*M_PI/180));
+    deltaY = radius * (sin((gyroSensor.heading()*M_PI)/180) - sin(recordedTheta*M_PI/180));
   }else{
-    deltaX = vec * (cos(recordedTheta));
-    deltaY = vec * (sin(recordedTheta));
+    deltaX = dist * (cos(gyroSensor.heading()));
+    deltaY = dist * (sin(recordedTheta));
   }
   //Split vector to X and Y 
   
@@ -373,6 +373,6 @@ void Robot24::activeLocation() {
   this->absoluteY += deltaY;
   this->recordedR = getRightEncoderDistance();
   this->recordedL = getLeftEncoderDistance();
-  this->recordedTheta = ((gyroSensor.heading()*M_PI)/180);
+  this->recordedTheta = gyroSensor.heading();
 }
 
