@@ -15,9 +15,10 @@ int mainTeleop24() {
 }
 
 int ActiveLocationTest() {
+  twentyFour.setBrakeType(coast);
   while (true){
     twentyFour.activeLocation();
-    log("%f", twentyFour.recordedL);
+    log("%f\n%f\n%f\n%f\n%f",twentyFour.recordedL,twentyFour.recordedR,twentyFour.absoluteY,twentyFour.gyroSensor.heading(),twentyFour.recordedTheta); 
     wait(20, msec);
   }
   return 0;
@@ -116,7 +117,7 @@ int testForward() {
   return 0;
 }
 
-void autonomous24() { twentyFour.setBrakeType(hold); task auto1(matchAuto); }
+void autonomous24() { twentyFour.setBrakeType(coast); task auto1(ActiveLocationTest); }
 void userControl24(void) { twentyFour.setBrakeType(coast); task controlLoop1(mainTeleop24); }
 
 
