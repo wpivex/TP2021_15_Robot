@@ -376,3 +376,27 @@ void Robot24::activeLocation() {
   this->recordedTheta = gyroSensor.heading();
 }
 
+void Robot24::goFightOdom(float backUpDist) {
+  float ay = this->absoluteY;
+  setLeftVelocity(reverse, 100);
+  setRightVelocity(reverse, 100);
+  while (ay - this->absoluteY < backUpDist) {
+    logController("%f", this->absoluteY);
+    wait(20, msec);
+  }
+  stopLeft();
+  stopRight();
+}
+
+void Robot24::goToPoint(float x, float y, float speed) {
+  float ax = absoluteX;
+  float ay = absoluteY;
+  float universalAngle = gyroSensor.heading() - (atan2(y - ay, x - ax)*180/M_PI - 90);
+  // universal turn to point
+  goTurnU(universalAngle);
+  // drive to point
+  float dist = sqrt(pow(x - ax, 2) + pow(y - ay, 2));
+  logController("%f", dist);
+  goForwardU(dist, speed, gyroSensor.heading(), 5, 5);
+}
+

@@ -94,6 +94,8 @@ class Robot24 : public BaseRobot {
     float distanceToDegrees(float distInches) override;
     float degreesToDistance(float distDegrees) override;
     void activeLocation();
+    void goToPoint(float x, float y, float speed);
+    void goFightOdom(float backUpDist);
 
   private:
 

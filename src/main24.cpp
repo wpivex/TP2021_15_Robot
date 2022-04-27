@@ -14,9 +14,9 @@ int mainTeleop24() {
   return 0;
 }
 
-int ActiveLocationTest() {
-  twentyFour.setBrakeType(coast);
-  while (true){
+int tickOdom() {
+  // twentyFour.setBrakeType(coast);
+  while (true) {
     twentyFour.activeLocation();
     log("%f\n%f\n%f\n%f\n%f\n%f",twentyFour.recordedL,twentyFour.recordedR,twentyFour.absoluteY,twentyFour.absoluteX,twentyFour.gyroSensor.heading(),twentyFour.recordedTheta); 
     wait(20, msec);
@@ -48,7 +48,14 @@ void middleFirst(void) {
 }
 */
 
+int raiseArmFunc() {
+  twentyFour.setArmDegrees(150);
+  return 0;
+}
+
 int matchAuto() {
+  twentyFour.resetEncoderDistance();
+  task odom(tickOdom);
   int matchStartTime = timer::system();
   Goal allianceColor = RED;
   twentyFour.setBrakeType(hold);
@@ -61,9 +68,12 @@ int matchAuto() {
   twentyFour.closeClaw();
   wait(200, msec);
   // Raise arm a bit (so that other team cannot grab it)
-  twentyFour.setArmDegrees(215);
-  twentyFour.goFightBackwards(1.3);
-  twentyFour.goForwardU(5, 100, twentyFour.getAngle(), 0, 5); // slow down to a stop after fighting backwards
+  // twentyFour.setArmDegrees(215);
+  task raiseArm(raiseArmFunc);
+  twentyFour.goFightOdom(10);
+
+  // twentyFour.goForwardU(5, 100, twentyFour.getAngle(), 0, 5); // slow down to a stop after fighting backwards
+  twentyFour.goToPoint(-1, 2, 100);
 
   // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
   twentyFour.goTurnU(120);
@@ -72,8 +82,9 @@ int matchAuto() {
   twentyFour.setBackClamp(false);
   wait(200, msec);
 
-  twentyFour.goForwardU(50, 100, twentyFour.gyroSensor.heading(), 5, 0, 5, false);
-  twentyFour.goTurnU(270);
+  twentyFour.goToPoint(0, 2, 100);
+
+  twentyFour.goTurnU(275);
   twentyFour.goForwardTimed(3, -30);
   runAI(&twentyFour, PORT2, matchStartTime);
 
@@ -117,8 +128,13 @@ int testForward() {
   return 0;
 }
 
-void autonomous24() { twentyFour.setBrakeType(coast); task auto1(ActiveLocationTest); }
-void userControl24(void) { twentyFour.setBrakeType(coast); task controlLoop1(mainTeleop24); }
+int testGoPoint() {
+  twentyFour.goToPoint(-12, 0, 100);
+  return 0;
+}
+
+void autonomous24() { twentyFour.setBrakeType(coast); task auto1(matchAuto); }
+void userControl24(void) { twentyFour.setBrakeType(coast); task odom(tickOdom); task controlLoop1(mainTeleop24); }
 
 
 int mainFunc() {
