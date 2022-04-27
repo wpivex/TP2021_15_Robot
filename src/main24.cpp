@@ -3,9 +3,19 @@
 
 Robot24 twentyFour = Robot24();
 
+int tickOdom() {
+  while (true) {
+    twentyFour.activeLocation();
+    log("%f\n%f\n%f\n%f\n%f\n%f",twentyFour.recordedL,twentyFour.recordedR,twentyFour.absoluteX,twentyFour.absoluteY,twentyFour.gyroSensor.heading(),twentyFour.recordedTheta); 
+    wait(20, msec);
+  }
+  return 0;
+}
+
 int mainTeleop24() {
   twentyFour.setBackClamp(false);
   twentyFour.setFrontClamp(false);
+  task odom(tickOdom);
 
   while (true) {
     twentyFour.teleop();
@@ -14,15 +24,6 @@ int mainTeleop24() {
   return 0;
 }
 
-int tickOdom() {
-  // twentyFour.setBrakeType(coast);
-  while (true) {
-    twentyFour.activeLocation();
-    log("%f\n%f\n%f\n%f\n%f\n%f",twentyFour.recordedL,twentyFour.recordedR,twentyFour.absoluteY,twentyFour.absoluteX,twentyFour.gyroSensor.heading(),twentyFour.recordedTheta); 
-    wait(20, msec);
-  }
-  return 0;
-}
 /*
 void middleFirst(void) {
   int color = 1; //red is 1, blue is 2
@@ -49,11 +50,12 @@ void middleFirst(void) {
 */
 
 int raiseArmFunc() {
-  twentyFour.setArmDegrees(150);
+  twentyFour.setArmDegrees(215);
   return 0;
 }
 
 int matchAuto() {
+  twentyFour.setArmBrakeType(hold);
   twentyFour.resetEncoderDistance();
   task odom(tickOdom);
   int matchStartTime = timer::system();
@@ -64,19 +66,20 @@ int matchAuto() {
   twentyFour.openClaw();
   // Drive forwards at full speed (while adjusting towards goal if needed)
   twentyFour.setArmDegrees(5, 50, false);
-  twentyFour.goForwardUntilSensor(36, 100, 3, 5);
+  twentyFour.goForwardUntilSensor(36, 20, 3, 5);
   twentyFour.closeClaw();
   wait(200, msec);
   // Raise arm a bit (so that other team cannot grab it)
   // twentyFour.setArmDegrees(215);
   task raiseArm(raiseArmFunc);
   twentyFour.goFightOdom(10);
+  wait(3000, msec);
 
   // twentyFour.goForwardU(5, 100, twentyFour.getAngle(), 0, 5); // slow down to a stop after fighting backwards
-  twentyFour.goToPoint(-1, 2, 100);
+  twentyFour.goToPoint(-2, 3, 100, true);
 
   // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
-  twentyFour.goTurnU(120);
+  // twentyFour.goTurnU(120);
   twentyFour.setBackClamp(true);
   twentyFour.goVision(-40, 100, YELLOW, reverse, 0, 0);
   twentyFour.setBackClamp(false);
@@ -134,13 +137,14 @@ int testGoPoint() {
 }
 
 void autonomous24() { twentyFour.setBrakeType(coast); task auto1(matchAuto); }
-void userControl24(void) { twentyFour.setBrakeType(coast); task odom(tickOdom); task controlLoop1(mainTeleop24); }
+void userControl24(void) { twentyFour.setBrakeType(coast); task controlLoop1(mainTeleop24); }
 
 
 int mainFunc() {
 
   twentyFour.setBackClamp(false);
   twentyFour.setFrontClamp(false);
+  twentyFour.setArmBrakeType(coast);
 
   twentyFour.calibrateGyroBlocking();
   twentyFour.resetArmRotation();
