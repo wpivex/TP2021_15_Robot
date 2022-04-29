@@ -7,7 +7,7 @@ int tickOdom() {
   while (true) {
     twentyFour.activeLocation();
     log("%f\n%f\n%f\n%f\n%f\n%f",twentyFour.recordedL,twentyFour.recordedR,twentyFour.absoluteX,twentyFour.absoluteY,twentyFour.gyroSensor.heading(),twentyFour.recordedTheta); 
-    wait(20, msec);
+    wait(10, msec);
   }
   return 0;
 }
@@ -66,12 +66,12 @@ int matchAuto() {
   twentyFour.openClaw();
   // Drive forwards at full speed (while adjusting towards goal if needed)
   twentyFour.setArmDegrees(5, 100, false);
-  twentyFour.goForwardUntilSensor(36, 100, twentyFour.clawSensor, 3, 5);
+  twentyFour.goForwardUntilSensor(36, 20, twentyFour.clawSensor, 0);
   twentyFour.closeClaw();
-  wait(200, msec);
-  // Raise arm a bit (so that other team cannot grab it)
   task raiseArm(raiseArmFunc);
-  twentyFour.goFightOdom(10);
+  twentyFour.goFightOdom(10, 3);
+  return 0;
+
   wait(3000, msec);
 
   twentyFour.goTurnU(130);

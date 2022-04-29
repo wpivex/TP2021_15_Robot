@@ -1,9 +1,7 @@
 #pragma once
 #include "Buttons.h"
 
-Buttons::Buttons(vex::controller* c) {
-
-  Controller1 = c;
+Buttons::Buttons() {
 
   AXES[0] = &Controller1->Axis1;
   AXES[1] = &Controller1->Axis2;

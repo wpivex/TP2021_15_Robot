@@ -74,7 +74,7 @@ class Robot24 : public BaseRobot {
     float getDriveCurrent() override;
 
     // Drive Functions
-    void goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpInches = 0, int timeout = 5, bool stopAfter = true);
+    void goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpFrames = 0, float slowDownInches = 3);
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, float endSlowInches = 0,
       bool stopAfter = true, float minSpeed = 10, float timeout = 10);
 
@@ -98,7 +98,7 @@ class Robot24 : public BaseRobot {
     float degreesToDistance(float distDegrees) override;
     void activeLocation();
     void goToPoint(float x, float y, float speed, float onlyTurn = false);
-    void goFightOdom(float backUpDist);
+    void goFightOdom(float backUpDist, float slowDownInches);
     void setArmBrakeType(brakeType b);
 
   private:

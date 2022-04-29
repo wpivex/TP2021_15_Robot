@@ -1,13 +1,11 @@
 #pragma once
-#include "vex.h"
 #include <string>
 #include <queue>
 #include "Buttons.cpp"
 
 vex::brain Brain;
-vex::controller Controller1(vex::controllerType::primary);
 vex::competition Competition;
-Buttons buttons(&Controller1);
+Buttons buttons;
 
 
 struct Goal {
@@ -60,7 +58,7 @@ static inline bool isTimeout(int startTime, float timeout) {
 template <class ... Args>
 static inline void logController(const char *f, Args ... args) {
 
-  Controller1.Screen.clearScreen();
+  Controller1->Screen.clearScreen();
   int row = 1;
 
   char buffer[200];
@@ -69,8 +67,8 @@ static inline void logController(const char *f, Args ... args) {
   char* pch = strtok (buffer,"\n");
   while (pch != NULL)
   {
-    Controller1.Screen.setCursor(row, 1);
-    Controller1.Screen.print(pch);
+    Controller1->Screen.setCursor(row, 1);
+    Controller1->Screen.print(pch);
     pch = strtok (NULL, "\n");
     row++;
   }
