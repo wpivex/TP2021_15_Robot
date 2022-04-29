@@ -51,6 +51,7 @@ public:
     bool stopAfter = true, float slowMinSpeed = 12);
   void goRadiusCurve(float radius, float circProportion, bool curveDirection, float maxSpeed, int rampUpFrames, 
     float slowDownInches, bool stopAfter = true, float timeout = 5);
+    void goTurnFastU(float universalAngleDegrees, int direction, float speed, bool stopAfter = false);
 
 
 protected:
