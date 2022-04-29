@@ -1,14 +1,12 @@
 #pragma once
 #include "Buttons.h"
 
-Buttons::Buttons(vex::controller* c) {
+Buttons::Buttons() {
 
-  Controller1 = c;
-
-  AXES[0] = &Controller1->Axis1;
-  AXES[1] = &Controller1->Axis2;
-  AXES[2] = &Controller1->Axis3;
-  AXES[3] = &Controller1->Axis4;
+  AXES[0] = &Controller1.Axis1;
+  AXES[1] = &Controller1.Axis2;
+  AXES[2] = &Controller1.Axis3;
+  AXES[3] = &Controller1.Axis4;
 
 }
 
@@ -62,29 +60,29 @@ void Buttons::updateButtonState() {
 const vex::controller::button* Buttons::getObject(BTN::Button b) {
   switch (b) {
     case BTN::LEFT:
-      return &Controller1->ButtonLeft;
+      return &Controller1.ButtonLeft;
     case BTN::RIGHT:
-      return &Controller1->ButtonRight;
+      return &Controller1.ButtonRight;
     case BTN::UP:
-      return &Controller1->ButtonUp;
+      return &Controller1.ButtonUp;
     case BTN::DOWN:
-      return &Controller1->ButtonDown;
+      return &Controller1.ButtonDown;
     case BTN::X:
-      return &Controller1->ButtonX;
+      return &Controller1.ButtonX;
     case BTN::Y:
-      return &Controller1->ButtonY;
+      return &Controller1.ButtonY;
     case BTN::A:
-      return &Controller1->ButtonA;
+      return &Controller1.ButtonA;
     case BTN::B:
-      return &Controller1->ButtonB;
+      return &Controller1.ButtonB;
     case BTN::L1:
-      return &Controller1->ButtonL1;
+      return &Controller1.ButtonL1;
     case BTN::R1:
-      return &Controller1->ButtonR1;
+      return &Controller1.ButtonR1;
     case BTN::L2:
-      return &Controller1->ButtonL2;
+      return &Controller1.ButtonL2;
     case BTN::R2:
-      return &Controller1->ButtonR2;
+      return &Controller1.ButtonR2;
     default:
       return nullptr;
   }

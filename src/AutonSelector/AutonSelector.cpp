@@ -14,8 +14,6 @@ int AutonSelector::runSelectedAuton() {
 // Internal method to draw auton buttons
 void AutonSelector::drawButtons() {
 
-  Brain.Screen.clearScreen();
-
   const int NUM_COLS = 3;
   const int NUM_ROWS = 2;
   const float X_MARGIN = 10;
@@ -51,21 +49,21 @@ void AutonSelector::drawButtons() {
       int ty = y + height/2 - sh/2;
       Brain.Screen.setPenColor(white);
       Brain.Screen.printAt(tx, ty, text);
-
     }
   }
-  Brain.Screen.setPenColor(blue);
-  Brain.Screen.printAt(200, 50, "%d", lengthHeld);
-  Brain.Screen.render();
+  
 }
 
 // To be run every tick; keep track of held buttons and which auto is selected
 void AutonSelector::tick() {
 
+  Brain.Screen.clearScreen();
+  int a = 0;
   // Keep track of which button is being held
   bool anyPressed = false;
   for (int i = 0; i < autons.size(); i++) {
     if (i == selectedAuton) continue;
+    
     if (buttons.pressing(autons[i].key)) {
       anyPressed = true;
       if (i == heldAuton) {
@@ -88,6 +86,10 @@ void AutonSelector::tick() {
   }
 
   drawButtons();
+  Brain.Screen.setPenColor(blue);
+  Brain.Screen.printAt(200, 50, "%d %d", anyPressed ? 1 : 0, a);
+
+  Brain.Screen.render();
   buttons.updateButtonState();
 
 }

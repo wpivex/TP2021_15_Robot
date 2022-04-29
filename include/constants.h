@@ -5,9 +5,8 @@
 #include "Buttons.cpp"
 
 vex::brain Brain;
-vex::controller Controller1(vex::controllerType::primary);
 vex::competition Competition;
-Buttons buttons(&Controller1);
+Buttons buttons;
 
 
 struct Goal {

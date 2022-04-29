@@ -1,6 +1,6 @@
 #include "AutonSelector/AutonSelector.cpp"
 
-AutonSelector selector;
+//AutonSelector selector;
 bool runningFunction = false;
 
 // Blocking auton functions that can be selected to run
@@ -30,34 +30,34 @@ void preAuton() {
   // do blocking preauton things here
 }
 
-int runAuton() {
-  return selector.runSelectedAuton();
-}
+// int runAuton() {
+//   return selector.runSelectedAuton();
+// }
 
-int autonSelectorTask() {
-  while (!runningFunction) {
-    selector.tick();
-    wait(20, msec);
-  }
-  return 0;
-}
+// int autonSelectorTask() {
+//   while (!runningFunction) {
+//     selector.tick();
+//     wait(20, msec);
+//   }
+//   return 0;
+// }
 
-void autonomous() { Brain.Screen.renderDisable(); runningFunction = true; task auto1(runAuton); }
-void userControl(void) { runningFunction = true; task controlLoop1(teleop); }
+// void autonomous() { Brain.Screen.renderDisable(); runningFunction = true; task auto1(runAuton); }
+// void userControl(void) { runningFunction = true; task controlLoop1(teleop); }
 
-void wouldBeCalledMainFunctionButIsJustForTestingAutonSelector() {
+// void wouldBeCalledMainFunctionButIsJustForTestingAutonSelector() {
 
-  selector.addAuton(test1, "test 1", BTN::LEFT);
-  selector.addAuton(test2, "test 2", BTN::RIGHT);
-  selector.addAuton(test3, "test 3", BTN::UP);
+//   selector.addAuton(test1, "test 1", BTN::LEFT);
+//   selector.addAuton(test2, "test 2", BTN::RIGHT);
+//   selector.addAuton(test3, "test 3", BTN::UP);
 
-  task runAutonSelector(autonSelectorTask);
+//   task runAutonSelector(autonSelectorTask);
 
-  Competition.autonomous(autonomous);
-  Competition.drivercontrol(userControl);
+//   Competition.autonomous(autonomous);
+//   Competition.drivercontrol(userControl);
 
-  while (true) {
-    wait(20, msec);
-  }
+//   while (true) {
+//     wait(20, msec);
+//   }
 
-}
+// }
