@@ -1,5 +1,4 @@
 #pragma once
-#include "vex.h"
 #include <string>
 #include <queue>
 #include "Buttons.cpp"

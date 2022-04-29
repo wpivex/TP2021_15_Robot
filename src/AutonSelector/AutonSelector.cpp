@@ -89,7 +89,7 @@ void AutonSelector::tick() {
   Brain.Screen.setPenColor(blue);
   Brain.Screen.printAt(200, 50, "%d %d", anyPressed ? 1 : 0, a);
 
-  Brain.Screen.render();
+  //Brain.Screen.render();
   buttons.updateButtonState();
 
 }

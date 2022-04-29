@@ -1,7 +1,7 @@
 #pragma once
 #include "vex.h"
 
-vex::controller Controller1(vex::controllerType::primary);
+vex::controller Controller1;
 
 const static int NUM_BUTTONS = 12;
 namespace BTN {
