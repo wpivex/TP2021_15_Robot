@@ -1,5 +1,5 @@
 #include "robot24.cpp"
-#include "GoalPosition.cpp"
+#include "Utility/GoalPosition.cpp"
 
 // Search for goal given ID. Return nullptr if not found
 static GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID) {
