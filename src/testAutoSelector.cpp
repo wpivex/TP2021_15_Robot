@@ -1,4 +1,7 @@
 #include "AutonSelector/AutonSelector.cpp"
+//#include "constants.h"
+
+using namespace vex;
 
 AutonSelector selector;
 bool runningFunction = false;
@@ -59,7 +62,7 @@ void wouldBeCalledMainFunctionButIsJustForTestingAutonSelector() {
 
   while (true) {
     wait(20, msec);
-    //logController("thing: %d", Controller1->ButtonA.pressing() ? 1 : 0);
+    logController("thin3g: %d", Controller1->Axis2.value());
   }
 
 }
