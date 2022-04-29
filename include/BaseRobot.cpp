@@ -235,6 +235,27 @@ float universalAngleDegrees, int direction, bool stopAfter, float timeout, float
   }  
 }
 
+// has NO motion profiling. Usually used in conjunction with other methods to add motion profiile
+void BaseRobot::goTurnFastU(float universalAngleDegrees, int direction, float speed, bool stopAfter) {
+
+  float relativeAngle = 0 - getAngleDiff(universalAngleDegrees, getAngle()); // negative = turn clockwise, positive = turn counterclockwise
+  if (relativeAngle < 0 && direction == -1) relativeAngle += 360; // closest is to turn clockwise, but force turn counterclockwise
+  else if (relativeAngle > 0 && direction == 1) relativeAngle -= 360; // closest is to turn counterclockwise, but force turn clockwise
+
+  gyroSensor.setRotation(relativeAngle, deg); // set starting rotation, PID until gyroSensor rotation = 0
+  setLeftVelocity(relativeAngle < 0 ? forward : reverse, 100);
+  setRightVelocity(relativeAngle < 0 ? reverse : forward, 100);
+
+  while (direction == 1 ? gyroSensor.rotation() > 0 : gyroSensor.rotation() < 0) {
+    wait(20, msec);
+  }
+  if (stopAfter) {
+    stopLeft();
+    stopRight();
+  }
+    
+}
+
 // Go forward until the maximum distance is hit or the timeout is reached
 // for indefinite timeout, set to -1
 void BaseRobot::goVision_Abstract(float K_P, float MIN_SPEED, int32_t CAMERA_PORT, float distInches, float speed, Goal goal,

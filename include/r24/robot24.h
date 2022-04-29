@@ -76,7 +76,8 @@ class Robot24 : public BaseRobot {
     float getDriveCurrent() override;
 
     // Drive Functions
-    void goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpFrames = 0, float slowDownInches = 3);
+    void goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpFrames = 0);
+    void goVisionUntilSensor(directionType cameraDir, float maxDistance, float speed, digital_in sensor, float rampUpFrames, bool disableVision = false); 
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, float endSlowInches = 0,
       bool stopAfter = true, float minSpeed = 10, float timeout = 10);
 

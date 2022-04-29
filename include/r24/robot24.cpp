@@ -107,26 +107,39 @@ void Robot24::teleop() {
   buttons.updateButtonState();
 }
 
-void Robot24::goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpFrames, float slowDownInches) {
+// does NOT stop motors
+void Robot24::goVisionUntilSensor(directionType cameraDir, float maxDistance, float speed, digital_in sensor, float rampUpFrames, bool disableVision) {
 
-  Trapezoid trap(maxDistance, speed, speed, rampUpFrames, 0);
+  Trapezoid trap(maxDistance, speed, 30, rampUpFrames, 0);
+  PID pidTurn(50, 0, 0);
 
   int startTime = vex::timer::system();
+
+  Goal g = YELLOW;
+  int32_t port = cameraDir == forward ? FRONT_CAMERA_PORT : BACK_CAMERA_PORT;
+  vision camera(port, g.bright, g.sig);
+
+  resetEncoderDistance();
 
   // finalDist is 0 if we want driveTimed instead of drive some distance
   while (!trap.isCompleted() && !isTimeout(startTime, 5) && sensor.value()) {
 
-    float speed = trap.tick(getEncoderDistance());
+    camera.takeSnapshot(g.sig);
 
-    setLeftVelocity(forward, speed);
-    setRightVelocity(forward, speed);
+    float speed = trap.tick(getEncoderDistance());
+    float correction = camera.largestObject.exists ? pidTurn.tick((VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X) : 0;
+
+    setLeftVelocity(forward, speed - correction);
+    setRightVelocity(forward, speed + correction);
     
     wait(20, msec);
   }
-  closeClaw();
-  goForwardU(slowDownInches, 100, getAngle(), 0, slowDownInches); // slow down to stop
-  
 }
+
+void Robot24::goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpFrames) {
+  goVisionUntilSensor(forward, maxDistance, speed, sensor, rampUpFrames, true);
+}
+
 
 // Go forward a number of inches, maintaining a specific heading
 // Calling general function with 24-specifc params
