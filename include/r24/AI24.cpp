@@ -230,7 +230,7 @@ Grab yellow goal with front claw. Intake the whole time. Then, back up and align
 4. Undocking phase. Drop the yellow goal behind, and then turn so that 1dof faces other alliance goal again to reset. Go back to step 1.
 
 Keep repeating until timer threshold, OR reaches the end. */
-void runAI(Robot24 *robot, int32_t port, int matchStartTime) {
+void runAI(Robot24 *robot, int32_t port, int matchStartTime, float hDist) {
 
   Goal g = YELLOW;
   vision camera(port, g.bright, g.sig); // Fix port
@@ -241,7 +241,6 @@ void runAI(Robot24 *robot, int32_t port, int matchStartTime) {
   
   //moveArmTo(-20, 50, false);
 
-  float hDist = 0;
   //float initialForward = 11;
   
   while (true) {

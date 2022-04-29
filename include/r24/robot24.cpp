@@ -339,36 +339,30 @@ float Robot24::getRightEncoderAbsolute() {
   return rightEncoder.rotation(deg)*M_PI*2.75/360.0/3;
 }
 
-void Robot24::resetRelativeDistance() {
-  this->relLeft = 0;
-  this->relRight = 0;
-}
-
 // return in inches
 float Robot24::getLeftEncoderDistance() {
-  return this->relLeft;
+  return leftEncoder.rotation(degrees) - zeroedRelLeft;
 }
 
 // return in inches
 float Robot24::getRightEncoderDistance() {
-  return this->relRight;
+  return rightEncoder.rotation(degrees) - zeroedRelRight;
 }
 
 void Robot24::resetEncoderDistance() {
-  this->relLeft = 0;
-  this->relRight = 0;
+  zeroedRelLeft = 0;
+  zeroedRelRight = 0;
 }
 
 void Robot24::resetOdom() {
-  this->absoluteX = 0;
-  this->absoluteY = 0;
-  this->recordedL = 0;
-  this->recordedR = 0;
-  this->recordedTheta = 0;
-  this->relLeft = 0;
-  this->relRight = 0;
+  absoluteX = 0;
+  absoluteY = 0;
+  recordedL = 0;
+  recordedR = 0;
+  recordedTheta = 0;
   leftEncoder.resetRotation();
   rightEncoder.resetRotation();
+  resetEncoderDistance();
 }
 
 float Robot24::getDriveCurrent() {

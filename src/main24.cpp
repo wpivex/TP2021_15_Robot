@@ -49,11 +49,6 @@ void middleFirst(void) {
 }
 */
 
-int raiseArmFunc() {
-  twentyFour.setArmDegrees(215);
-  return 0;
-}
-
 int matchAuto() {
   twentyFour.setArmBrakeType(hold);
   twentyFour.resetOdom();
@@ -80,15 +75,13 @@ int matchAuto() {
   twentyFour.setBackClamp(true);
   twentyFour.goVisionUntilSensor(reverse, -45, 100, twentyFour.frontSlideSensor, 0, 3);
   twentyFour.setBackClamp(false);
-  twentyFour.goForwardU(3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
+  twentyFour.goForwardU(-3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
 
-
-  twentyFour.goTurnU(180);
+  //twentyFour.goTurnU(180); // Do not need to turn 180, just move back until y axis to be faster
   twentyFour.gotToY(24, 100);
+  twentyFour.goTurnU(270);
 
-  twentyFour.goTurnU(275);
-  twentyFour.goForwardTimed(3, -30);
-  // runAI(&twentyFour, PORT2, matchStartTime);
+  // runAI(&twentyFour, PORT2, matchStartTime, twentyFour.absoluteX);
 
   return 0;
 }

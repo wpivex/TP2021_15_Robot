@@ -32,8 +32,6 @@ class Robot24 : public BaseRobot {
     float absoluteX = 0;
     float recordedL = 0;
     float recordedR = 0;
-    float relLeft = 0;
-    float relRight = 0;
     float recordedTheta;
 
     float TURN_MIN_SPEED = 10;
@@ -96,7 +94,6 @@ class Robot24 : public BaseRobot {
     void setArmDegrees(float degrees, float speed = 100, bool blocking = true);
     float getLeftEncoderDistance() override;
     float getRightEncoderDistance() override;
-    void resetRelativeDistance();
     float getLeftEncoderAbsolute();
     float getRightEncoderAbsolute();
     void resetEncoderDistance() override;
@@ -110,6 +107,8 @@ class Robot24 : public BaseRobot {
     void gotToY(float yValue, float speed);
 
   private:
+
+    float zeroedRelLeft, zeroedRelRight;
 
     void driveTeleop();
     void armTeleop();
