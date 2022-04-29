@@ -107,14 +107,14 @@ void Robot24::teleop() {
   buttons.updateButtonState();
 }
 
-void Robot24::goForwardUntilSensor(float maxDistance, float speed, float rampUpInches, int timeout, bool stopAfter) {
+void Robot24::goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpInches, int timeout, bool stopAfter) {
 
   Trapezoid trap(maxDistance, speed, speed, rampUpInches, 0);
 
   int startTime = vex::timer::system();
 
   // finalDist is 0 if we want driveTimed instead of drive some distance
-  while (!trap.isCompleted() && !isTimeout(startTime, timeout) && clawSensor.value()) {
+  while (!trap.isCompleted() && !isTimeout(startTime, timeout) && sensor.value()) {
 
     float speed = trap.tick(getEncoderDistance());
 

@@ -66,7 +66,7 @@ int matchAuto() {
   twentyFour.openClaw();
   // Drive forwards at full speed (while adjusting towards goal if needed)
   twentyFour.setArmDegrees(5, 50, false);
-  twentyFour.goForwardUntilSensor(36, 20, 3, 5);
+  twentyFour.goForwardUntilSensor(36, 20, twentyFour.clawSensor, 3, 5);
   twentyFour.closeClaw();
   wait(200, msec);
   // Raise arm a bit (so that other team cannot grab it)
@@ -76,12 +76,15 @@ int matchAuto() {
   wait(3000, msec);
 
   // twentyFour.goForwardU(5, 100, twentyFour.getAngle(), 0, 5); // slow down to a stop after fighting backwards
-  twentyFour.goToPoint(-2, 3, 100, true);
+  // twentyFour.goToPoint(-2, 3, 100, true);
+  twentyFour.goTurnU(120);
+  twentyFour.goAlignVision(YELLOW, reverse);
 
   // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
-  // twentyFour.goTurnU(120);
   twentyFour.setBackClamp(true);
-  twentyFour.goVision(-40, 100, YELLOW, reverse, 0, 0);
+  // twentyFour.goVision(-40, 100, YELLOW, reverse, 0, 0);
+  twentyFour.goForwardUntilSensor(-40, 20, twentyFour.frontSlideSensor, 3, 5);
+
   twentyFour.setBackClamp(false);
   wait(200, msec);
 
