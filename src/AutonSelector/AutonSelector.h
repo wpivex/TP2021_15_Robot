@@ -48,7 +48,7 @@ class Auton {
     function = func;
     name = programName;
     name += " (";
-    name += getName(key);
+    name += getName(hotkey);
     name += ")";
     key = hotkey;
   }

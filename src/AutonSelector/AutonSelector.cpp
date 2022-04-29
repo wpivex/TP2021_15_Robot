@@ -14,21 +14,23 @@ int AutonSelector::runSelectedAuton() {
 // Internal method to draw auton buttons
 void AutonSelector::drawButtons() {
 
+  Brain.Screen.clearScreen();
+
   const int NUM_COLS = 3;
   const int NUM_ROWS = 2;
   const float X_MARGIN = 10;
   const float Y_MARGIN = 10;
 
   float width = (SCREEN_WIDTH - X_MARGIN) / NUM_COLS - X_MARGIN;
-  float height = (SCREEN_WIDTH - X_MARGIN) / NUM_ROWS - Y_MARGIN;
+  float height = (SCREEN_HEIGHT - Y_MARGIN) / NUM_ROWS - Y_MARGIN;
 
   int i = -1;
   for (int r = 0; r < NUM_ROWS; r++) {
     for (int c = 0; c < NUM_COLS; c++) {
-      if (++i == autons.size()) return; // no more buttons to draw
+      if (++i == autons.size()) {r = NUM_ROWS; break;} // no more buttons to draw
 
-      int x = X_MARGIN + c / NUM_COLS * (SCREEN_WIDTH - X_MARGIN);
-      int y = Y_MARGIN + c / NUM_ROWS * (SCREEN_HEIGHT - Y_MARGIN);
+      int x = X_MARGIN + ((float) c) / NUM_COLS * (SCREEN_WIDTH - X_MARGIN);
+      int y = Y_MARGIN + ((float) r) / NUM_ROWS * (SCREEN_HEIGHT - Y_MARGIN);
       
       // Draw button
       Brain.Screen.setFillColor(i == selectedAuton ? green : red);
@@ -52,6 +54,9 @@ void AutonSelector::drawButtons() {
 
     }
   }
+  Brain.Screen.setPenColor(blue);
+  Brain.Screen.printAt(200, 50, "%d", lengthHeld);
+  Brain.Screen.render();
 }
 
 // To be run every tick; keep track of held buttons and which auto is selected
