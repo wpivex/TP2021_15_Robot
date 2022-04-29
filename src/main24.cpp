@@ -77,7 +77,7 @@ int matchAuto() {
   twentyFour.setBackClamp(false);
   twentyFour.goForwardU(-3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
 
-  //twentyFour.goTurnU(180); // Do not need to turn 180, just move back until y axis to be faster
+  //twentyFour.goTurnU(180); // Do not need to turn 180, just move back until y axis to be faster. Also allows for stronger fighting
   twentyFour.gotToY(24, 100);
   twentyFour.goTurnU(270);
 
