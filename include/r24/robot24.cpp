@@ -83,9 +83,9 @@ void Robot24::setBackClamp(bool intaking) {
 
 void Robot24::armTeleop() {
   if (buttons.pressing(BTN::R2)) {
-    setArmPercent(forward, 50);
+    setArmPercent(forward, 100);
   } else if (buttons.pressing(BTN::L2)) {
-    setArmPercent(reverse, 40);
+    setArmPercent(reverse, 100);
   } else {
     stopArm();
   }
@@ -411,12 +411,12 @@ void Robot24::goToPoint(float x, float y, float speed, float onlyTurn) {
   float ay = this->absoluteY;
   float universalAngle = gyroSensor.heading() - (atan2(y - ay, x - ax)*180/M_PI - 90);
   // universal turn to point
-  goTurnU(universalAngle);
+  // goTurnU(universalAngle);
   // drive to point
   if (!onlyTurn) {
     float dist = sqrt(pow(x - ax, 2) + pow(y - ay, 2));
-    logController("%f", dist);
-    goForwardU(dist, speed, gyroSensor.heading(), 5, 5);
+    logController("angle %f", universalAngle);
+    // goForwardU(dist, speed, gyroSensor.heading(), 5, 5);
   }
 }
 
