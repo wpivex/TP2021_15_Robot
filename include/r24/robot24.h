@@ -26,6 +26,8 @@ class Robot24 : public BaseRobot {
     encoder leftEncoder;
     encoder rightEncoder;
 
+    triport expander = triport(PORT9);
+
     float absoluteY = 0;
     float absoluteX = 0;
     float recordedL = 0;
@@ -40,6 +42,7 @@ class Robot24 : public BaseRobot {
     digital_out backGoal = digital_out(Brain.ThreeWirePort.A);
     digital_out clawPiston = digital_out(Brain.ThreeWirePort.C);
     digital_in clawSensor = digital_in(Brain.ThreeWirePort.D);
+    digital_in frontSlideSensor = digital_in(expander.H);
 
     int32_t FRONT_CAMERA_PORT, BACK_CAMERA_PORT;
 
@@ -71,7 +74,7 @@ class Robot24 : public BaseRobot {
     float getDriveCurrent() override;
 
     // Drive Functions
-    void goForwardUntilSensor(float maxDistance, float speed, float rampUpInches = 0, int timeout = 5, bool stopAfter = true);
+    void goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpInches = 0, int timeout = 5, bool stopAfter = true);
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, float endSlowInches = 0,
       bool stopAfter = true, float minSpeed = 10, float timeout = 10);
 
