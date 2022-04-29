@@ -34,7 +34,7 @@ float Trapezoid::tick(float currentValue) {
 
   float delta;
   if(fabs(target - curr) < endSlow) delta = 0;
-  else if (fabs(target - curr) < slowDown+endSlow && slowDown > 0) delta = (fabs(target - curr) - endSlow) / slowDown;
+  else if (slowDown != 0 && fabs(target - curr) < slowDown+endSlow && slowDown > 0) delta = (fabs(target - curr) - endSlow) / slowDown;
   else delta = 1;
   float slowDownSpeed = minSpeed + (maxSpeed - minSpeed) * delta;
   float rampUpSpeed = startSpeed + (maxSpeed - startSpeed) * (xi+1.0) / (xn+1.0);
