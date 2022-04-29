@@ -8,3 +8,5 @@ int main() {
 
   Competition.bStopAllTasksBetweenModes = true;
   return mainFunc();
+
+}
