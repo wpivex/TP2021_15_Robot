@@ -56,7 +56,7 @@ int raiseArmFunc() {
 
 int matchAuto() {
   twentyFour.setArmBrakeType(hold);
-  twentyFour.resetEncoderDistance();
+  twentyFour.resetOdom();
   task odom(tickOdom);
   int matchStartTime = timer::system();
   Goal allianceColor = RED;
@@ -66,11 +66,10 @@ int matchAuto() {
   twentyFour.openClaw();
   // Drive forwards at full speed (while adjusting towards goal if needed)
   twentyFour.setArmDegrees(5, 100, false);
-  twentyFour.goForwardUntilSensor(36, 20, twentyFour.clawSensor, 0);
+  twentyFour.goForwardUntilSensor(36, 100, twentyFour.clawSensor, 0, 0);
   twentyFour.closeClaw();
   task raiseArm(raiseArmFunc);
   twentyFour.goFightOdom(10, 3);
-  return 0;
 
   wait(3000, msec);
 
@@ -85,10 +84,11 @@ int matchAuto() {
   twentyFour.setBackClamp(false);
   wait(200, msec);
 
-  twentyFour.goToPoint(0, 2, 100);
+  twentyFour.goTurnU(180);
+  twentyFour.gotToY(24, 100);
 
-  // twentyFour.goTurnU(275);
-  // twentyFour.goForwardTimed(3, -30);
+  twentyFour.goTurnU(275);
+  twentyFour.goForwardTimed(3, -30);
   // runAI(&twentyFour, PORT2, matchStartTime);
 
   return 0;

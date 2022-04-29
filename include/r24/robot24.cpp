@@ -317,39 +317,45 @@ void Robot24::setMaxDriveTorque(float c) {
 }
 
 // return in inches
-float Robot24::getLeftEncoderDistance() {
-  // logController("%f", leftEncoder.rotation(deg));
+float Robot24::getLeftEncoderAbsolute() {
   return -leftEncoder.rotation(deg)*M_PI*2.75/360.0/3;
-  // float sum = leftMotorA.rotation(deg) + leftMotorB.rotation(deg) + leftMotorC.rotation(deg) + leftMotorD.rotation(deg) + leftMotorE.rotation(deg);
-  // return degreesToDistance(sum / 5.0);
+}
+
+// return in inches
+float Robot24::getRightEncoderAbsolute() {
+  return rightEncoder.rotation(deg)*M_PI*2.75/360.0/3;
+}
+
+void Robot24::resetRelativeDistance() {
+  this->relLeft = 0;
+  this->relRight = 0;
+}
+
+// return in inches
+float Robot24::getLeftEncoderDistance() {
+  return this->relLeft;
 }
 
 // return in inches
 float Robot24::getRightEncoderDistance() {
-  return rightEncoder.rotation(deg)*M_PI*2.75/360.0/3;
-  // float sum = rightMotorA.rotation(deg) + rightMotorB.rotation(deg) + rightMotorC.rotation(deg) + rightMotorD.rotation(deg) + rightMotorE.rotation(deg);
-  // return degreesToDistance(sum / 5.0);
+  return this->relRight;
 }
 
 void Robot24::resetEncoderDistance() {
+  this->relLeft = 0;
+  this->relRight = 0;
+}
+
+void Robot24::resetOdom() {
   this->absoluteX = 0;
   this->absoluteY = 0;
   this->recordedL = 0;
   this->recordedR = 0;
   this->recordedTheta = 0;
+  this->relLeft = 0;
+  this->relRight = 0;
   leftEncoder.resetRotation();
   rightEncoder.resetRotation();
-
-  // leftMotorA.resetRotation();
-  // rightMotorA.resetRotation();
-  // leftMotorB.resetRotation();
-  // rightMotorB.resetRotation();
-  // leftMotorC.resetRotation();
-  // rightMotorC.resetRotation();
-  // leftMotorD.resetRotation();
-  // rightMotorD.resetRotation();
-  // leftMotorE.resetRotation();
-  // rightMotorE.resetRotation();
 }
 
 float Robot24::getDriveCurrent() {
@@ -363,8 +369,8 @@ void Robot24::activeLocation() {
   //Enocoder code
   //float deltaL = recordedL - degreesToDistance(leftEncoder);
   //Non-encoder code
-    float deltaR = getRightEncoderDistance() -this->recordedR;
-  float deltaL = getLeftEncoderDistance()-this->recordedL;
+  float deltaR = getRightEncoderAbsolute() - this->recordedR;
+  float deltaL = getLeftEncoderAbsolute() - this->recordedL;
   float deltaTheta = bound180(gyroSensor.heading()- this->recordedTheta)*M_PI/180;
   //float deltaR = recordedR - degreesToDistance(rightEncoder);
   float dist = (deltaL+deltaR)/2;
@@ -395,7 +401,7 @@ void Robot24::goFightOdom(float backUpDist, float slowDownInches) {
   
   while (!trap.isCompleted()) {
     
-    float speed = trap.tick(ay - this->absoluteY < backUpDist);
+    float speed = trap.tick(ay - this->absoluteY);
 
     setLeftVelocity(reverse, speed);
     setRightVelocity(reverse, speed);
@@ -420,3 +426,19 @@ void Robot24::goToPoint(float x, float y, float speed, float onlyTurn) {
   }
 }
 
+void Robot24::gotToY(float yValue, float speed) {
+  float ay = this->absoluteY;
+
+  Trapezoid trap(this->absoluteY - ay, speed, 30, 0, 5);
+  
+  while (!trap.isCompleted()) {
+    float speed = trap.tick(this->absoluteY - ay);
+
+    setLeftVelocity(forward, speed);
+    setRightVelocity(forward, speed);
+
+    wait(20, msec);
+  }
+  stopLeft();
+  stopRight();
+}
