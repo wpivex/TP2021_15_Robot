@@ -107,14 +107,14 @@ void Robot24::teleop() {
   buttons.updateButtonState();
 }
 
-void Robot24::goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpInches, int timeout, bool stopAfter) {
+void Robot24::goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpFrames, float slowDownInches) {
 
-  Trapezoid trap(maxDistance, speed, speed, rampUpInches, 0);
+  Trapezoid trap(maxDistance, speed, speed, rampUpFrames, 0);
 
   int startTime = vex::timer::system();
 
   // finalDist is 0 if we want driveTimed instead of drive some distance
-  while (!trap.isCompleted() && !isTimeout(startTime, timeout) && sensor.value()) {
+  while (!trap.isCompleted() && !isTimeout(startTime, 5) && sensor.value()) {
 
     float speed = trap.tick(getEncoderDistance());
 
@@ -123,10 +123,9 @@ void Robot24::goForwardUntilSensor(float maxDistance, float speed, digital_in se
     
     wait(20, msec);
   }
-  if (stopAfter) {
-    stopLeft();
-    stopRight();
-  }
+  closeClaw();
+  goForwardU(slowDownInches, 100, getAngle(), 0, slowDownInches); // slow down to stop
+  
 }
 
 // Go forward a number of inches, maintaining a specific heading
@@ -146,6 +145,8 @@ void Robot24::goForwardU(float distInches, float maxSpeed, float universalAngle,
 void Robot24::goTurnU(float universalAngleDegrees, int direction, bool stopAfter, float timeout, float maxSpeed) {
   BaseRobot::goTurnU_Abstract(3, 0, 0.075, 1, 3, 20, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
 }
+
+//.void Robot24::goTurnUFast(float universalAngleDegrees)
 
 float Robot24::distanceToDegrees(float distInches) {
   return 2* (distInches * 360.0 / 2.0 / M_PI / (4.0 / 2.0) / SPEED_RATIO); // 4 in diameter wheels
@@ -387,12 +388,18 @@ void Robot24::activeLocation() {
   this->recordedTheta = gyroSensor.heading();
 }
 
-void Robot24::goFightOdom(float backUpDist) {
+void Robot24::goFightOdom(float backUpDist, float slowDownInches) {
   float ay = this->absoluteY;
-  setLeftVelocity(reverse, 20);
-  setRightVelocity(reverse, 20);
-  while (ay - this->absoluteY < backUpDist) {
-    logController("%f", this->absoluteY);
+
+  Trapezoid trap(backUpDist, 100, 30, 0, slowDownInches);
+  
+  while (!trap.isCompleted()) {
+    
+    float speed = trap.tick(ay - this->absoluteY < backUpDist);
+
+    setLeftVelocity(reverse, speed);
+    setRightVelocity(reverse, speed);
+
     wait(20, msec);
   }
   stopLeft();
