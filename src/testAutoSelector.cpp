@@ -59,7 +59,7 @@ void wouldBeCalledMainFunctionButIsJustForTestingAutonSelector() {
 
   while (true) {
     wait(20, msec);
-    logController("%d", Controller1.Axis1.position());
+    logController("%d", Controller1->Axis1.position());
   }
 
 }
