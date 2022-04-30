@@ -236,6 +236,8 @@ float universalAngleDegrees, int direction, bool stopAfter, float timeout, float
 }
 
 // has NO motion profiling. Usually used in conjunction with other methods to add motion profiile
+// If direction = 0, turn direction is determined by smallest angle to universal angle
+// If direction = 1, force clockwise.  If direction = -1, force counterclockwise.
 void BaseRobot::goTurnFastU(float universalAngleDegrees, int direction, float speed, bool stopAfter) {
 
   float relativeAngle = 0 - getAngleDiff(universalAngleDegrees, getAngle()); // negative = turn clockwise, positive = turn counterclockwise
