@@ -220,7 +220,7 @@ float universalAngleDegrees, int direction, bool stopAfter, float timeout, float
 
     //log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
     //log("heading: %f", GPS11.heading());
-    log("Heading: %f\nSpeed: %f", getAngle(), speed);
+    // log("Heading: %f\nSpeed: %f", getAngle(), speed);
 
     setLeftVelocity(reverse, speed);
     setRightVelocity(forward, speed);

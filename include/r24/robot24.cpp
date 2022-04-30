@@ -156,7 +156,7 @@ void Robot24::goForwardU(float distInches, float maxSpeed, float universalAngle,
 // 0.075
 // I = 0.96
 void Robot24::goTurnU(float universalAngleDegrees, int direction, bool stopAfter, float timeout, float maxSpeed) {
-  BaseRobot::goTurnU_Abstract(3, 0, 0.075, 1, 3, 20, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
+  BaseRobot::goTurnU_Abstract(3, 0, 0.075, 1, 3, 30, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
 }
 
 //.void Robot24::goTurnUFast(float universalAngleDegrees)
@@ -432,18 +432,17 @@ void Robot24::goToPoint(float x, float y, float speed, float onlyTurn) {
   // drive to point
   if (!onlyTurn) {
     float dist = sqrt(pow(x - ax, 2) + pow(y - ay, 2));
-    logController("angle %f", universalAngle);
     // goForwardU(dist, speed, gyroSensor.heading(), 5, 5);
   }
 }
 
 void Robot24::gotToY(float yValue, float speed) {
-  float ay = absoluteY;
-
-  Trapezoid trap(absoluteY - ay, speed, 30, 0, 5);
+  float ay = this->absoluteY;
+  Trapezoid trap(yValue, speed, 20, 0, 100);
+  setBrakeType(hold);
   
   while (!trap.isCompleted()) {
-    float speed = trap.tick(absoluteY - ay);
+    float speed = trap.tick(this->absoluteY);
 
     setLeftVelocity(forward, speed);
     setRightVelocity(forward, speed);
@@ -452,4 +451,5 @@ void Robot24::gotToY(float yValue, float speed) {
   }
   stopLeft();
   stopRight();
+  setBrakeType(coast);
 }

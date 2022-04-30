@@ -53,6 +53,14 @@ int matchAuto() {
   twentyFour.setArmBrakeType(hold);
   twentyFour.resetOdom();
   task odom(tickOdom);
+  twentyFour.setArmDegrees(300);
+  twentyFour.goTurnU(330);
+  twentyFour.goForwardU(60, 60, twentyFour.gyroSensor.heading(), 0, 5);
+  wait(3000, msec);
+  twentyFour.gotToY(30, 100);
+  twentyFour.goTurnU(270);
+  logController("DONE");
+  return 0;
   int matchStartTime = timer::system();
   Goal allianceColor = RED;
   twentyFour.setBrakeType(hold);
@@ -67,9 +75,10 @@ int matchAuto() {
   twentyFour.setArmDegrees(100, 100, false); // raise arm concurrently, just enough to clear ground
 
   twentyFour.goFightOdom(10, 3);
+  twentyFour.setArmDegrees(215, 100);
 
-  twentyFour.goTurnFastU(100, 0, 100, false);
-  twentyFour.goAlignVision(YELLOW, reverse);
+  twentyFour.goTurnFastU(110, 0, 100, false);
+  // twentyFour.goAlignVision(YELLOW, reverse);
 
   // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
   twentyFour.setBackClamp(true);
@@ -77,8 +86,11 @@ int matchAuto() {
   twentyFour.setBackClamp(false);
   twentyFour.goForwardU(-3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
 
+  wait(3000, msec);
+
   //twentyFour.goTurnU(180); // Do not need to turn 180, just move back until y axis to be faster. Also allows for stronger fighting
-  twentyFour.gotToY(24, 100);
+  twentyFour.gotToY(24, 40);
+  wait(3000, msec);
   twentyFour.goTurnU(270);
 
   // runAI(&twentyFour, PORT2, matchStartTime, twentyFour.absoluteX);
