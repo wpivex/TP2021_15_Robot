@@ -53,7 +53,8 @@ int matchAuto() {
   twentyFour.setArmBrakeType(hold);
   twentyFour.resetOdom();
   task odom(tickOdom);
-  twentyFour.setArmDegrees(300);
+  twentyFour.setArmDegrees(500);
+  twentyFour.setMaxArmTorque(CURRENT::OFF);
   twentyFour.goTurnU(330);
   twentyFour.goForwardU(60, 60, twentyFour.gyroSensor.heading(), 0, 5);
   wait(3000, msec);
