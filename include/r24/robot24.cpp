@@ -341,12 +341,12 @@ float Robot24::getRightEncoderAbsolute() {
 
 // return in inches
 float Robot24::getLeftEncoderDistance() {
-  return leftEncoder.rotation(degrees) - zeroedRelLeft;
+  return zeroedRelLeft;
 }
 
 // return in inches
 float Robot24::getRightEncoderDistance() {
-  return rightEncoder.rotation(degrees) - zeroedRelRight;
+  return zeroedRelRight;
 }
 
 void Robot24::resetEncoderDistance() {
@@ -379,6 +379,10 @@ void Robot24::activeLocation() {
   float deltaR = getRightEncoderAbsolute() - this->recordedR;
   float deltaL = getLeftEncoderAbsolute() - this->recordedL;
   float deltaTheta = bound180(gyroSensor.heading()- this->recordedTheta)*M_PI/180;
+
+  zeroedRelRight += deltaR;
+  zeroedRelLeft += deltaL;
+  
   //float deltaR = recordedR - degreesToDistance(rightEncoder);
   float dist = (deltaL+deltaR)/2;
   float deltaX;
@@ -396,8 +400,8 @@ void Robot24::activeLocation() {
   //Add x and Y distance to current values
   this->absoluteX -= deltaX;
   this->absoluteY += deltaY;
-  this->recordedR = getRightEncoderDistance();
-  this->recordedL = getLeftEncoderDistance();
+  this->recordedR = getRightEncoderAbsolute();
+  this->recordedL = getLeftEncoderAbsolute();
   this->recordedTheta = gyroSensor.heading();
 }
 
