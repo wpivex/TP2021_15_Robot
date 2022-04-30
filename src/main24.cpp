@@ -63,28 +63,27 @@ int matchAuto() {
   twentyFour.setArmDegrees(5, 100, false);
   twentyFour.goForwardUntilSensor(36, 100, twentyFour.clawSensor, 0);
   twentyFour.closeClaw();
-  twentyFour.goForwardU(3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
+  // twentyFour.goForwardU(3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
   twentyFour.setArmDegrees(100, 100, false); // raise arm concurrently, just enough to clear ground
 
   twentyFour.goFightOdom(10, 3);
   twentyFour.setArmDegrees(215, 100);
 
-  twentyFour.goTurnFastU(110, 0, 100, false);
+  twentyFour.goTurnFastU(100, 0, 100, false);
   // twentyFour.goAlignVision(YELLOW, reverse);
 
   // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
   twentyFour.setBackClamp(true);
   twentyFour.goVisionUntilSensor(reverse, -45, 100, twentyFour.frontSlideSensor, 0, 3);
+  twentyFour.stopLeft();
+  twentyFour.stopRight();
   twentyFour.setBackClamp(false);
   twentyFour.goForwardU(-3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
 
-  wait(3000, msec);
-
   //twentyFour.goTurnU(180); // Do not need to turn 180, just move back until y axis to be faster. Also allows for stronger fighting
   twentyFour.gotToY(30, 100);
-  wait(3000, msec);
-  twentyFour.goTurnU(270);
-  //twentyFour.goTurnFastU(270, 0, 60, true);
+  // twentyFour.goTurnU(270);
+  twentyFour.goTurnFastU(270, -1, 100, true);
 
   // twentyFour.setArmDegrees(500);
   // twentyFour.setMaxArmTorque(CURRENT::OFF);

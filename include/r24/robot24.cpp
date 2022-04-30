@@ -440,14 +440,14 @@ void Robot24::goToPoint(float x, float y, float speed, float onlyTurn) {
 
 void Robot24::gotToY(float yValue, float speed) {
   float ay = this->absoluteY;
-  Trapezoid trap(yValue, speed, 20, 0, 100);
+  Trapezoid trap(yValue, speed, 20, 0, 5);
   setBrakeType(hold);
   
   while (!trap.isCompleted()) {
     float speed = trap.tick(this->absoluteY);
 
-    setLeftVelocity(forward, speed);
-    setRightVelocity(forward, speed);
+    setLeftVelocity(reverse, speed);
+    setRightVelocity(reverse, speed);
 
     wait(20, msec);
   }
