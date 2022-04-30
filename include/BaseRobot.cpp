@@ -245,8 +245,8 @@ void BaseRobot::goTurnFastU(float universalAngleDegrees, int direction, float sp
   else if (relativeAngle > 0 && direction == 1) relativeAngle -= 360; // closest is to turn counterclockwise, but force turn clockwise
 
   gyroSensor.setRotation(relativeAngle, deg); // set starting rotation, PID until gyroSensor rotation = 0
-  setLeftVelocity(relativeAngle < 0 ? forward : reverse, 100);
-  setRightVelocity(relativeAngle < 0 ? reverse : forward, 100);
+  setLeftVelocity(relativeAngle < 0 ? forward : reverse, speed);
+  setRightVelocity(relativeAngle < 0 ? reverse : forward, speed);
 
   while (relativeAngle < 0 ? gyroSensor.rotation() < 0 : gyroSensor.rotation() > 0) {
     wait(20, msec);
