@@ -18,6 +18,8 @@ Trapezoid::Trapezoid(float targetValue, float maxSpeedP, float minSpeedP, int nu
   endSlow = endSlowValue;
 
   maxSpeed = fmax(minSpeed, maxSpeed);
+  endSlow = fmin(targetValue, endSlowValue);
+  slowDown = fmin(targetValue - endSlowValue, slowDown);
   if (startSpeedP == -1) startSpeed = minSpeedP;
   else startSpeed = startSpeedP;
   
