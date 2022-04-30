@@ -83,8 +83,10 @@ void Robot24::setBackClamp(bool intaking) {
 
 void Robot24::armTeleop() {
   if (buttons.pressing(BTN::R2)) {
-    setArmPercent(forward, 100);
+    if(rightArm1.rotation(degrees)>400) setArmPercent(forward, 500-rightArm1.rotation(degrees));
+    else setArmPercent(forward, 100);
   } else if (buttons.pressing(BTN::L2)) {
+    if(rightArm1.rotation(degrees)<100) setArmPercent(reverse, rightArm1.rotation(degrees));
     setArmPercent(reverse, 100);
   } else {
     stopArm();
