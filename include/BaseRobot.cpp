@@ -248,7 +248,7 @@ void BaseRobot::goTurnFastU(float universalAngleDegrees, int direction, float sp
   setLeftVelocity(relativeAngle < 0 ? forward : reverse, 100);
   setRightVelocity(relativeAngle < 0 ? reverse : forward, 100);
 
-  while (direction == 1 ? gyroSensor.rotation() > 0 : gyroSensor.rotation() < 0) {
+  while (relativeAngle < 0 ? gyroSensor.rotation() < 0 : gyroSensor.rotation() > 0) {
     wait(20, msec);
   }
   if (stopAfter) {
