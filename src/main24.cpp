@@ -6,9 +6,8 @@ Robot24 twentyFour = Robot24();
 int tickOdom() {
   while (true) {
     twentyFour.activeLocation();
-    log("Left Encoder: %f\nRight Encoder: %f\nAbsolute X: %f\nAbsolute Y: %f\nGyro Readout: %f\nPrevious Angle:%f\nLeft Current: %f\nRight Current: %f",
-      twentyFour.recordedL,twentyFour.recordedR,twentyFour.absoluteX,twentyFour.absoluteY,twentyFour.gyroSensor.heading(),twentyFour.recordedTheta,
-      twentyFour.getLeftCurrent(),twentyFour.getRightCurrent()); 
+    log("Left Encoder: %f\nRight Encoder: %f\nAbsolute X: %f\nAbsolute Y: %f\nGyro Readout: %f\nPrevious Angle:%f",
+      twentyFour.recordedL,twentyFour.recordedR,twentyFour.absoluteX,twentyFour.absoluteY,twentyFour.gyroSensor.heading(),twentyFour.recordedTheta); 
     wait(10, msec);
   }
   return 0;
@@ -63,18 +62,16 @@ int matchAuto() {
   twentyFour.openClaw();
   // Drive forwards at full speed (while adjusting towards goal if needed)
   twentyFour.setArmDegrees(5, 100, false);
-  twentyFour.goForwardUntilSensor(36, 20, twentyFour.clawSensor, 0);
+  twentyFour.goForwardUntilSensor(36, 100, twentyFour.clawSensor, 0);
   twentyFour.closeClaw();
   // twentyFour.goForwardU(3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
-  logController("RAISING ARM");
   twentyFour.setArmDegrees(100, 100, false); // raise arm concurrently, just enough to clear ground
-  logController("ODOM TIME");
   twentyFour.goFightOdom(10, 3);
-  logController("RAISING ARM");
   twentyFour.setArmDegrees(500, 100);
   twentyFour.setMaxArmTorque(CURRENT::OFF);
 
-  twentyFour.goTurnFastU(100, 0, 100, false);
+  // twentyFour.goTurnFastU(135, 0, 100, false);
+  twentyFour.goTurnU(135);
   // twentyFour.goAlignVision(YELLOW, reverse);
 
   // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
@@ -87,9 +84,8 @@ int matchAuto() {
 
   twentyFour.gotToY(30, 100);
   twentyFour.goTurnU(270);
+  twentyFour.gotToX(12, 100);
 
-  // twentyFour.setArmDegrees(500);
-  // twentyFour.setMaxArmTorque(CURRENT::OFF);
   // runAI(&twentyFour, PORT2, matchStartTime, twentyFour.absoluteX);
 
   return 0;

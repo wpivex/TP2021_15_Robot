@@ -31,6 +31,7 @@ Robot24::Robot24() : BaseRobot(15.0, PORT17), leftMotorA(0), leftMotorB(0), left
 
   FRONT_CAMERA_PORT = PORT10;
   BACK_CAMERA_PORT = PORT1;
+  SIDE_CAMERA_PORT = PORT19;
 
   driveType = TWO_STICK_ARCADE;
 
@@ -455,6 +456,25 @@ void Robot24::gotToY(float yValue, float speed) {
   
   while (!trap.isCompleted()) {
     float speed = trap.tick(this->absoluteY);
+
+    setLeftVelocity(reverse, speed);
+    setRightVelocity(reverse, speed);
+
+    wait(20, msec);
+  }
+  stopLeft();
+  stopRight();
+  setBrakeType(coast);
+}
+
+
+void Robot24::gotToX(float xValue, float speed) {
+  float ay = this->absoluteX;
+  Trapezoid trap(xValue, speed, 20, 0, 5);
+  setBrakeType(hold);
+  
+  while (!trap.isCompleted()) {
+    float speed = trap.tick(this->absoluteX);
 
     setLeftVelocity(reverse, speed);
     setRightVelocity(reverse, speed);

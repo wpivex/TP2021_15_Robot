@@ -44,7 +44,7 @@ class Robot24 : public BaseRobot {
     digital_in clawSensor = digital_in(Brain.ThreeWirePort.D);
     digital_in frontSlideSensor = digital_in(expander.H);
 
-    int32_t FRONT_CAMERA_PORT, BACK_CAMERA_PORT;
+    int32_t FRONT_CAMERA_PORT, BACK_CAMERA_PORT, SIDE_CAMERA_PORT;
 
     enum DriveType { ONE_STICK_ARCADE, TWO_STICK_ARCADE, TANK };
     DriveType driveType;
@@ -107,6 +107,7 @@ class Robot24 : public BaseRobot {
     void goFightOdom(float backUpDist, float slowDownInches);
     void setArmBrakeType(brakeType b);
     void gotToY(float yValue, float speed);
+    void gotToX(float xValue, float speed);
 
   private:
 
