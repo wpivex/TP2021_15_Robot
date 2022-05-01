@@ -159,7 +159,7 @@ void Robot24::goForwardU(float distInches, float maxSpeed, float universalAngle,
 // 0.075
 // I = 0.96
 void Robot24::goTurnU(float universalAngleDegrees, int direction, bool stopAfter, float timeout, float maxSpeed) {
-  BaseRobot::goTurnU_Abstract(3, .5, 0.1, 1, 3, 20, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
+  BaseRobot::goTurnU_Abstract(15, 0, 1, 0.25, 3, 20, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
 }
 
 //.void Robot24::goTurnUFast(float universalAngleDegrees)

@@ -57,20 +57,29 @@ int matchAuto() {
   int matchStartTime = timer::system();
   Goal allianceColor = RED;
 
-  twentyFour.goTurnFastU(135, 0, 100);
-  twentyFour.goTurnU(270);
-  return 0;
+  // twentyFour.setArmDegrees(500, 100);
+  // twentyFour.setMaxArmTorque(CURRENT::OFF);
+  // // twentyFour.goTurnFastU(100, 0, 100, true);
+  // twentyFour.goTurnU(90);
+  // wait(3000, msec);
+  // twentyFour.goTurnU(180);
+  // wait(3000, msec);
+  // twentyFour.goTurnU(0);
+  // return 0;
   // ~~~~~~~~~~~~~ Box Rush Right ~~~~~~~~~~~~~~~
   twentyFour.openClaw();
   // Drive forwards at full speed (while adjusting towards goal if needed)
   twentyFour.setArmDegrees(5, 100, false);
-  twentyFour.goForwardUntilSensor(36, 100, twentyFour.clawSensor, 0);
+  twentyFour.goForwardUntilSensor(36, 20, twentyFour.clawSensor, 0);
   twentyFour.closeClaw();
   // twentyFour.goForwardU(3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
+  logController("RAISING ARM");
   twentyFour.setArmDegrees(100, 100, false); // raise arm concurrently, just enough to clear ground
-
+  logController("ODOM TIME");
   twentyFour.goFightOdom(10, 3);
-  twentyFour.setArmDegrees(215, 100);
+  logController("RAISING ARM");
+  twentyFour.setArmDegrees(500, 100);
+  twentyFour.setMaxArmTorque(CURRENT::OFF);
 
   twentyFour.goTurnFastU(100, 0, 100, false);
   // twentyFour.goAlignVision(YELLOW, reverse);
@@ -83,9 +92,7 @@ int matchAuto() {
   twentyFour.setBackClamp(false);
   twentyFour.goForwardU(-3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
 
-  //twentyFour.goTurnU(180); // Do not need to turn 180, just move back until y axis to be faster. Also allows for stronger fighting
   twentyFour.gotToY(30, 100);
-  // twentyFour.goTurnU(270);
   twentyFour.goTurnU(270);
 
   // twentyFour.setArmDegrees(500);
