@@ -11,7 +11,7 @@ static GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetI
 
 // Track each yellow goal across time, and label each with an id
 // targetID only for visual purposes to highlight target goal, if targetID != -1
-static void trackObjectsForCurrentFrame(Robot24 *robot, vision *camera, std::vector<GoalPosition> &goals, int targetID) {
+static void trackObjectsForCurrentFrame(vision *camera, std::vector<GoalPosition> &goals, int targetID) {
 
   static int nextAvailableID = 0;
 
@@ -104,9 +104,9 @@ static int findGoalID(std::vector<GoalPosition> &goals) {
 
 // Strafe and lock onto the location of a goal
 // return area of object when arrived
-static int detectionAndStrafePhase(Robot24 *robot, vision *camera, float *horizonalDistance, int matchStartTime) {
+static int detectionAndStrafePhase(Robot24 *robot, vision *camera, int matchStartTime) {
 
-  static const float MAX_TRAVEL_DISTANCE = 100;
+  static const float MAX_TRAVEL_DISTANCE = 95;
 
   std::vector<GoalPosition> goals;
 
@@ -123,25 +123,26 @@ static int detectionAndStrafePhase(Robot24 *robot, vision *camera, float *horizo
   PID strafePID(0.75, 0, 0.01, 5, 5, 8, 50);
   PID anglePID(1, 0, 0);
   float speed, offset, ang, correction;
-  int area = -1;
+  int width = -1;
 
   int pt = 0;
+  float AiEndTime = 35; // Give 10 sec for rest of auto
 
   while (targetID == -1 || !strafePID.isCompleted()) {
 
     pt = (pt + 1) % 10;
-    if (pt == 0) logController("Dist: %.1f\nTime: %.1f", *horizonalDistance - robot->getEncoderDistance(), (timer::system() - matchStartTime)/1000.0);
+    if (pt == 0) logController("Dist: %.1f\nTime: %.1f", 10-robot->absoluteX, (timer::system() - matchStartTime)/1000.0);
 
-    if (isTimeout(matchStartTime, 43.5) || (*horizonalDistance - robot->getEncoderDistance()) > MAX_TRAVEL_DISTANCE) {
-      if (isTimeout(matchStartTime, 43.5)) logController("timeout");
+    if (isTimeout(matchStartTime, AiEndTime) || 10-robot->absoluteX > MAX_TRAVEL_DISTANCE) {
+      if (isTimeout(matchStartTime, AiEndTime)) logController("timeout");
       else logController("distance");
-      area = -1;
+      width = -1;
       break;
     };
 
     // Initial ramp up for idle
     speed = COAST_SPEED; // if no target goal detected, this is default speed
-    float dist = fabs(robot->getEncoderDistance());
+    float dist = fabs(10-robot->absoluteX);
     if (dist < rampUpInches) speed = MIN_SPEED + (COAST_SPEED - MIN_SPEED) * (dist / rampUpInches);
 
     offset = -1;
@@ -149,7 +150,7 @@ static int detectionAndStrafePhase(Robot24 *robot, vision *camera, float *horizo
     camera->takeSnapshot(g.sig);
     Brain.Screen.clearScreen();
     
-    trackObjectsForCurrentFrame(robot, camera, goals, targetID);
+    trackObjectsForCurrentFrame(camera, goals, targetID);
 
     if (targetID == -1) {
       targetID = findGoalID(goals);
@@ -162,7 +163,7 @@ static int detectionAndStrafePhase(Robot24 *robot, vision *camera, float *horizo
       if (goal != nullptr) {
         // Perform strafe towards goal
         offset = goal->cx - VISION_CENTER_X;
-        area = goal->averageArea();
+        width = goal->w;
         speed = strafePID.tick(offset);
 
       } else {
@@ -189,9 +190,7 @@ static int detectionAndStrafePhase(Robot24 *robot, vision *camera, float *horizo
   robot->stopLeft();
   robot->stopRight();
 
-  *horizonalDistance = -robot->getEncoderDistance() + *horizonalDistance; // increment horizontal distance throughout AI
-
-  return area;
+  return width;
 }
 
 // Get distance to goal from area of goal using empirical formula: https://www.desmos.com/calculator/pvbkwhu5lc
@@ -207,12 +206,12 @@ static float getDistanceFromWidth(int width) {
 
   static const float DEGREES_PER_PIXEL = (63.0 * M_PI / 180.0) / VISION_MAX_X;
   static const float GOAL_WIDTH = 13.5;
-  static const float CAMERA_HEIGHT = 15.5;
+  static const float CAMERA_HEIGHT = 14.375;
 
   float theta = DEGREES_PER_PIXEL*width;
   float hypotenuseDistanceToGoal = GOAL_WIDTH / tan(theta);
   float horizontalDistance = sqrt(pow(hypotenuseDistanceToGoal, 2) - pow(CAMERA_HEIGHT, 2));
-  return fmax(0,horizontalDistance - 8.5);
+  return fmax(0,horizontalDistance - 3.5); // Account for camera not being at the very front of robot
 }
 
 
@@ -230,7 +229,7 @@ Grab yellow goal with front claw. Intake the whole time. Then, back up and align
 4. Undocking phase. Drop the yellow goal behind, and then turn so that 1dof faces other alliance goal again to reset. Go back to step 1.
 
 Keep repeating until timer threshold, OR reaches the end. */
-void runAI(Robot24 *robot, int32_t port, int matchStartTime, float hDist) {
+void runAI(Robot24 *robot, int32_t port, int matchStartTime) {
 
   Goal g = YELLOW;
   vision camera(port, g.bright, g.sig); // Fix port
@@ -247,28 +246,28 @@ void runAI(Robot24 *robot, int32_t port, int matchStartTime, float hDist) {
 
     // Detection phase
     //moveArmTo(200, 100, false);
-    int area = detectionAndStrafePhase(robot, &camera, &hDist, matchStartTime);
-    if (area == -1) break; // exit if timeout or exceed x value
-    int dist = getDistanceFromArea(area) + GOAL_DISTANCE_OFFSET;
-    //logController("Area: %d\nDist: %d", area, dist);
+    int width = detectionAndStrafePhase(robot, &camera, matchStartTime);
+    if (width == -1) break; // exit if timeout or exceed x value
+    float dist = getDistanceFromWidth(width) + GOAL_DISTANCE_OFFSET;
+    logController("Width: %d\nDist: %d", width, dist);
     //startIntake();
-    robot->goTurnU(0); // point to goal
+    //robot->goTurnU(0); // point to goal
 
     // Attack phase
-    robot->goForwardU(dist, 40, 0, 10, 10);
+    //robot->goForwardU(dist, 40, 0, 10, 10);
     //moveArmTo(-20, 100, true);
     //clawDown();
     //moveArmTo(100, 100, false);
-    wait(100, msec);
+    wait(10000, msec);
     
-    robot->goForwardU(-dist, 85, 0, 10, 12);
-    robot->goTurnU(270, true, 2);
+    //robot->goForwardU(-dist, 85, 0, 10, 12);
+    //robot->goTurnU(270, true, 2);
     //moveArmTo(-20, 50, false);
   }
   //logController("timer done");
 
   // Go to final horizontal distance
-  robot->goForwardU(hDist - 35, 70, 270, 10, 10);
+  robot->goForwardU(robot->absoluteX + 80, 70, 270, 10, 10);
   robot->goTurnU(0);
 
 }
