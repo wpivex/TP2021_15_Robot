@@ -86,7 +86,7 @@ void Robot24::armTeleop() {
     if(rightArm1.rotation(degrees)>410) setArmPercent(forward, 510-rightArm1.rotation(degrees));
     else setArmPercent(forward, 100);
   } else if (buttons.pressing(BTN::L2)) {
-    if(rightArm1.rotation(degrees)<115) setArmPercent(reverse, rightArm1.rotation(degrees)-15);
+    if(rightArm1.rotation(degrees)<125) setArmPercent(reverse, rightArm1.rotation(degrees)-25);
     else setArmPercent(reverse, 100);
   } else {
     stopArm();
@@ -95,7 +95,8 @@ void Robot24::armTeleop() {
   // Toggle limiting arm current
   if (buttons.pressed(BTN::X)) {
     teleopArmLimited = !teleopArmLimited;
-    if (teleopArmLimited) setMaxArmTorque(CURRENT::MID);
+    logController("Arm Current Limt: %d", teleopArmLimited);
+    if (teleopArmLimited) setMaxArmTorque(CURRENT::LOW);
     else setMaxArmTorque(CURRENT::HIGH);
   }
 }
@@ -158,7 +159,7 @@ void Robot24::goForwardU(float distInches, float maxSpeed, float universalAngle,
 // 0.075
 // I = 0.96
 void Robot24::goTurnU(float universalAngleDegrees, int direction, bool stopAfter, float timeout, float maxSpeed) {
-  BaseRobot::goTurnU_Abstract(3, 0.01, 0.075, 1, 3, 30, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
+  BaseRobot::goTurnU_Abstract(3, .5, 0.1, 1, 3, 20, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
 }
 
 //.void Robot24::goTurnUFast(float universalAngleDegrees)
