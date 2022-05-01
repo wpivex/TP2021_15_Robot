@@ -6,7 +6,9 @@ Robot24 twentyFour = Robot24();
 int tickOdom() {
   while (true) {
     twentyFour.activeLocation();
-    log("%f\n%f\n%f\n%f\n%f\n%f",twentyFour.recordedL,twentyFour.recordedR,twentyFour.absoluteX,twentyFour.absoluteY,twentyFour.gyroSensor.heading(),twentyFour.recordedTheta); 
+    log("Left Encoder: %f\nRight Encoder: %f\nAbsolute X: %f\nAbsolute Y: %f\nGyro Readout: %f\nPrevious Angle:%f\nLeft Current: %f\nRight Current: %f",
+      twentyFour.recordedL,twentyFour.recordedR,twentyFour.absoluteX,twentyFour.absoluteY,twentyFour.gyroSensor.heading(),twentyFour.recordedTheta,
+      twentyFour.getLeftCurrent(),twentyFour.getRightCurrent()); 
     wait(10, msec);
   }
   return 0;
@@ -57,15 +59,6 @@ int matchAuto() {
   int matchStartTime = timer::system();
   Goal allianceColor = RED;
 
-  // twentyFour.setArmDegrees(500, 100);
-  // twentyFour.setMaxArmTorque(CURRENT::OFF);
-  // // twentyFour.goTurnFastU(100, 0, 100, true);
-  // twentyFour.goTurnU(90);
-  // wait(3000, msec);
-  // twentyFour.goTurnU(180);
-  // wait(3000, msec);
-  // twentyFour.goTurnU(0);
-  // return 0;
   // ~~~~~~~~~~~~~ Box Rush Right ~~~~~~~~~~~~~~~
   twentyFour.openClaw();
   // Drive forwards at full speed (while adjusting towards goal if needed)

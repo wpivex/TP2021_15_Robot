@@ -369,9 +369,18 @@ void Robot24::resetOdom() {
 }
 
 float Robot24::getDriveCurrent() {
-  float currentSum = leftMotorA.current() + leftMotorB.current() + leftMotorC.current() + leftMotorD.current() + leftMotorE.current() 
-    + rightMotorA.current() + rightMotorB.current() + rightMotorC.current() + rightMotorD.current() + rightMotorE.current();
-  return currentSum / 10;
+  float currentSum = getLeftCurrent()+getRightCurrent();
+  return currentSum / 2;
+}
+
+float Robot24::getLeftCurrent(){
+  float currentSum = leftMotorA.current() + leftMotorB.current() + leftMotorC.current() + leftMotorD.current() + leftMotorE.current();
+  return currentSum/5;
+}
+
+float Robot24::getRightCurrent(){
+  float currentSum = rightMotorA.current() + rightMotorB.current() + rightMotorC.current() + rightMotorD.current() + rightMotorE.current();
+  return currentSum/5;
 }
 
 void Robot24::activeLocation() {

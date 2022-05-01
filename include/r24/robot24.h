@@ -72,6 +72,8 @@ class Robot24 : public BaseRobot {
     void setMaxArmTorque(float c);
     void setMaxDriveTorque(float c);
     float getDriveCurrent() override;
+    float getLeftCurrent();
+    float getRightCurrent();
 
     // Drive Functions
     void goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpFrames = 0);
