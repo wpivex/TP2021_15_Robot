@@ -70,6 +70,8 @@ class Robot {
 
     void setControllerMapping(ControllerMapping mapping);
 
+    void setSecondaryCurrent(bool setOn);
+
     float getEncoderDistance();
     void resetEncoderDistance();
 

@@ -892,6 +892,7 @@ void Robot::runAI(int matchStartTime) {
   clawUp();
   Brain.Screen.setFont(mono20);
 
+  int rampUp = 15;
   
   //moveArmTo(-20, 50, false);
 
@@ -910,22 +911,22 @@ void Robot::runAI(int matchStartTime) {
     goTurnU(0); // point to goal
 
     // Attack phase
-    goForwardU(dist / 2.0, 40, 0, 2, 3);
+    goForwardU(dist / 2.0, 40, 0, rampUp, 3);
     moveArmTo(-20, 100, true);
     stopIntake();
-    goForwardU(dist / 2.0, 85, 0, 7, 12);
+    goForwardU(dist / 2.0, 85, 0, rampUp, 12);
     clawDown();
     moveArmTo(100, 100, false);
     wait(100, msec);
     
-    goForwardU(-dist, 85, 0, 7, 12);
+    goForwardU(-dist, 85, 0, rampUp, 12);
     goTurnU(270, true, 2);
     moveArmTo(-20, 50, false);
   }
   logController("timer done");
 
   // Go to final horizontal distance
-  goForwardU(hDist - 35, 70, 270, 5, 10);
+  goForwardU(hDist - 35, 70, 270, rampUp, 10);
   goTurnU(0);
 
 }
@@ -984,4 +985,13 @@ void Robot::setBrakeType(brakeType b) {
   rightMotorB.setBrake(b);
   rightMotorC.setBrake(b);
   rightMotorD.setBrake(b);
+}
+
+void Robot::setSecondaryCurrent(bool setOn) {
+  float amount = setOn ? 10.0 : 0;
+  frontArmL.setMaxTorque(amount, currentUnits::amp);
+  frontArmR.setMaxTorque(amount, currentUnits::amp);
+  backLiftL.setMaxTorque(amount, currentUnits::amp);
+  backLiftR.setMaxTorque(amount, currentUnits::amp);
+  intake.setMaxTorque(amount, currentUnits::amp);
 }
