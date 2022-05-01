@@ -144,7 +144,7 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 16, flo
 
   private:
     void driveTeleop();
-
+    int goMidFrames = 1;
     int intakeState;
     bool targetIsIntake = false;
     bool backIsDown = false;

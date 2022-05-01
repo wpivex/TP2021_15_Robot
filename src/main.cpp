@@ -36,9 +36,9 @@ int leftAuto() {
   // Initial go rush
   fifteen.clawUp();
   float ang = fifteen.getAngle();
-  fifteen.goForwardU(44, 100, ang, 0, 3, false, 40, 75);
+  fifteen.goForwardU(44, 100, ang, 0, 0, false);
   fifteen.clawDown(); // start claw down motion early
-  fifteen.goForwardU(3, 75, ang, 0, 3, true, 20, 50);
+  fifteen.goForwardU(3, 100, ang, 0, 3, true, -1, 50);
   fifteen.goFightBackwards();
 
   // Get back to wall align but avoiding platform
@@ -237,8 +237,8 @@ int test() {
 }
 
 
-//void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
-void autonomous() { fifteen.setBrakeType(hold); task auto1(rightAuto); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(rightAuto); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(midAuto); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(midSimpleAuto); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(test); }
@@ -251,6 +251,13 @@ int main() {
 
   fifteen.backUp();
   fifteen.clawDown();
+
+  // If no competition switch, immediately start teleop
+  if (!Competition.isCompetitionSwitch()) {
+    userControl();
+    return 0;
+  }
+
   wait(500, msec);
   fifteen.gyroSensor.calibrate();
   fifteen.waitGyroCallibrate();

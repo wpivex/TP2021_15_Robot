@@ -42,7 +42,7 @@ void Robot::setControllerMapping(ControllerMapping mapping) {
   cMapping = mapping;
 
   //Controls that don't change:
-  BACK_LIFT_UP = cMapping == BRIAN_MAPPING ? Buttons::X : Buttons::A;
+  BACK_LIFT_UP = Buttons::A;
   BACK_LIFT_MID = Buttons::R1;
   BACK_LIFT_DOWN = Buttons::R2;
   BACK_LIFT_SLIGHT = Buttons::INVALID;
@@ -86,11 +86,17 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
     targetIsIntake = false;
     backLiftL.rotateTo(0, degrees, SPEED, velocityUnits::pct, false);
     backLiftR.rotateTo(0, degrees, SPEED, velocityUnits::pct, false);
-  } else if (b == BACK_LIFT_MID) {
+  } else if (b == BACK_LIFT_MID || b == Buttons::X) {
+    if (b == Buttons::X)  {
+      SPEED = 60;
+      goMidFrames = 30;
+    } else {
+      goMidFrames = 0;
+    }
     log("mid");
     targetIsIntake = true;
-    backLiftL.rotateTo(130, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(130, degrees, SPEED, velocityUnits::pct, false);
+    backLiftL.rotateTo(124, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(124, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_DOWN) {
     log("down");
     targetIsIntake = false;
@@ -127,7 +133,7 @@ void Robot::backLiftTeleop() {
     backLiftR.stop();
   }
 
-  if (targetIsIntake && backLiftR.isDone() && !backIsDown) backDown();
+  if (targetIsIntake && backLiftR.isDone() && !backIsDown && goMidFrames-- <= 0) backDown();
   else if (!targetIsIntake && backIsDown) backUp();
 
 }
@@ -861,7 +867,7 @@ int Robot::detectionAndStrafePhase(float *horizonalDistance, int matchStartTime)
 float Robot::getDistanceFromArea(int area) {
   if (area > 6000) return 24;
   else if (area > 2200) return 36 - 12.0 * (area - 2200.0) / (6000.0 - 2200);
-  else if (area > 1200) return 47 - 11.0 * (area - 1200.0) / (2200.0 - 1200);
+  else if (area > 1200) return 48 - 12.0 * (area - 1200.0) / (2200.0 - 1200);
   else return 47;
 }
 
