@@ -82,11 +82,11 @@ int matchAuto() {
   twentyFour.setBackClamp(false);
   twentyFour.goForwardU(-3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
 
-  twentyFour.gotToY(30, 100);
+  twentyFour.gotToY(34, 100);
   twentyFour.goTurnU(270);
-  twentyFour.gotToX(12, 100);
+  // twentyFour.gotToX(10, 100);
 
-  // runAI(&twentyFour, PORT2, matchStartTime, twentyFour.absoluteX);
+  runAI(&twentyFour, PORT19, matchStartTime, twentyFour.absoluteX);
 
   return 0;
 }
