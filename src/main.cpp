@@ -39,10 +39,10 @@ int leftAuto() {
   // Initial go rush
   fifteen.clawUp();
   float ang = fifteen.getAngle();
-  fifteen.goForwardU(36, 100, ang, 0, 0, false);
+  fifteen.goForwardU(35.5, 100, ang, 0, 0, false);
   fifteen.clawDown(); // start claw down motion early
-  //fifteen.goForwardU(2, 100, ang, 0, 0, false);
-  float slowDown = 2; fifteen.goForwardU(slowDown, 100, ang, 0, slowDown, true, -1, 50);
+  fifteen.goForwardU(0.5, 100, ang, 0, 0, false);
+  //float slowDown = 2; fifteen.goForwardU(slowDown, 100, ang, 0, slowDown, true, -1, 50);
   fifteen.goFightBackwards();
   fifteen.setSecondaryCurrent(true);
 
