@@ -363,6 +363,32 @@ void Robot::goForwardTimed(float duration, float speed) {
 
 }
 
+// does not stop motors after. Function exits as soon as 15 is level
+void Robot::climbPlatform(float speed) {
+  PID turnPID(1, 0.00, 0);
+  float startPitch = gyroSensor.roll();
+  int state = 0;
+
+  VisualGraph g(-20, 20, 9, 200);
+
+  float correction;
+  while (true) {
+
+    float pitch = gyroSensor.roll() - startPitch;
+    g.push(pitch);
+    if (state == 0 && pitch > 13) {state = 1; logController ("state 1"); }
+    if (state == 1 && pitch < 4) break;
+
+    float ang = getAngleDiff(90, getAngle());
+    correction = turnPID.tick(ang);
+ 
+    setLeftVelocity(forward, speed + correction);
+    setRightVelocity(forward, speed - correction);
+    wait(20, msec);
+  }
+  logController("climb done");
+}
+
 // Go forward a number of inches, maintaining a specific heading if angleCorrection = true
 void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
 bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
