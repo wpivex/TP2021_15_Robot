@@ -112,10 +112,11 @@ void Robot24::teleop() {
 }
 
 // does NOT stop motors
-void Robot24::goVisionUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpFrames, bool disableVision) {
+void Robot24::goVisionUntilSensor(float yLimit, float speed, digital_in sensor, float rampUpFrames, bool disableVision) {
 
-  Trapezoid trap(maxDistance, speed, 30, rampUpFrames, 0);
-  PID pidTurn(50, 0, 0);
+  float ay = this->absoluteY;
+  Trapezoid trap(yLimit - ay, speed, 30, rampUpFrames, 0);
+  PID pidTurn(60, 0, 0);
 
   int startTime = vex::timer::system();
 
@@ -130,18 +131,18 @@ void Robot24::goVisionUntilSensor(float maxDistance, float speed, digital_in sen
 
     camera.takeSnapshot(g.sig);
 
-    float speed = trap.tick(getEncoderDistance());
+    float speed = trap.tick(this->absoluteY - ay);
     float correction = camera.largestObject.exists ? pidTurn.tick((VISION_CENTER_X-camera.largestObject.centerX) / VISION_CENTER_X) : 0;
 
-    setLeftVelocity(forward, speed - correction);
-    setRightVelocity(forward, speed + correction);
+    setLeftVelocity(disableVision ? forward : reverse, speed - correction * (disableVision ? 1 : -1));
+    setRightVelocity(disableVision ? forward : reverse, speed + correction * (disableVision ? 1 : -1));
     
     wait(20, msec);
   }
 }
 
-void Robot24::goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpFrames) {
-  goVisionUntilSensor(maxDistance, speed, sensor, rampUpFrames, true);
+void Robot24::goForwardUntilSensor(float yLimit, float speed, digital_in sensor, float rampUpFrames) {
+  goVisionUntilSensor(yLimit, speed, sensor, rampUpFrames, true);
 }
 
 
@@ -183,9 +184,8 @@ void Robot24::goVision(float distInches, float speed, Goal goal, directionType c
 }
 
 // Align to the goal of specified color with PID
-void Robot24::goAlignVision(Goal goal, directionType cameraDir, float timeout, bool stopAfter) {
-  int32_t port = cameraDir == forward ? FRONT_CAMERA_PORT : BACK_CAMERA_PORT;
-  BaseRobot::goAlignVision_Abstract(70, 0, 0, 0.05, 3, 25, port, goal, timeout, stopAfter);
+void Robot24::goAlignVision(Goal goal, float timeout, bool stopAfter) {
+  BaseRobot::goAlignVision_Abstract(70, 0, 0, 0.05, 3, 25, BACK_CAMERA_PORT, goal, timeout, stopAfter);
 }
 
 // Same as goAlignVision, but use Trapezoidal instead of PID
@@ -335,7 +335,7 @@ void Robot24::setMaxDriveTorque(float c) {
 
 // return in inches
 float Robot24::getLeftEncoderAbsolute() {
-  return -leftEncoder.rotation(deg)*M_PI*2.75/360.0/3;
+  return leftEncoder.rotation(deg)*M_PI*2.75/360.0/3;
 }
 
 // return in inches

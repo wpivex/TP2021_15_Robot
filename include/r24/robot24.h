@@ -87,7 +87,7 @@ class Robot24 : public BaseRobot {
     // Vision Functions
     void goVision(float distInches, float speed, Goal goal, directionType cameraDir, float rampUpFrames, 
     float slowDownInches, float endSlowInches = 0, bool stopAfter = true, float timeout = 5);
-    void goAlignVision(Goal goal, directionType cameraDir, float timeout = 5, bool stopAfter = true);
+    void goAlignVision(Goal goal, float timeout = 5, bool stopAfter = true);
     void goAlignVisionTrap(Goal goal, directionType cameraDir, float timeout = 5, bool stopAfter = true);
     
     // Misc.
