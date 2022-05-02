@@ -156,7 +156,7 @@ int twoRingAuton() {
 
   if (obtainedGoal) {
 
-    fifteen.goForwardU(-15, 60, 270, rampUp, 5);
+    fifteen.goForwardU(-14, 60, 270, rampUp, 5);
     fifteen.goTurnU(90, -1); // face platform
 
     fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
@@ -182,18 +182,15 @@ int twoRingAuton() {
     fifteen.goForwardU(7, 40, 90, rampUp, 3);
   }
   // At this point, back wheel is aligned between tiles, ready to lower arm and climb
+  float startPitch = fifteen.gyroSensor.roll();
   fifteen.moveArmTo(100, 100); // lower platform
-  fifteen.goForwardU(70, 50, 90, rampUp, 5);
+  fifteen.goForwardU(18, 65, 90, rampUp, 0);
+  fifteen.climbPlatform(startPitch, 40);
   fifteen.moveArmTo(highArmAngle, 100, false);
-
-  // Climb platform
-  fifteen.climbPlatform(55);
-  fifteen.goForwardU(12, 55, 80, 0, 3, false, -1, 40, 2);
-  logController("timed");
-  fifteen.goForwardTimed(1.5, 40);
+  fifteen.goForwardTimed(3, 40);
 
   // Grab blue goal
-  fifteen.goForwardU(-2, 30, 90, 0, 1);
+  fifteen.goForwardU(-3, 30, 90, 0, 1);
   fifteen.goTurnU(180);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   fifteen.goForwardU(5, 60, 180, 10, 2);
@@ -203,7 +200,7 @@ int twoRingAuton() {
 
   // Do rings
   fifteen.startIntake();
-  fifteen.goForwardU(20, 30, 180, rampUp, 5, true, 20, 16, 2.5);
+  fifteen.goForwardU(30, 30, 180, rampUp, 5, true, 20, 16, 2.5);
   fifteen.goForwardU(-24, 40, 180, rampUp, 5, true, 20, 16, 2.5);
   fifteen.goForwardU(23.5, 30, 180, rampUp, 5, true, 20, 16, 2.5);
   fifteen.goForwardU(-24, 40, 180, rampUp, 5, true, 20, 16, 2.5);

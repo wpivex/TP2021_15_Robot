@@ -82,7 +82,6 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
   float SPEED = 100;
 
   if (b == BACK_LIFT_UP) {
-    log("up");
     targetIsIntake = false;
     backLiftL.rotateTo(0, degrees, SPEED, velocityUnits::pct, false);
     backLiftR.rotateTo(0, degrees, SPEED, velocityUnits::pct, false);
@@ -93,12 +92,10 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
     } else {
       goMidFrames = 0;
     }
-    log("mid");
     targetIsIntake = true;
     backLiftL.rotateTo(124, degrees, SPEED, velocityUnits::pct, false);
     backLiftR.rotateTo(124, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_DOWN) {
-    log("down");
     targetIsIntake = false;
     backLiftL.rotateTo(360, degrees, 60, velocityUnits::pct, false); // gentler set down
     backLiftR.rotateTo(360, degrees, 60, velocityUnits::pct, false);
@@ -364,9 +361,8 @@ void Robot::goForwardTimed(float duration, float speed) {
 }
 
 // does not stop motors after. Function exits as soon as 15 is level
-void Robot::climbPlatform(float speed) {
+void Robot::climbPlatform(float startPitch, float speed) {
   PID turnPID(1, 0.00, 0);
-  float startPitch = gyroSensor.roll();
   int state = 0;
 
   VisualGraph g(-20, 20, 9, 200);
@@ -476,7 +472,7 @@ bool Robot::moveArmToManual(double degr, double speed) {
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
 void Robot::goTurnU(float universalAngleDegrees, int direction, bool stopAfter, float timeout, float maxSpeed) {
-  PID anglePID(2.5, 0, 0.1, 1.3, 3, 18, maxSpeed);
+  PID anglePID(2.5, 0, 0.13, 1.3, 3, 18, maxSpeed);
 
   float speed;
 
