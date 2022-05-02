@@ -454,11 +454,17 @@ void Robot24::gotToY(float yValue, float speed) {
   Trapezoid trap(yValue, speed, 20, 0, 5);
   setBrakeType(hold);
   
+  // Figure out which direction to go
+  bool behindTarget = yValue-absoluteY>0; // Are we behind target
+  float gyroHeading = gyroSensor.heading();
+  bool facingForwards = !(gyroHeading>90 && gyroHeading<270); //Are we facing forwards
+  bool goBack = behindTarget^facingForwards;
+
   while (!trap.isCompleted()) {
     float speed = trap.tick(this->absoluteY);
 
-    setLeftVelocity(reverse, speed);
-    setRightVelocity(reverse, speed);
+    setLeftVelocity(goBack? reverse:forward, speed);
+    setRightVelocity(goBack? reverse:forward, speed);
 
     wait(20, msec);
   }

@@ -1,6 +1,8 @@
 #include "robot24.cpp"
 #include "Utility/GoalPosition.cpp"
 
+static float getDistanceFromWidth(int width);
+
 // Search for goal given ID. Return nullptr if not found
 static GoalPosition* getGoalFromID(std::vector<GoalPosition> &goals, int targetID) {
   for (int i = 0; i < goals.size(); i++) {
@@ -104,7 +106,7 @@ static int findGoalID(std::vector<GoalPosition> &goals) {
 
 // Strafe and lock onto the location of a goal
 // return area of object when arrived
-static int detectionAndStrafePhase(Robot24 *robot, vision *camera, int matchStartTime) {
+static float detectionAndStrafePhase(Robot24 *robot, vision *camera, int matchStartTime) {
 
   static const float MAX_TRAVEL_DISTANCE = 95;
 
@@ -124,10 +126,11 @@ static int detectionAndStrafePhase(Robot24 *robot, vision *camera, int matchStar
   PID anglePID(1, 0, 0);
   float speed, offset, ang, correction;
   int width = -1;
+  int area = -1;
 
   int pt = 0;
   float AiEndTime = 35; // Give 10 sec for rest of auto
-
+  
   while (targetID == -1 || !strafePID.isCompleted()) {
 
     pt = (pt + 1) % 10;
@@ -164,6 +167,7 @@ static int detectionAndStrafePhase(Robot24 *robot, vision *camera, int matchStar
         // Perform strafe towards goal
         offset = goal->cx - VISION_CENTER_X;
         width = goal->w;
+        area = goal->area();
         speed = strafePID.tick(offset);
 
       } else {
@@ -230,39 +234,46 @@ Grab yellow goal with front claw. Intake the whole time. Then, back up and align
 
 Keep repeating until timer threshold, OR reaches the end. */
 void runAI(Robot24 *robot, int32_t port, int matchStartTime) {
-
+  robot->setMaxArmTorque(CURRENT::HIGH);
   Goal g = YELLOW;
   vision camera(port, g.bright, g.sig); // Fix port
   //clawUp();
   Brain.Screen.setFont(mono20);
 
   const float GOAL_DISTANCE_OFFSET = 0;
+  const int widthThreshold = 0; 
   
   //moveArmTo(-20, 50, false);
 
   //float initialForward = 11;
-  
+  robot->setArmDegrees(300);
   while (true) {
 
     // Detection phase
-    //moveArmTo(200, 100, false);
     int width = detectionAndStrafePhase(robot, &camera, matchStartTime);
     if (width == -1) break; // exit if timeout or exceed x value
     float dist = getDistanceFromWidth(width) + GOAL_DISTANCE_OFFSET;
     logController("Width: %d\nDist: %d", width, dist);
-    //startIntake();
-    //robot->goTurnU(0); // point to goal
+    if(width>widthThreshold){
+      robot->setArmDegrees(500);
+      if(robot->frontSlideSensor){
+        // High if empty
+        // Grab with back slide (TODO: Fix var name)
+        robot->goTurnU(180);
+        robot->goVisionUntilSensor(reverse, 36, 100, robot->frontSlideSensor, 0);
+      }else if(robot->clawSensor){
+        // Grabs with front claw
+        
+        robot->goTurnU(0);
+        robot->goForwardUntilSensor(36, 100, robot->clawSensor, 0);
+        
+      }else break;
 
-    // Attack phase
-    //robot->goForwardU(dist, 40, 0, 10, 10);
-    //moveArmTo(-20, 100, true);
-    //clawDown();
-    //moveArmTo(100, 100, false);
-    wait(10000, msec);
-    
-    //robot->goForwardU(-dist, 85, 0, 10, 12);
-    //robot->goTurnU(270, true, 2);
-    //moveArmTo(-20, 50, false);
+      // Return to line :)
+      robot->gotToY(30,100);
+      robot->goTurnU(270);
+      robot->setArmDegrees(300);
+    }
   }
   //logController("timer done");
 
