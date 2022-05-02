@@ -366,7 +366,6 @@ void Robot::goForwardTimed(float duration, float speed) {
 // Go forward a number of inches, maintaining a specific heading if angleCorrection = true
 void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
 bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
-  logController("goforwardu");
   Trapezoid trap(distInches, maxSpeed, slowDownMinSpeed, rampUpFrames, slowDownInches, rampMinSpeed);
   PID turnPID(1, 0.00, 0);
 
@@ -423,7 +422,9 @@ bool Robot::moveArmToManual(double degr, double speed) {
 
   bool risingEdge = pos < degr;
 
-  while (risingEdge ? pos < degr : pos > degr) {
+  int startTime = vex::timer::system();
+
+  while (!isTimeout(startTime, 1.5) && risingEdge ? pos < degr : pos > degr) {
     pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
     float diff = (frontArmR.position(deg) - frontArmL.position(deg));
     correction = diffPID.tick(diff);
@@ -898,7 +899,7 @@ void Robot::runAI(int matchStartTime) {
     wait(100, msec);
     
     goForwardU(-dist, 85, 0, rampUp, 12);
-    goTurnU(270, true, 2);
+    goTurnU(270, 0, true, 2);
     moveArmTo(-20, 50, false);
   }
   logController("timer done");
