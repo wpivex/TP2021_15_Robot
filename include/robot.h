@@ -91,7 +91,7 @@ class Robot {
 
     void goCurve(float distInches, float maxSpeed, float turnPercent, float rampUpInches, float slowDownInches, bool stopAfter = true, float rampMinSpeed = 20, float slowMinSpeed = 12);
 
-    void goTurnU(float universalAngleDegrees, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
+    void goTurnU(float universalAngleDegrees, int direction = 0, bool stopAfter = true, float timeout = 5, float maxSpeed = 75);
 
     void goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
 bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 16, float timeout = 10);
@@ -112,6 +112,7 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 16, flo
     void goRadiusCurve(float radius, float numRotations, bool curveDirection, float maxSpeed, float rampUp, float slowDown, bool stopAfter = true, float timeout = 5);
 
     void moveArmTo(double degr, double speed, bool blocking = true);
+    bool moveArmToManual(double degr, double speed);
 
     void goFightBackwards();
 
@@ -126,6 +127,7 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 16, flo
     void intakeTeleop();
     void setLeftVelocity(directionType d, double percent);
     void setRightVelocity(directionType d, double percent);
+    void setMotorVelocity(motor m, directionType d, double percent);
     void startIntake(directionType dir = forward);
     void stopIntake();
     void stopLeft();

@@ -408,74 +408,47 @@ float slowDownMinSpeed, float timeout) {
   goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
 }
 
-// Go at specified direction and approach given x position with PID motion profiling using GPS absolute positioning
-void Robot::goToAxis(axisType axis, bool reverseDirection, float finalValue, float maxSpeed, float timeout) {
+// Move at speed until crossing threshold. No PID, is heaviside
+// Returns true if there's a goal on arm, false if not, using current thresholds
+bool Robot::moveArmToManual(double degr, double speed) {
 
-  float startDist = axis == axisType::xaxis ? getX() : getY();
 
-  Trapezoid trap(finalValue - startDist, maxSpeed, 12, 3, 8);
-  PID turnPID(1, 0, 0);
-  int startTime = vex::timer::system();
-  float h = getAngle(); // maintain current heading
+  PID diffPID(1, 0, 0);
+  float correction;
+  float pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
 
-  while (!trap.isCompleted() && !isTimeout(startTime, timeout)) {
+  // Find average current over arm lift
+  float sumCurrent = 0;
+  int numSamples = 0;
 
-    float currDist = axis == axisType::xaxis ? getX() : getY();
-    float speed = trap.tick(currDist - startDist) * (reverseDirection ? -1 : 1);
-    float correction = turnPID.tick(getAngleDiff(h, getAngle()));
+  bool risingEdge = pos < degr;
 
-    setLeftVelocity(forward, speed + correction);
-    setRightVelocity(forward, speed - correction);
+  while (risingEdge ? pos < degr : pos > degr) {
+    pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
+    float diff = (frontArmR.position(deg) - frontArmL.position(deg));
+    correction = diffPID.tick(diff);
 
-    log("Current: %f \n Final: %f", currDist, finalValue);
+    setMotorVelocity(frontArmL, forward, speed + correction);
+    setMotorVelocity(frontArmR, forward, speed - correction);
+
+    float curr = (frontArmL.current() + frontArmR.current()) / 2.0;
+    sumCurrent += curr;
+    numSamples++;
 
     wait(20, msec);
   }
-  stopLeft();
-  stopRight();
-}
-// Go forward towards point, making corrections to target. Stop angle correction 15 inches before hitting target
-// Uses trapezoidal motion profile for distance and PID for angle corrections
-void Robot::goForwardGPS(float x, float y, float maxSpeed, float rampUpInches, float slowDownInches, directionType dir) {
-  float sx = getX();
-  float sy = getY();
 
-  float distInches = distanceFormula(x - sx, y - sy);
+  frontArmL.stop();
+  frontArmR.stop();
+
+  float avgCurrent = (numSamples == 0) ? 0 : sumCurrent / numSamples;
+
+  return avgCurrent > 0.6; // no load current ~0.45A, goal current ~0.86A
   
-  Trapezoid trap(distInches, maxSpeed, 4, rampUpInches, slowDownInches, 20);
-  PID turnPID(1.2, 0.00, 0);
-
-  float correction = 0;
-  int startTime = vex::timer::system();
-
-  while (!trap.isCompleted() && !isTimeout(startTime, 10)) {
-
-    float cx = getX();
-    float cy = getY();
-
-    float currDist = distanceFormula(cx - sx, cy - sy);
-    
-    float speed = trap.tick(currDist) * (dir == forward ? 1 : -1);
-    float ang = getAngleDiff(angleToPointU(x - cx, y - cy), getAngle());
-    if (distInches - currDist > 10) correction = turnPID.tick(ang); // adjust heading towards target if over 15 inches away
-
-    //log("Error: %f \n CurrDist: %f \n Speed: %f \n Angle: %f \n Correction: %f", distanceFormula(x-cx,y-cy), currDist, speed, ang, correction);
-    //log("Quality: %d", GPS11.quality());
-
-    setLeftVelocity(forward, speed + correction);
-    setRightVelocity(forward, speed - correction);
-
-    wait(20, msec);
-  }
-
-  stopLeft();
-  stopRight();
-  log("done");
 }
 
 // Turn to some universal angle based on starting point. Turn direction is determined by smallest angle to universal angle
-void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, float maxSpeed) {
-  logController("goTurnU");
+void Robot::goTurnU(float universalAngleDegrees, int direction, bool stopAfter, float timeout, float maxSpeed) {
   PID anglePID(2.5, 0, 0.1, 1.3, 3, 18, maxSpeed);
 
   float speed;
@@ -484,17 +457,22 @@ void Robot::goTurnU(float universalAngleDegrees, bool stopAfter, float timeout, 
   int startTime = vex::timer::system();
   log("about to loop");
 
-  while (!anglePID.isCompleted() && !isTimeout(startTime, timeout)) {
+  float relativeAngle = 0 - getAngleDiff(universalAngleDegrees, getAngle()); // negative = turn clockwise, positive = turn counterclockwise
+  if (relativeAngle < 0 && direction == -1) relativeAngle += 360; // closest is to turn clockwise, but force turn counterclockwise
+  else if (relativeAngle > 0 && direction == 1) relativeAngle -= 360; // closest is to turn counterclockwise, but force turn clockwise
 
-    float ang = getAngleDiff(universalAngleDegrees, getAngle());
-    speed = anglePID.tick(ang);
+  gyroSensor.setRotation(relativeAngle, deg); // set starting rotation, PID until gyroSensor rotation = 0
+
+  while (!anglePID.isCompleted() && !isTimeout(startTime, timeout)) {
+    
+    speed = anglePID.tick(gyroSensor.rotation());
 
     //log("Turn \nTarget: %f \nCurrent: %f \nDiff: %f\nSpeed: %f \nGPS: %f", universalAngleDegrees, getAngle(), ang, speed, GPS11.heading());
     //log("heading: %f", GPS11.heading());
-    log("%f", gyroSensor.heading());
+    // log("Heading: %f\nSpeed: %f", getAngle(), speed);
 
-    setLeftVelocity(forward, speed);
-    setRightVelocity(reverse, speed);
+    setLeftVelocity(reverse, speed);
+    setRightVelocity(forward, speed);
 
     wait(20, msec);
   }
@@ -952,6 +930,17 @@ void Robot::setRightVelocity(directionType d, double percent) {
   rightMotorB.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
   rightMotorC.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
   rightMotorD.spin(d, percent / 100.0 * MAX_VOLTS, voltageUnits::volt);
+}
+
+void Robot::setMotorVelocity(motor m, directionType d, double percent) {
+  if (percent < 0) {
+    d = (d == forward) ? reverse : forward;
+    percent = -percent;
+  }
+
+  percent = fmin(100, fmax(-100, percent)); // bound between -100 and 100
+
+  m.spin(d, percent / 100.0 * 12.0, voltageUnits::volt);
 }
 
 void Robot::startIntake(directionType dir) {

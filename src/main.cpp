@@ -99,12 +99,112 @@ int leftAuto() {
   return 0;
 }
 
+int twoRingAuton() {
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
-//void autonomous() { fifteen.setBrakeType(hold); task auto1(rightAuto); }
-//void autonomous() { fifteen.setBrakeType(hold); task auto1(midAuto); }
-//void autonomous() { fifteen.setBrakeType(hold); task auto1(midSimpleAuto); }
-//void autonomous() { fifteen.setBrakeType(hold); task auto1(test); }
+  // int matchStartTime = timer::system();
+  float highArmAngle = 680;
+  float lowArmAngle = -20;
+  float fwdMinSpeed = 18;
+  int rampUp = 15;
+  fifteen.setBrakeType(hold);
+
+  boxRush();
+
+
+  bool obtainedGoal = fifteen.moveArmToManual(highArmAngle, 100); // raise arm and use current thresholds to determine whether obtained yellow goal
+
+  // Align with left wall
+  fifteen.goForwardU(4, 40, 0, 0, 0);
+  wait(150, msec);
+  fifteen.goTurnU(270);
+  fifteen.goForwardU(8, 50, 270, rampUp, 5, false, 20, 30, 2);
+  fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
+  fifteen.goForwardTimed(1.3, 30);
+
+  // Get alliance goal
+  
+  fifteen.goForwardU(-20, 70, 270, rampUp, 5, false, 20, 40, 3);
+  fifteen.goForwardU(-9, 40, 270, 0, 0, true, 10, 20, 1.5);
+  fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
+
+  // do match load rings
+  fifteen.startIntake();
+  fifteen.goForwardU(30, 35, 270, rampUp, 5, true, 20, 15, 3);
+  fifteen.backDown();
+  fifteen.goForwardU(-17, 40, 270, rampUp, 5, true, 20, 15, 2.5); // go three passes to pick up rings
+  fifteen.goForwardU(16, 35, 270, rampUp, 0, false);
+  fifteen.goForwardTimed(0.7, 30);
+
+  /*
+  Robot needs to get to other alliance goal through platform. Behavior is dependent on whether yellow goal was obtained.
+  If yellow goal obtained, turn 180 to face platform, release alliance goal from 1dof, climb
+  Otherwise, back up, release alliance goal from 1dof, turn 180 to face platform, pick up alliance goal with front arm, climb
+  */
+
+  if (obtainedGoal) {
+
+    fifteen.goForwardU(-18, 60, rampUp, 5, 270);
+    fifteen.goTurnU(90, -1); // face platform
+
+    fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
+    fifteen.goForwardU(12, 50, 90, rampUp, 5);
+    fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
+
+  } else {
+
+    // Exchange blue goal from back to front
+    fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false); // drop alliance goal
+    fifteen.goForwardU(-12, 50, 270, rampUp, 0, false);
+    fifteen.moveArmTo(lowArmAngle, 100, false); // lower arm to pick up alliance goal
+    fifteen.goForwardU(-5, 50, 270, 0, 3);
+    fifteen.goForwardU(10, 50, 270, rampUp, 3);
+    fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
+    wait(500, msec); // wait for back lift to fold sufficiently
+    fifteen.goTurnU(90, 1);
+    fifteen.goForwardU(10, 50, 90, rampUp, 5);
+    fifteen.clawDown();
+
+    // Get to platfom ready position
+    fifteen.moveArmTo(500, 100);
+    fifteen.goForwardU(7, 40, 90, rampUp, 3);
+  }
+  // At this point, back wheel is aligned between tiles, ready to lower arm and climb
+
+  // Climb platform
+    fifteen.moveArmTo(100, 100); // lower platform
+    fifteen.goForwardU(70, 50, 90, rampUp, 5);
+    fifteen.moveArmTo(highArmAngle, 100, false);
+
+    // Align on wall with clearance on the home side
+    wait(500, msec);
+    fifteen.goForwardU(15, 30, 80, rampUp, 5); // angle slightly away from platform
+    fifteen.goTurnU(90);
+    fifteen.goForwardTimed(1, 30);
+
+    // Grab blue goal
+    fifteen.goForwardU(-2, 30, 90, 0, 1);
+    fifteen.goTurnU(180);
+    fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
+    fifteen.goForwardU(-15, 40, 180, rampUp, 5);
+    fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
+
+    // Do rings
+    fifteen.startIntake();
+    fifteen.goForwardU(16, 30, 180, rampUp, 5);
+    fifteen.goForwardU(-24, 40, 180, rampUp, 5);
+    fifteen.goForwardU(16, 30, 180, rampUp, 0, false);
+    fifteen.goForwardTimed(1, 30);
+
+    // Get to teleop position
+    fifteen.goCurve(24, 50, 0.3, 20, 7);
+    fifteen.moveArmTo(200, 100, false);
+    fifteen.goTurnU(0);
+
+  return 0;
+}
+
+// void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuton); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(twoRingAuton); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
 //void userControl(void) { task controlLoop1(logDistance); }
