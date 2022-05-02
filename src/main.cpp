@@ -110,7 +110,7 @@ int twoRingAuton() {
 
   boxRush();
 
-
+  wait(300, msec);
   bool obtainedGoal = fifteen.moveArmToManual(highArmAngle, 100); // raise arm and use current thresholds to determine whether obtained yellow goal
 
   // Align with left wall

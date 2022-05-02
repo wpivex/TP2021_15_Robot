@@ -445,8 +445,8 @@ bool Robot::moveArmToManual(double degr, double speed) {
   bool risingEdge = pos < degr;
 
   int startTime = vex::timer::system();
-
-  while (!isTimeout(startTime, 1.5) && risingEdge ? pos < degr : pos > degr) {
+  int a = 10;
+  while (!isTimeout(startTime, 1.5) && (risingEdge ? pos < degr : pos > degr)) {
     pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
     float diff = (frontArmR.position(deg) - frontArmL.position(deg));
     correction = diffPID.tick(diff);
@@ -454,11 +454,13 @@ bool Robot::moveArmToManual(double degr, double speed) {
     setMotorVelocity(frontArmL, forward, speed + correction);
     setMotorVelocity(frontArmR, forward, speed - correction);
 
-    float curr = (frontArmL.current() + frontArmR.current()) / 2.0;
-    sumCurrent += curr;
-    numSamples++;
-
+    if (a-- <= 0) {
+      float curr = (frontArmL.current() + frontArmR.current()) / 2.0;
+      sumCurrent += curr;
+      numSamples++;
+    }
     wait(20, msec);
+    log("%d", a);
   }
 
   frontArmL.stop();
@@ -466,9 +468,9 @@ bool Robot::moveArmToManual(double degr, double speed) {
 
   float avgCurrent = (numSamples == 0) ? 0 : sumCurrent / numSamples;
 
-  logController("A: %f\n%s", avgCurrent, avgCurrent > 0.75 ? "Obtained" : "Not");
+  logController("A: %f\n%s", avgCurrent, avgCurrent > 1 ? "Obtained" : "Not");
 
-  return avgCurrent > 0.75; // no load current ~0.45A, goal current ~0.86A
+  return avgCurrent > 1.0; // no load current ~0.45A, goal current ~0.86A
   
 }
 
@@ -478,9 +480,7 @@ void Robot::goTurnU(float universalAngleDegrees, int direction, bool stopAfter, 
 
   float speed;
 
-  log("initing");
   int startTime = vex::timer::system();
-  log("about to loop");
 
   float relativeAngle = 0 - getAngleDiff(universalAngleDegrees, getAngle()); // negative = turn clockwise, positive = turn counterclockwise
   if (relativeAngle < 0 && direction == -1) relativeAngle += 360; // closest is to turn clockwise, but force turn counterclockwise
