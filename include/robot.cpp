@@ -443,10 +443,10 @@ bool Robot::moveArmToManual(double degr, double speed) {
   int numSamples = 0;
 
   bool risingEdge = pos < degr;
+  int a = 0;
 
   int startTime = vex::timer::system();
-  int a = 10;
-  while (!isTimeout(startTime, 1.5) && (risingEdge ? pos < degr : pos > degr)) {
+  while (!isTimeout(startTime, 1.3) && (risingEdge ? pos < degr : pos > degr)) {
     pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
     float diff = (frontArmR.position(deg) - frontArmL.position(deg));
     correction = diffPID.tick(diff);
@@ -454,7 +454,7 @@ bool Robot::moveArmToManual(double degr, double speed) {
     setMotorVelocity(frontArmL, forward, speed + correction);
     setMotorVelocity(frontArmR, forward, speed - correction);
 
-    if (a-- <= 0) {
+    if (a++ <= 20) {
       float curr = (frontArmL.current() + frontArmR.current()) / 2.0;
       sumCurrent += curr;
       numSamples++;
