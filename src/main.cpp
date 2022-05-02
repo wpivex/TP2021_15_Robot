@@ -158,7 +158,7 @@ int twoRingAuton() {
 
     fifteen.goForwardU(-14, 60, 270, rampUp, 5);
     fifteen.goTurnU(90, -1); // face platform
-
+    fifteen.backUp();
     fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, true);
     fifteen.goForwardU(6, 50, 90, rampUp, 3);
     fifteen.setBackLift(fifteen.BACK_LIFT_UP, false);
@@ -166,6 +166,7 @@ int twoRingAuton() {
   } else {
 
     // Exchange blue goal from back to front
+    fifteen.backUp();
     fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false); // drop alliance goal
     fifteen.goForwardU(-12, 50, 270, rampUp, 0, false);
     fifteen.moveArmTo(lowArmAngle, 100, false); // lower arm to pick up alliance goal
@@ -185,9 +186,9 @@ int twoRingAuton() {
   float startPitch = fifteen.gyroSensor.roll();
   fifteen.moveArmTo(100, 100); // lower platform
   fifteen.goForwardU(18, 65, 90, rampUp, 0);
-  fifteen.climbPlatform(startPitch, 40);
+  fifteen.climbPlatform(startPitch, 50);
   fifteen.moveArmTo(highArmAngle, 100, false);
-  fifteen.goForwardTimed(3, 40);
+  fifteen.goForwardTimed(2.8, 37);
 
   // Grab blue goal
   fifteen.goForwardU(-3, 30, 90, 0, 1);
@@ -195,20 +196,20 @@ int twoRingAuton() {
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
   fifteen.goForwardU(5, 60, 180, 10, 2);
   wait(300, msec);
-  fifteen.goForwardU(-20, 40, 180, rampUp, 5);
+  fifteen.goForwardU(-22, 40, 180, rampUp, 5);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
+  fifteen.backDown();
 
   // Do rings
   fifteen.startIntake();
-  fifteen.goForwardU(30, 30, 180, rampUp, 5, true, 20, 16, 2.5);
-  fifteen.goForwardU(-24, 40, 180, rampUp, 5, true, 20, 16, 2.5);
-  fifteen.goForwardU(23.5, 30, 180, rampUp, 5, true, 20, 16, 2.5);
-  fifteen.goForwardU(-24, 40, 180, rampUp, 5, true, 20, 16, 2.5);
-  fifteen.goForwardU(16, 30, 180, rampUp, 0, false);
-  fifteen.goForwardTimed(1, 30);
+  fifteen.goForwardU(28, 30, 180, rampUp, 5, true, 20, 16, 2.25);
+  fifteen.goForwardU(-24, 40, 180, rampUp, 5, true, 20, 16, 2.25);
+  fifteen.goForwardU(23.5, 30, 180, rampUp, 5, true, 20, 16, 2.25);
+  fifteen.goForwardU(-24, 40, 180, rampUp, 5, true, 20, 16, 2.25);
+  fifteen.goForwardU(23.5, 30, 180, rampUp, 5, true, 20, 16, 2.25);
 
   // Get to teleop position
-  fifteen.goCurve(-35, 50, 0.3, 20, 7);
+  fifteen.goCurve(-35, 80, 0.3, 20, 7);
   fifteen.moveArmTo(200, 100, false);
   fifteen.goTurnU(0);
 
