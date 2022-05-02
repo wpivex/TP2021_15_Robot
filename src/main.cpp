@@ -112,7 +112,6 @@ int twoRingAuton() {
 
 
   bool obtainedGoal = fifteen.moveArmToManual(highArmAngle, 100); // raise arm and use current thresholds to determine whether obtained yellow goal
-  logController("%s", obtainedGoal ? "obtained" : "not obtained");
 
   // Align with left wall
   fifteen.goForwardU(4, 40, 0, 0, 0);
@@ -216,8 +215,18 @@ int twoRingAuton() {
   return 0;
 }
 
+int armTest() {
+  float highArmAngle = 680;
+  fifteen.clawUp();
+  wait(1000, msec);
+  fifteen.clawDown();
+  fifteen.moveArmToManual(highArmAngle, 100);
+  return 0;
+}
+
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
 void autonomous() { fifteen.setBrakeType(hold); task auto1(twoRingAuton); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(armTest); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
 //void userControl(void) { task controlLoop1(logDistance); }

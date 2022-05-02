@@ -466,7 +466,9 @@ bool Robot::moveArmToManual(double degr, double speed) {
 
   float avgCurrent = (numSamples == 0) ? 0 : sumCurrent / numSamples;
 
-  return avgCurrent > 0.6; // no load current ~0.45A, goal current ~0.86A
+  logController("A: %f\n%s", avgCurrent, avgCurrent > 0.75 ? "Obtained" : "Not");
+
+  return avgCurrent > 0.75; // no load current ~0.45A, goal current ~0.86A
   
 }
 
