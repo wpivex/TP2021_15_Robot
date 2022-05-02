@@ -112,7 +112,7 @@ void Robot24::teleop() {
 }
 
 // does NOT stop motors
-void Robot24::goVisionUntilSensor(directionType cameraDir, float maxDistance, float speed, digital_in sensor, float rampUpFrames, bool disableVision) {
+void Robot24::goVisionUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpFrames, bool disableVision) {
 
   Trapezoid trap(maxDistance, speed, 30, rampUpFrames, 0);
   PID pidTurn(50, 0, 0);
@@ -120,7 +120,7 @@ void Robot24::goVisionUntilSensor(directionType cameraDir, float maxDistance, fl
   int startTime = vex::timer::system();
 
   Goal g = YELLOW;
-  int32_t port = cameraDir == forward ? FRONT_CAMERA_PORT : BACK_CAMERA_PORT;
+  int32_t port = BACK_CAMERA_PORT;
   vision camera(port, g.bright, g.sig);
 
   resetEncoderDistance();
@@ -141,7 +141,7 @@ void Robot24::goVisionUntilSensor(directionType cameraDir, float maxDistance, fl
 }
 
 void Robot24::goForwardUntilSensor(float maxDistance, float speed, digital_in sensor, float rampUpFrames) {
-  goVisionUntilSensor(forward, maxDistance, speed, sensor, rampUpFrames, true);
+  goVisionUntilSensor(maxDistance, speed, sensor, rampUpFrames, true);
 }
 
 
@@ -160,7 +160,7 @@ void Robot24::goForwardU(float distInches, float maxSpeed, float universalAngle,
 // 0.075
 // I = 0.96
 void Robot24::goTurnU(float universalAngleDegrees, int direction, bool stopAfter, float timeout, float maxSpeed) {
-  BaseRobot::goTurnU_Abstract(15, 0, 1, 0.25, 3, 20, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
+  BaseRobot::goTurnU_Abstract(15, 0, 1, 1, 3, 20, universalAngleDegrees, direction, stopAfter, timeout, maxSpeed);
 }
 
 //.void Robot24::goTurnUFast(float universalAngleDegrees)
@@ -463,8 +463,8 @@ void Robot24::gotToY(float yValue, float speed) {
   while (!trap.isCompleted()) {
     float speed = trap.tick(this->absoluteY);
 
-    setLeftVelocity(goBack? reverse:forward, speed);
-    setRightVelocity(goBack? reverse:forward, speed);
+    setLeftVelocity(goBack? forward : reverse, speed);
+    setRightVelocity(goBack? forward : reverse, speed);
 
     wait(20, msec);
   }

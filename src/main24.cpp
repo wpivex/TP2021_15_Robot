@@ -58,6 +58,13 @@ int matchAuto() {
   int matchStartTime = timer::system();
   Goal allianceColor = RED;
 
+  twentyFour.setArmDegrees(500);
+  twentyFour.setMaxArmTorque(CURRENT::OFF);
+  twentyFour.goForwardU(15, 60, twentyFour.gyroSensor.heading(), 5, 5);
+  twentyFour.goTurnU(270);
+  runAI(&twentyFour, PORT19, matchStartTime);
+  return 0;
+
   // ~~~~~~~~~~~~~ Box Rush Right ~~~~~~~~~~~~~~~
   twentyFour.openClaw();
   // Drive forwards at full speed (while adjusting towards goal if needed)
@@ -76,17 +83,19 @@ int matchAuto() {
 
   // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
   twentyFour.setBackClamp(true);
-  twentyFour.goVisionUntilSensor(reverse, -45, 100, twentyFour.frontSlideSensor, 0, 3);
+  twentyFour.goVisionUntilSensor(-45, 100, twentyFour.frontSlideSensor, 0, 3);
   twentyFour.stopLeft();
   twentyFour.stopRight();
   twentyFour.setBackClamp(false);
   twentyFour.goForwardU(-3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
 
-  twentyFour.gotToY(34, 100);
+  twentyFour.gotToY(31, 100);
   twentyFour.goTurnU(270);
-  // twentyFour.gotToX(10, 100);
 
-  runAI(&twentyFour, PORT19, matchStartTime, twentyFour.absoluteX);
+  runAI(&twentyFour, PORT19, matchStartTime);
+
+  twentyFour.goTurnU(180);
+
 
   return 0;
 }

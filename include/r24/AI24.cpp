@@ -108,6 +108,8 @@ static int findGoalID(std::vector<GoalPosition> &goals) {
 // return area of object when arrived
 static float detectionAndStrafePhase(Robot24 *robot, vision *camera, int matchStartTime) {
 
+  logController("dasp");
+
   static const float MAX_TRAVEL_DISTANCE = 95;
 
   std::vector<GoalPosition> goals;
@@ -117,12 +119,12 @@ static float detectionAndStrafePhase(Robot24 *robot, vision *camera, int matchSt
 
   float ANGLE = 270;
   float MIN_SPEED = 15;
-  float COAST_SPEED = 65;
+  float COAST_SPEED = -65;
 
   Goal g = YELLOW;
   int targetID = -1;
 
-  PID strafePID(0.75, 0, 0.01, 5, 5, 8, 50);
+  PID strafePID(0.5, 0, 0.01, 5, 5, 8, 50);
   PID anglePID(1, 0, 0);
   float speed, offset, ang, correction;
   int width = -1;
@@ -134,7 +136,7 @@ static float detectionAndStrafePhase(Robot24 *robot, vision *camera, int matchSt
   while (targetID == -1 || !strafePID.isCompleted()) {
 
     pt = (pt + 1) % 10;
-    if (pt == 0) logController("Dist: %.1f\nTime: %.1f", 10-robot->absoluteX, (timer::system() - matchStartTime)/1000.0);
+    // if (pt == 0) logController("Dist: %.1f\nTime: %.1f", 10-robot->absoluteX, (timer::system() - matchStartTime)/1000.0);
 
     if (isTimeout(matchStartTime, AiEndTime) || 10-robot->absoluteX > MAX_TRAVEL_DISTANCE) {
       if (isTimeout(matchStartTime, AiEndTime)) logController("timeout");
@@ -145,8 +147,8 @@ static float detectionAndStrafePhase(Robot24 *robot, vision *camera, int matchSt
 
     // Initial ramp up for idle
     speed = COAST_SPEED; // if no target goal detected, this is default speed
-    float dist = fabs(10-robot->absoluteX);
-    if (dist < rampUpInches) speed = MIN_SPEED + (COAST_SPEED - MIN_SPEED) * (dist / rampUpInches);
+    // float dist = fabs(10-robot->absoluteX);
+    // if (dist < rampUpInches) speed = MIN_SPEED + (COAST_SPEED - MIN_SPEED) * (dist / rampUpInches);
 
     offset = -1;
 
@@ -168,10 +170,12 @@ static float detectionAndStrafePhase(Robot24 *robot, vision *camera, int matchSt
         offset = goal->cx - VISION_CENTER_X;
         width = goal->w;
         area = goal->area();
+        logController("GOAL IS SETTING SPEED");
         speed = strafePID.tick(offset);
 
       } else {
         // Tracked goal was lost, abort target and find new
+        logController("GET NEW GOAL");
         targetID = -1;
       }
     }
@@ -179,6 +183,7 @@ static float detectionAndStrafePhase(Robot24 *robot, vision *camera, int matchSt
     ang = getAngleDiff(ANGLE, robot->getAngle());
     correction = anglePID.tick(ang);
 
+    logController("Setting speed %f", speed);
     robot->setLeftVelocity(forward, -speed + correction);
     robot->setRightVelocity(forward, -speed - correction);
 
@@ -251,24 +256,31 @@ void runAI(Robot24 *robot, int32_t port, int matchStartTime) {
 
     // Detection phase
     int width = detectionAndStrafePhase(robot, &camera, matchStartTime);
-    if (width == -1) break; // exit if timeout or exceed x value
+    // if (width == -1) break; // exit if timeout or exceed x value
     float dist = getDistanceFromWidth(width) + GOAL_DISTANCE_OFFSET;
     logController("Width: %d\nDist: %d", width, dist);
     if(width>widthThreshold){
+      logController("I saw him");
       robot->setArmDegrees(500);
-      if(robot->frontSlideSensor){
+      if(robot->frontSlideSensor) {
+        logController("slidy");
         // High if empty
         // Grab with back slide (TODO: Fix var name)
         robot->goTurnU(180);
-        robot->goVisionUntilSensor(reverse, 36, 100, robot->frontSlideSensor, 0);
-      }else if(robot->clawSensor){
+        robot->setBackClamp(true);
+        robot->goVisionUntilSensor(-45, 60, robot->frontSlideSensor, 0);
+        robot->setBackClamp(false);
+        robot->goForwardU(-2, 100, robot->getAngle(), 0, 2);
+      } else if(robot->clawSensor) {
+        logController("clawy");
         // Grabs with front claw
         
         robot->goTurnU(0);
         robot->goForwardUntilSensor(36, 100, robot->clawSensor, 0);
         
-      }else break;
+      } else break;
 
+      logController("Uhhhhh");
       // Return to line :)
       robot->gotToY(30,100);
       robot->goTurnU(270);
@@ -278,7 +290,7 @@ void runAI(Robot24 *robot, int32_t port, int matchStartTime) {
   //logController("timer done");
 
   // Go to final horizontal distance
+  logController("Broke");
   robot->goForwardU(robot->absoluteX + 80, 70, 270, 10, 10);
-  robot->goTurnU(0);
 
 }
