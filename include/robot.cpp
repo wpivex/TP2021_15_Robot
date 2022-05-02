@@ -364,10 +364,10 @@ void Robot::goForwardTimed(float duration, float speed) {
 }
 
 // Go forward a number of inches, maintaining a specific heading if angleCorrection = true
-void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpInches, float slowDownInches, 
+void Robot::goForwardU(float distInches, float maxSpeed, float universalAngle, float rampUpFrames, float slowDownInches, 
 bool stopAfter, float rampMinSpeed, float slowDownMinSpeed, float timeout) {
   logController("goforwardu");
-  Trapezoid trap(distInches, maxSpeed, slowDownMinSpeed, rampUpInches, slowDownInches, rampMinSpeed);
+  Trapezoid trap(distInches, maxSpeed, slowDownMinSpeed, rampUpFrames, slowDownInches, rampMinSpeed);
   PID turnPID(1, 0.00, 0);
 
   float correction = 0;
