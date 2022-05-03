@@ -439,7 +439,7 @@ bool Robot::moveArmToManual(double degr, double speed) {
   float pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
 
   // Find average current over arm lift
-  float sumCurrent = 0;
+  float sumMeasuredSpeed = 0;
   int numSamples = 0;
 
   bool risingEdge = pos < degr;
@@ -455,8 +455,8 @@ bool Robot::moveArmToManual(double degr, double speed) {
     setMotorVelocity(frontArmR, forward, speed - correction);
 
     if (a++ <= 20) {
-      float curr = (frontArmL.current() + frontArmR.current()) / 2.0;
-      sumCurrent += curr;
+      float curr = (frontArmL.velocity(pct) + frontArmR.velocity(pct)) / 2.0;
+      sumMeasuredSpeed += curr / 100.0; // normalize -1 to 1 in order to prevent insanely large numbers
       numSamples++;
     }
     wait(20, msec);
@@ -466,11 +466,11 @@ bool Robot::moveArmToManual(double degr, double speed) {
   frontArmL.stop();
   frontArmR.stop();
 
-  float avgCurrent = (numSamples == 0) ? 0 : sumCurrent / numSamples;
+  float avgSpeed = (numSamples == 0) ? 0 : (sumMeasuredSpeed / numSamples) * 100.0;
 
-  logController("A: %f\n%s", avgCurrent, avgCurrent > 1 ? "Obtained" : "Not");
+  logController("A: %f\n%s", avgSpeed, avgSpeed > 0.5 ? "Obtained" : "Not");
 
-  return avgCurrent > 1.0; // no load current ~0.45A, goal current ~0.86A
+  return avgSpeed > 0.5; // no load current ~0.45A, goal current ~0.86A
   
 }
 
