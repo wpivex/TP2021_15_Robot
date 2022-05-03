@@ -129,13 +129,11 @@ int twoRingAuton() {
 
   // do match load rings
   fifteen.startIntake();
-  fifteen.goForwardU(30, 30, 270, rampUp, 5, true, 20, 15, 3);
+  fifteen.goForwardU(30, 25, 270, rampUp, 5, true, 20, 15, 3);
   fifteen.backDown();
-  fifteen.goForwardU(-20, 40, 270, rampUp, 5, true, 20, 15, 2.5); // go three passes to pick up rings
-  fifteen.goForwardU(19.5, 30, 270, rampUp, 5, true, 20, 15, 2.5); // go three passes to pick up rings
-  fifteen.goForwardU(-20, 40, 270, rampUp, 5, true, 20, 15, 2.5); // go three passes to pick up rings
-  fifteen.goForwardU(16, 30, 270, rampUp, 0, false);
-  fifteen.goForwardTimed(0.4, 30);
+  fifteen.goForwardU(-20, 40, 270, rampUp, 5, true, 20, 15, 2.5); // go two passes to pick up rings
+  fifteen.goForwardU(16, 25, 270, rampUp, 0, false);
+  fifteen.goForwardTimed(0.4, 25);
 
   // exit early and do not go for second goal if past amt. of seconds
   if (isTimeout(matchStartTime, obtainedGoal ? 32 : 25)) {
@@ -179,7 +177,7 @@ int twoRingAuton() {
 
     // Get to platfom ready position
     fifteen.moveArmTo(500, 100);
-    fifteen.goForwardU(7, 40, 90, rampUp, 3);
+    fifteen.goForwardU(5, 40, 90, rampUp, 3);
   }
   // At this point, back wheel is aligned between tiles, ready to lower arm and climb
   float startPitch = fifteen.gyroSensor.roll();
@@ -201,11 +199,9 @@ int twoRingAuton() {
 
   // Do rings
   fifteen.startIntake();
-  fifteen.goForwardU(28, 30, 180, rampUp, 5, true, 20, 16, 2.25);
-  fifteen.goForwardU(-24, 40, 180, rampUp, 5, true, 20, 16, 2.25);
-  fifteen.goForwardU(23.5, 30, 180, rampUp, 5, true, 20, 16, 2.25);
-  fifteen.goForwardU(-24, 40, 180, rampUp, 5, true, 20, 16, 2.25);
-  fifteen.goForwardU(23.5, 30, 180, rampUp, 5, true, 20, 16, 2.25);
+  fifteen.goForwardU(28, 25, 180, rampUp, 5, true, 20, 16, 2.25);
+  fifteen.goForwardU(-26, 40, 180, rampUp, 5, true, 20, 16, 2.25);
+  fifteen.goForwardU(25.5, 25, 180, rampUp, 5, true, 20, 16, 2.25);
 
   // Get to teleop position
   fifteen.goCurve(-35, 80, 0.3, 20, 7);
