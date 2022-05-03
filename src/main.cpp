@@ -129,7 +129,7 @@ int twoRingAuton() {
 
   // do match load rings
   fifteen.startIntake();
-  fifteen.goForwardU(30, 25, 270, rampUp, 5, true, 20, 15, 3);
+  fifteen.goForwardU(30, 25, 270, rampUp, 5, true, 20, 15, 2.75);
   fifteen.backDown();
   fifteen.goForwardU(-20, 40, 270, rampUp, 5, true, 20, 15, 2.5); // go two passes to pick up rings
   fifteen.goForwardU(16, 25, 270, rampUp, 0, false);
@@ -215,15 +215,16 @@ int twoRingAuton() {
 int armTest() {
   float highArmAngle = 680;
   fifteen.clawUp();
-  wait(1000, msec);
+  wait(500, msec);
   fifteen.clawDown();
+  wait(500, msec);
   fifteen.moveArmToManual(highArmAngle, 100);
   return 0;
 }
 
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
-void autonomous() { fifteen.setBrakeType(hold); task auto1(twoRingAuton); }
-//void autonomous() { fifteen.setBrakeType(hold); task auto1(armTest); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(twoRingAuton); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(armTest); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
 //void userControl(void) { task controlLoop1(logDistance); }
