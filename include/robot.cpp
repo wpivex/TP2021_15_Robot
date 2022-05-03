@@ -360,7 +360,7 @@ void Robot::goForwardTimed(float duration, float speed) {
 
 }
 
-// does not stop motors after. Function exits as soon as 15 is level
+// Function exits as soon as 15 is level
 void Robot::climbPlatform(float startPitch, float speed) {
   PID turnPID(1, 0.00, 0);
   int state = 0;
@@ -383,6 +383,8 @@ void Robot::climbPlatform(float startPitch, float speed) {
     wait(20, msec);
   }
   logController("climb done");
+  stopLeft();
+  stopRight();
 }
 
 // Go forward a number of inches, maintaining a specific heading if angleCorrection = true
@@ -465,9 +467,10 @@ bool Robot::moveArmToManual(double degr, double speed) {
 
   float avgSpeed = (numSamples == 0) ? 0 : (sumMeasuredSpeed / numSamples) * 100.0;
 
-  logController("A: %f\n%s", avgSpeed, avgSpeed > 50 ? "Obtained" : "Not");
+  bool obtained = avgSpeed < 80;
+  logController("A: %f\n%s", avgSpeed, obtained ? "Obtained" : "Not");
 
-  return avgSpeed < 60; // no load current ~0.45A, goal current ~0.86A
+  return obtained; // no load current ~0.45A, goal current ~0.86A
   
 }
 

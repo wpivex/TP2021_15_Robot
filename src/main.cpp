@@ -185,6 +185,7 @@ int twoRingAuton() {
   fifteen.goForwardU(18, 65, 90, rampUp, 0);
   fifteen.climbPlatform(startPitch, 50);
   fifteen.moveArmTo(highArmAngle, 100, false);
+  wait(400, msec);
   fifteen.goForwardTimed(2.8, 37);
 
   // Grab blue goal
