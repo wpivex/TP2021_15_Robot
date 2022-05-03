@@ -433,7 +433,6 @@ float slowDownMinSpeed, float timeout) {
 // Returns true if there's a goal on arm, false if not, using current thresholds
 bool Robot::moveArmToManual(double degr, double speed) {
 
-
   PID diffPID(1, 0, 0);
   float correction;
   float pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
@@ -443,7 +442,6 @@ bool Robot::moveArmToManual(double degr, double speed) {
   int numSamples = 0;
 
   bool risingEdge = pos < degr;
-  int a = 0;
 
   int startTime = vex::timer::system();
   while (!isTimeout(startTime, 1.3) && (risingEdge ? pos < degr : pos > degr)) {
@@ -454,13 +452,12 @@ bool Robot::moveArmToManual(double degr, double speed) {
     setMotorVelocity(frontArmL, forward, speed + correction);
     setMotorVelocity(frontArmR, forward, speed - correction);
 
-    if (a++ <= 20) {
-      float curr = (frontArmL.velocity(pct) + frontArmR.velocity(pct)) / 2.0;
-      sumMeasuredSpeed += curr / 100.0; // normalize -1 to 1 in order to prevent insanely large numbers
-      numSamples++;
-    }
+    float curr = (frontArmL.velocity(pct) + frontArmR.velocity(pct)) / 2.0;
+    sumMeasuredSpeed += curr / 100.0; // normalize -1 to 1 in order to prevent insanely large numbers
+    numSamples++;
+
     wait(20, msec);
-    log("%d", a);
+    //log("%d", a);
   }
 
   frontArmL.stop();
@@ -468,9 +465,9 @@ bool Robot::moveArmToManual(double degr, double speed) {
 
   float avgSpeed = (numSamples == 0) ? 0 : (sumMeasuredSpeed / numSamples) * 100.0;
 
-  logController("A: %f\n%s", avgSpeed, avgSpeed > 0.5 ? "Obtained" : "Not");
+  logController("A: %f\n%s", avgSpeed, avgSpeed > 50 ? "Obtained" : "Not");
 
-  return avgSpeed > 0.5; // no load current ~0.45A, goal current ~0.86A
+  return avgSpeed < 60; // no load current ~0.45A, goal current ~0.86A
   
 }
 
