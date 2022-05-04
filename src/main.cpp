@@ -23,6 +23,24 @@ int mainTeleop() {
   return 0;
 }
 
+int boxRushNoGyro() {
+
+  fifteen.setBrakeType(hold);
+  fifteen.setSecondaryCurrent(false); // disable non-drive motors for box rush
+  
+   // Initial go rush
+  fifteen.clawUp();
+  fifteen.goForwardU(37.5, 100, -1, 0, 0, false);
+  fifteen.clawDown(); // start claw down motion early
+  fifteen.goForwardU(0.5, 100, -1, 0, 0, false);
+  float slowDown = 0.75; fifteen.goForwardU(slowDown, 100, -1, 0, slowDown, true, -1, 30);
+  fifteen.goFightBackwards();
+  fifteen.setSecondaryCurrent(true);
+  fifteen.goCurve(15, 50, -0.3, 10, 5);
+
+  return 0;
+}
+
 void boxRush() {
   float lowArmAngle = -20;
   float highArmAngle = 680;
@@ -44,9 +62,9 @@ void boxRush() {
   // Get back to wall align but avoiding platform
   fifteen.moveArmTo(200, 100, false);
   fifteen.goTurnU(50);
-  fifteen.goForwardU(-10, 70, 50, rampUp, 7, true, 20, 20, 2);
+  fifteen.goForwardU(-12, 70, 50, rampUp, 7, true, 20, 20, 2);
   fifteen.goTurnU(0);
-  fifteen.goForwardU(-13, 70, 0, rampUp, 1, true, 20, 35, 2);
+  fifteen.goForwardU(-12, 70, 0, rampUp, 1, true, 20, 35, 2);
   fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.goForwardTimed(1, -35); // wall align back
 }
@@ -110,8 +128,8 @@ int twoRingAuton() {
 
   boxRush();
 
-  wait(300, msec);
-  bool obtainedGoal = fifteen.moveArmToManual(600, 100); // raise arm and use current thresholds to determine whether obtained yellow goal
+  fifteen.moveArmTo(600, 100, true);
+  bool obtainedGoal = fifteen.isThereGoal();
 
   // Align with left wall
   fifteen.goForwardU(4, 40, 0, 0, 0);
@@ -223,9 +241,10 @@ int armTest() {
 }
 
 
-//void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
-void autonomous() { fifteen.setBrakeType(hold); task auto1(twoRingAuton); }
-//oid autonomous() { fifteen.setBrakeType(hold); task auto1(armTest); }
+void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(twoRingAuton); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(armTest); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(boxRushNoGyro); }
 
 void userControl(void) { fifteen.setBrakeType(coast); task controlLoop1(mainTeleop); }
 //void userControl(void) { task controlLoop1(logDistance); }

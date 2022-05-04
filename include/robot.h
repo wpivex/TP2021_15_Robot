@@ -145,6 +145,8 @@ bool stopAfter = true, float rampMinSpeed = 20, float slowDownMinSpeed = 16, flo
     void backDown();
     void backUp();
 
+    bool isThereGoal();
+
 
   private:
     void driveTeleop();

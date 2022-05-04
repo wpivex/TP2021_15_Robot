@@ -3,7 +3,7 @@
 
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c), gyroSensor(PORT16) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c), gyroSensor(PORT5) {
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);
@@ -19,7 +19,7 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC, rightMotorD);
 
   // forward is UP, reverse is DOWN
-  frontArmL = motor(PORT19, ratio36_1, true);
+  frontArmL = motor(PORT13, ratio36_1, true);
   frontArmR = motor(PORT3, ratio36_1, false);
 
   backLiftL = motor(PORT6, ratio36_1, true);
@@ -93,8 +93,8 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
       goMidFrames = 0;
     }
     targetIsIntake = true;
-    backLiftL.rotateTo(124, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(124, degrees, SPEED, velocityUnits::pct, false);
+    backLiftL.rotateTo(110, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(110, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_DOWN) {
     targetIsIntake = false;
     backLiftL.rotateTo(360, degrees, 60, velocityUnits::pct, false); // gentler set down
@@ -431,6 +431,24 @@ float slowDownMinSpeed, float timeout) {
   goForwardU(distInches, maxSpeed, -1, rampUpInches, slowDownInches, stopAfter, rampMinSpeed, slowDownMinSpeed, timeout);
 }
 
+bool Robot::isThereGoal() {
+
+  int numSamples = 0;
+  float sumCurrent = 0;
+  while (numSamples < 10) {
+    sumCurrent += (frontArmL.torque(Nm) + frontArmR.torque(Nm)) / 2.0;
+    numSamples++;
+    wait(20, msec);
+  }
+
+  float avgCurrent = sumCurrent / numSamples;
+  bool obtained = avgCurrent > 0.3;
+  logController("%s\nNm: %f", obtained ? "Obtained" : "Not", avgCurrent);
+
+  return obtained;
+
+}
+
 // Move at speed until crossing threshold. No PID, is heaviside
 // Returns true if there's a goal on arm, false if not, using current thresholds
 bool Robot::moveArmToManual(double degr, double speed) {
@@ -441,8 +459,8 @@ bool Robot::moveArmToManual(double degr, double speed) {
 
 
   int actualStartTime = timer::system();
-  int startTime = -1;
-  int endTime = -1;
+  int startTime = timer::system();
+
   while (!isTimeout(actualStartTime, 1.3) && pos < degr) {
 
     pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
@@ -453,13 +471,11 @@ bool Robot::moveArmToManual(double degr, double speed) {
     setMotorVelocity(frontArmL, forward, speed + correction);
     setMotorVelocity(frontArmR, forward, speed - correction);
 
-    if (startTime == -1 && pos > 100) startTime = timer::system();
-    if (endTime == -1 && pos > 500) endTime = timer::system();
 
     wait(20, msec);
     log("pos: %f", pos);
   }
-  if (endTime == -1) endTime = timer::system();
+  int endTime = timer::system();
 
   frontArmL.stop();
   frontArmR.stop();
@@ -467,9 +483,10 @@ bool Robot::moveArmToManual(double degr, double speed) {
   int timeDelta = endTime - startTime;
 
   bool obtained = timeDelta > 750;
-  logController("%s\nTime: %d", obtained ? "Obtained" : "Not", timeDelta);
+  logController("Time: %d\nStart: %d\nEnd: %d",timeDelta, startTime, endTime);
 
-  return obtained;
+  //return obtained;
+  return true;
   
 }
 
