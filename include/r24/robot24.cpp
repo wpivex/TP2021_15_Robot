@@ -491,3 +491,23 @@ void Robot24::gotToX(float xValue, float speed) {
   stopRight();
   setBrakeType(coast);
 }
+
+void Robot24::testStrafePID() {
+  Goal g = YELLOW;
+  PID strafePID(0.7, 0, 0.01, 25, 3, 5, 30);
+  vision camera(SIDE_CAMERA_PORT, g.bright, g.sig);
+  while(!strafePID.isCompleted()) {
+    camera.takeSnapshot(g.sig);
+    if(camera.largestObject.exists) {
+      int offset = camera.largestObject.centerX - VISION_CENTER_X;
+      // logController("%f", offset);
+      float speed = strafePID.tick(-offset);
+
+      setLeftVelocity(forward, speed); 
+      setRightVelocity(forward, speed);
+    }
+    wait(20, msec);
+  }
+  stopLeft();
+  stopRight();
+}

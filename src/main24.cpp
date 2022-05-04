@@ -122,19 +122,18 @@ int testCurrent() {
 }
 
 int testTurn() {
+  twentyFour.setArmDegrees(500);
   twentyFour.goTurnU(90);
-  wait(1000, msec);
-  twentyFour.goTurnU(0, 1, true, 10, 100);
+  wait(2000, msec);
+  twentyFour.goTurnU(180);
+  wait(2000, msec);
+  twentyFour.goTurnU(0);
   return 0;
 }
 
-int testForward() {
-  twentyFour.goForwardU(24, 100,0, 20, 5, 5);
-  return 0;
-}
-
-int testGoPoint() {
-  twentyFour.goToPoint(-12, 0, 100);
+int testStrafe() {
+  twentyFour.testStrafePID();
+  log("Done");
   return 0;
 }
 

@@ -108,6 +108,8 @@ class Robot24 : public BaseRobot {
     void setArmBrakeType(brakeType b);
     void gotToY(float yValue, float speed);
     void gotToX(float xValue, float speed);
+    
+    void testStrafePID();
 
   private:
 
