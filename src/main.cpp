@@ -147,7 +147,7 @@ int twoRingAuton() {
   bool obtainedGoal = fifteen.moveArmToManual(600, 100);
 
   // Align with left wall
-  fifteen.goForwardU(5, 40, 0, 0, 0);
+  fifteen.goForwardU(4.5, 40, 0, 0, 0);
   wait(150, msec);
   fifteen.goTurnU(270);
   fifteen.goForwardU(8, 70, 270, rampUp, 5, false, 20, 30, 2);
