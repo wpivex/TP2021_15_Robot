@@ -476,13 +476,11 @@ bool Robot::moveArmToManual(double degr, double speed) {
   frontArmL.stop();
   frontArmR.stop();
 
-  //double timeDelta = Brain.timer(msec);
+  int timeDelta = timer::system() - actualStartTime;
 
-  //bool obtained = timeDelta > 750;
-  //logController("Time: %f",timeDelta);
-
-  //return obtained;
-  return false;
+  bool obtained = timeDelta > 850;
+  logController("Time: %d",timeDelta);
+  return obtained;
   
 }
 
@@ -942,7 +940,7 @@ void Robot::runAI(int matchStartTime) {
 
   // Go to final horizontal distance
   goForwardU(hDist - 35, 70, 270, rampUp, 10);
-  goTurnU(0);
+  //goTurnU(0);
 
 }
 

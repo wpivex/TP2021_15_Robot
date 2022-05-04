@@ -80,7 +80,6 @@ bool boxRush() {
   fifteen.goForwardU(-12, 70, 50, rampUp, 7, true, 20, 20, 2);
   fifteen.goTurnU(0);
   fifteen.goForwardU(-12, 70, 0, rampUp, 1, true, 20, 35, 2);
-  fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.goForwardTimed(1, -35); // wall align back
   return true;
 }
@@ -227,7 +226,7 @@ int twoRingAuton() {
   fifteen.goForwardU(-3, 30, 90, 0, 1);
   fifteen.goTurnU(180);
   fifteen.setBackLift(fifteen.BACK_LIFT_DOWN, false);
-  fifteen.goForwardU(5, 60, 180, 10, 2);
+  fifteen.goForwardU(5, 60, 180, 10, 2, true, 20, 16, 1.5);
   wait(300, msec);
   fifteen.goForwardU(-22, 40, 180, rampUp, 5);
   fifteen.setBackLift(fifteen.BACK_LIFT_MID, true);
@@ -260,8 +259,8 @@ int armTest() {
 }
 
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
-//void autonomous() { fifteen.setBrakeType(hold); /*task t(displayTime); */task auto1(twoRingAuton); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
+void autonomous() { fifteen.setBrakeType(hold); /*task t(displayTime); */task auto1(twoRingAuton); }
 //void autonomous() { fifteen.setBrakeType(hold); task t(displayTime); task auto1(armTest); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(boxRushNoGyro); }s
 
