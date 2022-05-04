@@ -93,8 +93,8 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
       goMidFrames = 0;
     }
     targetIsIntake = true;
-    backLiftL.rotateTo(110, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(110, degrees, SPEED, velocityUnits::pct, false);
+    backLiftL.rotateTo(100, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(100, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_DOWN) {
     targetIsIntake = false;
     backLiftL.rotateTo(360, degrees, 60, velocityUnits::pct, false); // gentler set down
@@ -458,9 +458,8 @@ bool Robot::moveArmToManual(double degr, double speed) {
   float pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
 
   int actualStartTime = timer::system();
-  Brain.resetTimer();
 
-  while (/*!isTimeout(actualStartTime, 1.3) && */pos < degr) {
+  while (!isTimeout(actualStartTime, 1.3) && pos < degr) {
 
     pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
     float diff = (frontArmR.position(deg) - frontArmL.position(deg));
@@ -471,19 +470,19 @@ bool Robot::moveArmToManual(double degr, double speed) {
     setMotorVelocity(frontArmR, forward, speed - correction);
 
 
-    wait(50, msec);
+    wait(20, msec);
     //log("pos: %f", pos);
   }
   frontArmL.stop();
   frontArmR.stop();
 
-  double timeDelta = Brain.timer(msec);
+  //double timeDelta = Brain.timer(msec);
 
-  bool obtained = timeDelta > 750;
-  logController("Time: %f",timeDelta);
+  //bool obtained = timeDelta > 750;
+  //logController("Time: %f",timeDelta);
 
   //return obtained;
-  return true;
+  return false;
   
 }
 
