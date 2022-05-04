@@ -436,13 +436,13 @@ bool Robot::isThereGoal() {
   int numSamples = 0;
   float sumCurrent = 0;
   while (numSamples < 10) {
-    sumCurrent += (frontArmL.torque(Nm) + frontArmR.torque(Nm)) / 2.0;
+    sumCurrent += frontArmL.torque(Nm) + frontArmR.torque(Nm);
     numSamples++;
     wait(20, msec);
   }
 
   float avgCurrent = sumCurrent / numSamples;
-  bool obtained = avgCurrent > 0.3;
+  bool obtained = avgCurrent > 0.45;
   logController("%s\nNm: %f", obtained ? "Obtained" : "Not", avgCurrent);
 
   return obtained;
@@ -457,11 +457,10 @@ bool Robot::moveArmToManual(double degr, double speed) {
   float correction;
   float pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
 
-
   int actualStartTime = timer::system();
-  int startTime = timer::system();
+  Brain.resetTimer();
 
-  while (!isTimeout(actualStartTime, 1.3) && pos < degr) {
+  while (/*!isTimeout(actualStartTime, 1.3) && */pos < degr) {
 
     pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
     float diff = (frontArmR.position(deg) - frontArmL.position(deg));
@@ -472,18 +471,16 @@ bool Robot::moveArmToManual(double degr, double speed) {
     setMotorVelocity(frontArmR, forward, speed - correction);
 
 
-    wait(20, msec);
-    log("pos: %f", pos);
+    wait(50, msec);
+    //log("pos: %f", pos);
   }
-  int endTime = timer::system();
-
   frontArmL.stop();
   frontArmR.stop();
 
-  int timeDelta = endTime - startTime;
+  double timeDelta = Brain.timer(msec);
 
   bool obtained = timeDelta > 750;
-  logController("Time: %d\nStart: %d\nEnd: %d",timeDelta, startTime, endTime);
+  logController("Time: %f",timeDelta);
 
   //return obtained;
   return true;

@@ -13,6 +13,15 @@
 
 Robot fifteen = Robot(&Controller1);
 
+int displayTime() {
+  Brain.resetTimer();
+
+  while (true) {
+    logController("Time: %f", Brain.timer(sec));
+    wait(100, msec);
+  }
+}
+
 int mainTeleop() {
   fifteen.setSecondaryCurrent(true);
   //fifteen.setTransmission(true);
@@ -36,12 +45,12 @@ int boxRushNoGyro() {
   float slowDown = 0.75; fifteen.goForwardU(slowDown, 100, -1, 0, slowDown, true, -1, 30);
   fifteen.goFightBackwards();
   fifteen.setSecondaryCurrent(true);
-  fifteen.goCurve(15, 50, -0.3, 10, 5);
+  fifteen.goCurve(-15, 50, -0.3, 10, 5);
 
   return 0;
 }
 
-void boxRush() {
+bool boxRush() {
   float lowArmAngle = -20;
   float highArmAngle = 680;
   int rampUp = 15;
@@ -59,6 +68,12 @@ void boxRush() {
   fifteen.goFightBackwards();
   fifteen.setSecondaryCurrent(true);
 
+  // handle gyro disconnect failsafe
+  if (!fifteen.gyroSensor.installed()) {
+    fifteen.goCurve(-15, 50, -0.3, 10, 5);
+    return false;
+  }
+
   // Get back to wall align but avoiding platform
   fifteen.moveArmTo(200, 100, false);
   fifteen.goTurnU(50);
@@ -67,6 +82,7 @@ void boxRush() {
   fifteen.goForwardU(-12, 70, 0, rampUp, 1, true, 20, 35, 2);
   fifteen.moveArmTo(highArmAngle, 100, false);
   fifteen.goForwardTimed(1, -35); // wall align back
+  return true;
 }
 
 int leftAuto() {
@@ -79,7 +95,7 @@ int leftAuto() {
   float highArmAngle = 680;
   int rampUp = 15;
 
-  boxRush();
+  if (!boxRush()) return 0;
 
   // Align with left wall
   fifteen.goForwardU(4, 40, 0, 0, 0);
@@ -126,10 +142,11 @@ int twoRingAuton() {
   int rampUp = 15;
   fifteen.setBrakeType(hold);
 
-  boxRush();
+  if (!boxRush()) return 0;
 
-  fifteen.moveArmTo(600, 100, true);
-  bool obtainedGoal = fifteen.isThereGoal();
+  //fifteen.moveArmTo(600, 100);
+  bool obtainedGoal = fifteen.moveArmToManual(600, 100);
+
 
   // Align with left wall
   fifteen.goForwardU(4, 40, 0, 0, 0);
@@ -147,10 +164,10 @@ int twoRingAuton() {
 
   // do match load rings
   fifteen.startIntake();
-  fifteen.goForwardU(30, 25, 270, rampUp, 5, true, 20, 15, 2.75);
+  fifteen.goForwardU(30, 30, 270, rampUp, 5, true, 20, 15, 2.75);
   fifteen.backDown();
   fifteen.goForwardU(-20, 40, 270, rampUp, 5, true, 20, 15, 2.5); // go two passes to pick up rings
-  fifteen.goForwardU(16, 25, 270, rampUp, 0, false);
+  fifteen.goForwardU(16, 30, 270, rampUp, 0, false);
   fifteen.goForwardTimed(0.4, 25);
 
   // exit early and do not go for second goal if past amt. of seconds
@@ -235,14 +252,16 @@ int armTest() {
   fifteen.clawUp();
   wait(500, msec);
   fifteen.clawDown();
-  fifteen.goForwardU(-20, 100, 0, 5, 8);
-  fifteen.moveArmToManual(highArmAngle, 100);
+  wait(500, msec);
+  fifteen.moveArmTo(200, 100);
+  wait(1000, msec);
+  bool obtainedGoal = fifteen.moveArmToManual(600, 100);
   return 0;
 }
 
 
-void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
-//void autonomous() { fifteen.setBrakeType(hold); task auto1(twoRingAuton); }
+//void autonomous() { fifteen.setBrakeType(hold); task auto1(leftAuto); }
+void autonomous() { fifteen.setBrakeType(hold); task t(displayTime); task auto1(twoRingAuton); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(armTest); }
 //void autonomous() { fifteen.setBrakeType(hold); task auto1(boxRushNoGyro); }
 
@@ -254,12 +273,6 @@ int main() {
 
   fifteen.backUp();
   fifteen.clawDown();
-
-  // If no competition switch, immediately start teleop
-  if (!Competition.isCompetitionSwitch()) {
-    userControl();
-    return 0;
-  }
 
   wait(500, msec);
   fifteen.gyroSensor.calibrate();
