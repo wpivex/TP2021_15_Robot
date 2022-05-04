@@ -439,16 +439,16 @@ bool Robot::moveArmToManual(double degr, double speed) {
   float correction;
   float pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
 
-  bool risingEdge = pos < degr;
 
   int actualStartTime = timer::system();
   int startTime = -1;
   int endTime = -1;
-  while (!isTimeout(actualStartTime, 1.3) && (risingEdge ? pos < degr : pos > degr)) {
+  while (!isTimeout(actualStartTime, 1.3) && pos < degr) {
 
     pos = (frontArmL.position(deg) + frontArmR.position(deg)) / 2.0;
     float diff = (frontArmR.position(deg) - frontArmL.position(deg));
     correction = diffPID.tick(diff);
+    //correction = 0;
 
     setMotorVelocity(frontArmL, forward, speed + correction);
     setMotorVelocity(frontArmR, forward, speed - correction);
@@ -457,7 +457,7 @@ bool Robot::moveArmToManual(double degr, double speed) {
     if (endTime == -1 && pos > 500) endTime = timer::system();
 
     wait(20, msec);
-    //log("%d", a);
+    log("pos: %f", pos);
   }
   if (endTime == -1) endTime = timer::system();
 
@@ -466,10 +466,10 @@ bool Robot::moveArmToManual(double degr, double speed) {
 
   int timeDelta = endTime - startTime;
 
-  bool obtained = timeDelta > 1200;
+  bool obtained = timeDelta > 750;
   logController("%s\nTime: %d", obtained ? "Obtained" : "Not", timeDelta);
 
-  return obtained; // no load current ~0.45A, goal current ~0.86A
+  return obtained;
   
 }
 
