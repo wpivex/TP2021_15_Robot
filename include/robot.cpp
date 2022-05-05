@@ -93,8 +93,8 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
       goMidFrames = 0;
     }
     targetIsIntake = true;
-    backLiftL.rotateTo(100, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(100, degrees, SPEED, velocityUnits::pct, false);
+    backLiftL.rotateTo(110, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(110, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_DOWN) {
     targetIsIntake = false;
     backLiftL.rotateTo(360, degrees, 60, velocityUnits::pct, false); // gentler set down

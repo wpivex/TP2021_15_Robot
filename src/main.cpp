@@ -124,13 +124,20 @@ int leftAuto() {
   fifteen.clawUp();
   fifteen.moveArmTo(200, 100, false);
   fifteen.goCurve(-15.5, 50, 0.365, 0, 0, false);
-  fifteen.goForward(-6.25, 50, 0, 3, true);
+  fifteen.goForward(-5, 50, 0, 3, true);
   fifteen.goTurnU(270);
 
   fifteen.runAI(matchStartTime);
 
   return 0;
 }
+
+// int unclogRings() {
+//   fifteen.startIntake(reverse);
+//   wait(300, msec);
+//   fifteen.stopIntake();
+//   return 0;
+// }
 
 int twoRingAuton() {
 
@@ -169,7 +176,7 @@ int twoRingAuton() {
   fifteen.goForwardTimed(0.5, 25);
 
   // exit early and do not go for second goal if past amt. of seconds
-  if (isTimeout(matchStartTime, obtainedGoal ? 32 : 25)) {
+  if (false/*isTimeout(matchStartTime, obtainedGoal ? 32 : 25)*/) {
     logController("exit early");
     fifteen.goForwardU(-10, 60, 270, rampUp, 5);
     fifteen.goTurnU(0);
@@ -205,13 +212,15 @@ int twoRingAuton() {
     wait(500, msec); // wait for back lift to fold sufficiently
     fifteen.goTurnU(90, 1);
     fifteen.clawUp();
-    fifteen.goForwardU(11, 70, 90, rampUp, 6);
+    fifteen.goForwardU(12, 70, 90, rampUp, 6);
     fifteen.clawDown();
     wait(200, msec);
 
     // Get to platfom ready position
-    fifteen.moveArmTo(500, 100);
-    fifteen.goForwardU(5, 40, 90, rampUp, 3);
+    fifteen.moveArmTo(500, 100, false);
+    fifteen.goForwardU(-2.5, 50, 90, 3, 1);
+    fifteen.moveArmTo(500, 100, true);
+    fifteen.goForwardU(7.5, 40, 90, rampUp, 3);
   }
   // At this point, back wheel is aligned between tiles, ready to lower arm and climb
   float startPitch = fifteen.gyroSensor.roll();
@@ -238,10 +247,7 @@ int twoRingAuton() {
   fifteen.goForwardU(-26, 40, 180, rampUp, 5, true, 20, 16, 2.25);
   fifteen.goForwardU(25.5, 25, 180, rampUp, 5, true, 20, 16, 2.25);
 
-  // Get to teleop position
-  fifteen.goCurve(-35, 80, 0.3, 20, 7);
-  fifteen.moveArmTo(200, 100, false);
-  fifteen.goTurnU(0);
+  fifteen.goCurve(-20, 50, 0.35, 15, 5);
 
   return 0;
 }
