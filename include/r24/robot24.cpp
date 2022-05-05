@@ -116,7 +116,7 @@ void Robot24::goVisionUntilSensor(float yLimit, float speed, digital_in sensor, 
 
   float ay = this->absoluteY;
   Trapezoid trap(yLimit - ay, speed, 30, rampUpFrames, 0);
-  PID pidTurn(60, 0, 0);
+  PID pidTurn(70, 0, 0);
 
   int startTime = vex::timer::system();
 

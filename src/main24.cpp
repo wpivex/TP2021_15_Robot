@@ -17,6 +17,7 @@ int mainTeleop24() {
   twentyFour.setBackClamp(false);
   twentyFour.setFrontClamp(false);
   task odom(tickOdom);
+  twentyFour.absoluteY = -9;
 
   while (true) {
     twentyFour.teleop();
@@ -25,34 +26,36 @@ int mainTeleop24() {
   return 0;
 }
 
-/*
-void middleFirst(void) {
-  int color = 1; //red is 1, blue is 2
-  robot.setBackClamp(true);
-  robot.driveCurved(reverse, 20, 55);
-  wait(2000, msec);
-  robot.goForwardVision(true, 100, 30, 25, 0);
-  robot.driveStraight(100, -10);
-  robot.setBackClamp(false);
-  
-  //Go back 2 ft
-  robot.driveStraight(100, 24);
-  robot.blindAndVisionTurn(80, 0);
-  
-  robot.setFrontClamp(true);
-  robot.goForwardVision(false, 100, 24, 40, 0);
-  robot.setFrontClamp(false);
+
+int middleFirst(void) {
+  twentyFour.setArmBrakeType(hold);
+  twentyFour.resetOdom();
+  twentyFour.absoluteY = -9;
+  task odom(tickOdom);
+  twentyFour.setBrakeType(hold);
+  twentyFour.setArmDegrees(500, 100);
+  twentyFour.goForwardU(10, 100, twentyFour.gyroSensor.heading(), 5, 5);
+  twentyFour.goTurnU(130, -1);
+
+  // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
+  twentyFour.setBackClamp(true);
+  twentyFour.goVisionUntilSensor(35, 100, twentyFour.frontSlideSensor, 3);
+  twentyFour.setBackClamp(false);
+  twentyFour.goForwardU(3, 50, twentyFour.gyroSensor.heading(), 0, 3);
   wait(250, msec);
 
-  //Go back 2 ft
-  robot.driveStraight(100, -15);  
-  robot.intakeOverGoal(color);
+  // disable below for gyro wack
+
+  twentyFour.goForwardU(24, 100, twentyFour.gyroSensor.heading(), 5, 5);
+  twentyFour.goTurnU(300);
+  return 0;
 }
-*/
+
 
 int matchAuto() {
   twentyFour.setArmBrakeType(hold);
   twentyFour.resetOdom();
+  twentyFour.absoluteY = -9;
   task odom(tickOdom);
   twentyFour.setBrakeType(hold);
   int matchStartTime = timer::system();
@@ -66,32 +69,39 @@ int matchAuto() {
   twentyFour.closeClaw();
   // twentyFour.goForwardU(3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
   twentyFour.setArmDegrees(100, 100, false); // raise arm concurrently, just enough to clear ground
-  twentyFour.goFightOdom(10, 3);
+  twentyFour.goFightOdom(10, 3); // 25 for AI, 10 normally
   wait(250, msec);
   twentyFour.setArmDegrees(500, 100);
-  twentyFour.setMaxArmTorque(CURRENT::OFF);
-  twentyFour.goTurnU(135);
 
-  // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
-  twentyFour.setBackClamp(true);
-  twentyFour.goVisionUntilSensor(35, 100, twentyFour.frontSlideSensor, 3);
-  twentyFour.stopLeft();
-  twentyFour.stopRight();
-  twentyFour.setBackClamp(false);
-  twentyFour.goForwardU(-3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
+  // delete past this point for no middle and AI
 
-  twentyFour.gotToY(31, 100);
-  twentyFour.goTurnU(270);
+  // twentyFour.setMaxArmTorque(CURRENT::OFF);
+  // twentyFour.goTurnU(135);
 
-  runAI(&twentyFour, PORT19, matchStartTime);
+  // // ~~~~~~~~~~~ Middle Goal Check ~~~~~~~~~~~~~~
+  // twentyFour.setBackClamp(true);
+  // twentyFour.goVisionUntilSensor(35, 100, twentyFour.frontSlideSensor, 3);
+  // twentyFour.stopLeft();
+  // twentyFour.stopRight();
+  // twentyFour.setBackClamp(false);
+  // twentyFour.goForwardU(-3, 100, twentyFour.getAngle(), 0, 3); // slow down to a stop
 
-  twentyFour.goTurnU(45);
-  twentyFour.goAlignVision(allianceColor);
-  twentyFour.goTurnU(fmod((twentyFour.gyroSensor.heading() + 180), 360.0));
-  twentyFour.setFrontClamp(true);
-  twentyFour.goForwardTimed(2, 50);
-  twentyFour.setFrontClamp(false);
-  twentyFour.goForwardU(2, 50, twentyFour.gyroSensor.heading(), 5, 2);
+  // // disable below for gyro wack
+
+  // twentyFour.gotToY(31, 100);
+  // twentyFour.goTurnU(270);
+
+  // runAI(&twentyFour, PORT19, matchStartTime);
+
+  // twentyFour.goTurnU(45);
+  // twentyFour.goAlignVision(allianceColor);
+  // twentyFour.goTurnU(fmod((twentyFour.gyroSensor.heading() + 180), 360.0));
+  // twentyFour.setFrontClamp(true);
+
+
+  // twentyFour.goForwardTimed(2, 50);
+  // twentyFour.setFrontClamp(false);
+  // twentyFour.goForwardU(2, 50, twentyFour.gyroSensor.heading(), 5, 2);
 
   return 0;
 }
