@@ -244,10 +244,11 @@ int twoRingAuton() {
   // Do rings
   fifteen.startIntake();
   fifteen.goForwardU(28, 25, 180, rampUp, 5, true, 20, 16, 2.25);
-  fifteen.goForwardU(-26, 40, 180, rampUp, 5, true, 20, 16, 2.25);
-  fifteen.goForwardU(25.5, 25, 180, rampUp, 5, true, 20, 16, 2.25);
+  fifteen.goForwardU(-26, 65, 180, rampUp, 8, true, 20, 16, 2.25);
+  fifteen.goForwardU(25.5, 25, 180, rampUp, 5, true, 20, 16, 2.5);
+  fifteen.goForwardU(-6, 50, 180, 5, 2);
+  fifteen.goTurnU(0, -1);
 
-  fifteen.goCurve(-20, 50, 0.35, 15, 5);
 
   return 0;
 }

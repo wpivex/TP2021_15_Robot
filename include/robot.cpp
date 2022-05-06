@@ -3,7 +3,7 @@
 
 
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftMotorD(0), rightMotorA(0), rightMotorB(0), 
-  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c), gyroSensor(PORT5) {
+  rightMotorC(0), rightMotorD(0), frontArmL(0), frontArmR(0), backLiftL(0), backLiftR(0), intake(0), camera(0), buttons(c), gyroSensor(PORT16) {
 
   leftMotorA = motor(PORT1, ratio6_1, true); 
   leftMotorB = motor(PORT2, ratio6_1, true);
@@ -25,7 +25,7 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), leftM
   backLiftL = motor(PORT6, ratio36_1, true);
   backLiftR = motor(PORT15, ratio36_1, true);
 
-  intake = motor(PORT7, ratio18_1, false);
+  intake = motor(PORT14, ratio18_1, false);
   
   robotController = c; 
 
@@ -93,8 +93,8 @@ void Robot::setBackLift(Buttons::Button b, bool blocking) {
       goMidFrames = 0;
     }
     targetIsIntake = true;
-    backLiftL.rotateTo(110, degrees, SPEED, velocityUnits::pct, false);
-    backLiftR.rotateTo(110, degrees, SPEED, velocityUnits::pct, false);
+    backLiftL.rotateTo(107, degrees, SPEED, velocityUnits::pct, false);
+    backLiftR.rotateTo(107, degrees, SPEED, velocityUnits::pct, false);
   } else if (b == BACK_LIFT_DOWN) {
     targetIsIntake = false;
     backLiftL.rotateTo(360, degrees, 60, velocityUnits::pct, false); // gentler set down
